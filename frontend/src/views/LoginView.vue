@@ -1,5 +1,10 @@
 <template>
-    <h1>Login page</h1>
+    <div>
+        <div> 
+        </div>
+        <div>
+        </div>
+    </div>
 </template>
 <script setup>
 
