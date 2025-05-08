@@ -1,6 +1,7 @@
 <template>
     <div>
         <div> 
+            <img src="" alt="">
         </div>
         <div>
             <form>
