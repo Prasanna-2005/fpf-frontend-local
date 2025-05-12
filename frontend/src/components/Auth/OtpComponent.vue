@@ -9,4 +9,13 @@
 </template>
 <script setup>
 console.log('hellp')
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
+
+function submitotp(){
+    console.log('clicked')
+    console.log(userStore.userID)
+    console.log(userStore.username)
+}
 </script>
