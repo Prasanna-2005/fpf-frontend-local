@@ -1,28 +1,52 @@
 <template>
-    <div>
-        <div> 
-            <img src="" alt="">
-        </div>
-        <div>
-            <form>
-                <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <div class="container rounded">
+        <div class="row">
+            <div class="col"> 
+                <ImageComponent/>
+            </div>
+            <div class="col">
+                <div class="form-container">
+                    <LoginComponent/>
                 </div>
-                <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
-                </div>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                    <label class="form-check-label" for="exampleCheck1">Remember Me</label>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <br>
+                
+            </div>
         </div>
     </div>
 </template>
 <script setup>
-
+import LoginComponent from '@/components/Auth/LoginComponent.vue'
+import ImageComponent from '@/components/Auth/ImageComponent.vue'
 </script>
+<style scoped>
+.otp-container{
+    opacity: 30%;
+} 
+.container .row{
+    border:2px solid black;
+    padding: 0;
+}
+.container .col{
+    padding: 0;
+}
+.form-container{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-container form{
+    width: 60%;
+}
+.heading{
+    display: flex;
+    justify-content: center;
+}
+.form-btn{
+    display: flex;
+    justify-content: center;
+}
+.form-btn button{
+    width: 100%;
+}
+
+</style>
