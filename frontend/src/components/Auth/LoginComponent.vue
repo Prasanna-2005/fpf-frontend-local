@@ -1,6 +1,6 @@
 <template>
     <form >
-        <div class="login-container" >
+        <div class="login-container" :class="{disabled :loginSuccess}">
             <div class="heading">
                 <h3>Login</h3>
             </div>
@@ -25,13 +25,15 @@
         
         
         <hr>
-       
+        <div v-if="loginSuccess" class="otp-container"  >
+            <OtpComponent/>
+        </div>
     </form>
 </template>
 
 <script setup>
 import {ref} from 'vue';
-
+import OtpComponent from './OtpComponent.vue';
 
 const email=ref('')
 const password=ref('')
