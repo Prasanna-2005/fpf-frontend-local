@@ -2,14 +2,16 @@
     <form class="needs-validation" novalidate @submit.prevent="submitotp" >
         <div class="mb-3">
         <label for="OTPInput" class="form-label">Enter OTP</label>
-        <input type="text" class="form-control" id="OTPInput"  v-model="otp" required >
+        <input type="number" class="form-control" id="OTPInput"  v-model="otp" required >
         <div  class="invalid-feedback">
                    Please enter a valid OTP
         </div>
     </div>
-    <div class="form-btn">
-        <button type="submit" class="btn btn-primary" >Submit</button>
+    <div class="box">
+        <button type="submit" class="btn btn-primary button-in-box" >Submit</button>
     </div>
+
+    <span class="box">Resend otp in {{ countdown }}</span>
     </form>
     
 </template>
@@ -23,7 +25,7 @@ function submitotp(event){
         event.preventDefault();
         event.stopPropagation();
     } else {
-    console.log(otp)
+    alert(`otp is here: ${otp}`)
     }
     form.classList.add('was-validated');
 }
