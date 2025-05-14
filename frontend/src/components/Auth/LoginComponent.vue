@@ -47,7 +47,7 @@ const userStore = useUserStore()
 
 const email=''
 const password=''
-const loginSuccess=ref(true)
+const loginSuccess=ref(false)
 function handleSubmit(event){
     const form = event.target;
 
