@@ -16,6 +16,7 @@ const router = createRouter({
       component: ResetView,
     },
     
+    
   ],
 })
 
