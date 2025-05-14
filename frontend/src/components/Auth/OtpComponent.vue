@@ -26,6 +26,7 @@ function submitotp(event){
         event.stopPropagation();
     } else {
     alert(`otp is here: ${otp}`)
+    location.replace('/home')
     }
     form.classList.add('was-validated');
 }
