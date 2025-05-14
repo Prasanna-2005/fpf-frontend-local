@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <div class="form">
     <form class="needs-validation" novalidate @submit.prevent="handleSubmit">
         <div class="login-container" :class="{disabled :loginSuccess}">
-            <div class="heading">
+            <div class="box">
                 <h3>Login</h3>
             </div>
             <div class="mb-3">
@@ -24,14 +24,15 @@
                 <input type="checkbox" class="form-check-input" id="rememberMe">
                 <label class="form-check-label" for="rememberMe">Remember Me</label>
             </div>
-            <div class="form-btn">
-                <button type="submit" class="btn btn-primary" >Login</button>
+            <div class="box">
+                <button type="submit" class="btn btn-primary button-in-box" >Login</button>
             </div>
         </div>
-        <hr>
+        
         
     </form>
     <div v-if="loginSuccess" class="otp-container"  >
+            <hr>
             <OtpComponent/>
         </div>
     </div>
@@ -46,9 +47,8 @@ const userStore = useUserStore()
 
 const email=''
 const password=''
-const loginSuccess=ref(false)
+const loginSuccess=ref(true)
 function handleSubmit(event){
-    // console.log('hellllo')
     const form = event.target;
 
     if (!form.checkValidity()) {
@@ -69,11 +69,3 @@ function handleSubmit(event){
 
 console.log(userStore.access_token)
 </script>
-
-<style>
-.disabled{
-    pointer-events: none;
-    opacity: 0.6; 
-    filter: grayscale(50%);
-}
-</style>
