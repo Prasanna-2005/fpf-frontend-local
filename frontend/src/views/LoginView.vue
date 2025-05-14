@@ -1,10 +1,10 @@
 <template>
-    <div class="container rounded">
-        <div class="row">
-            <div class="col"> 
+    <div class="container auth-container-div">
+        <div class="row no-padding">
+            <div class="col no-padding"> 
                 <ImageComponent/>
             </div>
-            <div class="col">
+            <div class="col no-padding">
                 <div class="form-container">
                     <LoginComponent/>
                 </div>
@@ -18,35 +18,6 @@ import LoginComponent from '@/components/Auth/LoginComponent.vue'
 import ImageComponent from '@/components/Auth/ImageComponent.vue'
 </script>
 <style scoped>
-.otp-container{
-    opacity: 30%;
-} 
-.container .row{
-    border:2px solid black;
-    padding: 0;
-}
-.container .col{
-    padding: 0;
-}
-.form-container{
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.form-container form{
-    width: 60%;
-}
-.heading{
-    display: flex;
-    justify-content: center;
-}
-.form-btn{
-    display: flex;
-    justify-content: center;
-}
-.form-btn button{
-    width: 100%;
-}
+
 
 </style>
