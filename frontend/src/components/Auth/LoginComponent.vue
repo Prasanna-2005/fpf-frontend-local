@@ -43,6 +43,8 @@ import {ref} from 'vue';
 import OtpComponent from './OtpComponent.vue';
 import { useUserStore } from '@/stores/userStore'
 
+
+
 const userStore = useUserStore()
 
 const email=''
@@ -57,6 +59,7 @@ function handleSubmit(event){
         event.stopPropagation();
     } else {
     loginSuccess.value=true
+
     console.log(email.value)
     console.log(password.value)
     userStore.login({username:'prajjwal',role:'contributor',userID:'1234',access_token:'dsfdhfsdjfhdjf',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
