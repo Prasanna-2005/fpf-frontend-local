@@ -16,8 +16,9 @@
     
 </template>
 <script setup>
-
+import { useToast } from 'vue-toast-notification'
 const otp=''
+const toast = useToast()
 function submitotp(event){
     const form = event.target;
 
@@ -25,7 +26,10 @@ function submitotp(event){
         event.preventDefault();
         event.stopPropagation();
     } else {
-    alert(`otp is here: ${otp}`)
+    // alert(`otp is here: ${otp}`)
+    
+    toast.success('Operation successful!')
+    setTimeout(3000)
     location.replace('/home')
     }
     form.classList.add('was-validated');
