@@ -6,7 +6,13 @@ import VueToast from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+// Import specific icons (example: user and cog)
+import { faUser } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faUser)
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -23,5 +29,5 @@ app.use(VueToast, {
     position: 'top-right',
     duration: 10000,
   })
-
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.mount('#app')
