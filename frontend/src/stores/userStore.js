@@ -28,5 +28,7 @@ export const useUserStore = defineStore('user', {
     userID: (state) => state.user?.userID || '',
     access_token:(state) => state.user?.access_token || '',
     refresh_token:(state) => state.user?.refresh_token || '',
-  }
+  },
+
+  persist: true
 })
