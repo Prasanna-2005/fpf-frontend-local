@@ -45,12 +45,14 @@ import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification'
 
 const toast = useToast()
-const userStore = useUserStore()
+
 
 const email=''
 const password=''
 const loginSuccess=ref(false)
 function handleSubmit(event){
+    event.preventDefault()
+    const userStore = useUserStore()
     const form = event.target;
 
     if (!form.checkValidity()) {
@@ -61,15 +63,10 @@ function handleSubmit(event){
     loginSuccess.value=true
     toast.success('Operation successful!')
 
-    console.log(email.value)
-    console.log(password.value)
-    userStore.login({username:'prajjwal',role:'contributor',userID:'1234',access_token:'dsfdhfsdjfhdjf',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
+    userStore.login({username:'prajjwal',email:'prajjwal.soni@quantrium.ai',role:'Contributor',userID:'1234',access_token:'dsfdhfsdjfhdjf',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
     }
     form.classList.add('was-validated');
 
 }
    
-
-
-console.log(userStore.access_token)
 </script>
