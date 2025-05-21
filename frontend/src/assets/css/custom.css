@@ -1,6 +1,11 @@
 body{
     color:None
 }
+#app{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
 
 .disabled{
     pointer-events: none;
@@ -53,4 +58,12 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.collapse{
+    width: 0 !important;
+}
+.container{
+    max-width: 100%;
+    margin: 0 !important;
 }
