@@ -11,16 +11,19 @@
         <button type="submit" class="btn btn-primary button-in-box" >Submit</button>
     </div>
 
-    <span class="box">Resend otp in {{ countdown }}</span>
+    <span class="box">Resend otp in </span>
     </form>
     
 </template>
 <script setup>
 import { useToast } from 'vue-toast-notification'
+import { useUserStore } from '@/stores/userStore'
 const otp=''
 const toast = useToast()
 function submitotp(event){
+    event.preventDefault()
     const form = event.target;
+    const userStore = useUserStore()
 
     if (!form.checkValidity()) {
         event.preventDefault();
