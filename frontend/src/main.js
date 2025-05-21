@@ -10,9 +10,9 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Import specific icons (example: user and cog)
-import { faUser } from '@fortawesome/free-solid-svg-icons'
+import { faUser,faFileLines, faDownload } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faUser)
+library.add(faUser,faFileLines,faDownload)
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
