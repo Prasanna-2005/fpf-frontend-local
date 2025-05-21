@@ -24,6 +24,7 @@ export const useUserStore = defineStore('user', {
 
   getters: {
     username: (state) => state.user?.username || '',
+    email: (state) => state.user?.email || '',
     role: (state) => state.user?.role || '',
     userID: (state) => state.user?.userID || '',
     access_token:(state) => state.user?.access_token || '',
