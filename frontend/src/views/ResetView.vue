@@ -1,5 +1,5 @@
 <template>
-    <div class="container auth-container-div">
+    <div class="container auth-container custom-view">
         <div class="row no-padding">
             <div class="col no-padding"> 
                 <ImageComponent/>
