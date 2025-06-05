@@ -54,16 +54,16 @@ function handleSubmit(event){
     event.preventDefault()
     const userStore = useUserStore()
     const form = event.target;
-
+    //Form validation check
     if (!form.checkValidity()) {
-        console.log('dsndsjdsj')
         event.preventDefault();
         event.stopPropagation();
     } else {
     loginSuccess.value=true
-    toast.success('Operation successful!')
+    //API CALL
+    toast.success('Login successful!')
 
-    userStore.login({username:'prajjwal',email:'prajjwal.soni@quantrium.ai',role:'Contributor',userID:'1234',access_token:'dsfdhfsdjfhdjf',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
+    userStore.login({username:'prajjwal',email:'prajjwal.soni@quantrium.ai',role:'Contributor',userID:'1234',access_token:'esesf323dsfd4434',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
     }
     form.classList.add('was-validated');
 
