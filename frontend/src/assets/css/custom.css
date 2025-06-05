@@ -63,7 +63,7 @@ input[type=number] {
 .collapse{
     width: 0 !important;
 }
-.container{
+/* .container{
     max-width: 100%;
     margin: 0 !important;
-}
+} */
