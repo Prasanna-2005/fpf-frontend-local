@@ -5,7 +5,7 @@
     <div class="d-flex">
       <!-- Sidebar -->
       <div
-        class="sidebar bg-light p-3 flex-shrink-0"
+        class="sidebar custom-view bg-light p-3 flex-shrink-0"
         :class="isCollapsed ? 'collapsed' : 'expanded'"
       >
       <div class="d-flex align-items-center gap-2 ">
@@ -76,47 +76,6 @@
   </script>
   
   <style scoped>
-  .sidebar {
-    height: 100vh;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    color: white !important;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(2.4px);
-    -webkit-backdrop-filter: blur(2.4px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    overflow: hidden;
-}
-
-
-
-  .sidebar.expanded {
-    width: 300px;
-  }
   
-  .sidebar.collapsed {
-    width: 0;
-    padding: 0 !important;
-  }
-  
-  .sidebar.collapsed .nav-link {
-    text-align: center;
-    font-size: 0;
-  }
-  .sidebar.collapsed .icon {
-    text-align: center;
-    font-size: 0;
-  }
-  
-  .sidebar.collapsed .nav-link::before {
-    font-size: 16px;
-    content: attr(title);
-    display: inline-block;
-  }
-  
-  .nav-link.active {
-    background-color: #0d6efd;
-    color: white;
-  }
   </style>
   
