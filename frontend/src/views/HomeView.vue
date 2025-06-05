@@ -4,7 +4,7 @@
         <SideBarComponent />
       </div>
       <div class="flex-grow-1 d-flex justify-content-center align-items-center">
-        <div class="table-container ">
+        <div class="table-container custom-view ">
             <TableComponent />
         </div>
         
