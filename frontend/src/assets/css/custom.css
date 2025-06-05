@@ -63,7 +63,18 @@ input[type=number] {
 .collapse{
     width: 0 !important;
 }
-/* .container{
-    max-width: 100%;
-    margin: 0 !important;
-} */
+
+
+.table-container{
+    height: 95%;
+    width: 95%;
+    border: 1px solid whitesmoke;
+    max-height: 95%;
+    padding: 50px;
+    border-radius: 45px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2.4px);
+    -webkit-backdrop-filter: blur(2.4px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
