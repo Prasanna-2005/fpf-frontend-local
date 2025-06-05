@@ -5,7 +5,23 @@
             <span class="fw-bolder" style="font-size: 1.5em;"> Contributor Dashboard</span>
         </div>
         <div class="d-flex justify-content-end align-items-center gap-2">
-            <button class="btn btn-primary">Dropdown Button</button>
+            <div class="dropdown">
+                <button
+                type="button"
+                class="btn btn-outline-secondary dropdown-toggle"
+                data-bs-toggle="dropdown"
+                >
+                {{ selectedYear }}
+                </button>
+                <ul class="dropdown-menu">
+                <li v-for="(year, index) in years" :key="index">
+                    <a class="dropdown-item" href="#" @click.prevent="selectYear(year)">
+                    {{ year }}
+                    </a>
+                </li>
+                </ul>
+            </div>
+
             <button class="btn btn-primary">Upload new filing</button>
              
             <div class="input-group " style="width: 150px;">
@@ -23,5 +39,12 @@ const search = ref('')
 
 function emitSearch() {
   emit('update:search', search.value)
+}
+
+
+const years = ['YEAR 2024-25', 'YEAR 2023-24', 'YEAR 2022-23']
+const selectedYear = ref(years[0])
+function selectYear(year) {
+  selectedYear.value = year
 }
 </script>
