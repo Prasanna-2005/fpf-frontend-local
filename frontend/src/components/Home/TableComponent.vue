@@ -91,11 +91,6 @@ function goToPage(page) {
 </script>
 
 <style scoped>
-.table-div {
-  padding-top: 40px;
-  max-height: fit-content;
-}
-
 tr th, tr td {
   padding: 30px;
 }
@@ -110,29 +105,5 @@ thead {
 
 th {
   font-weight: bolder;
-}
-
-.pagination {
-  margin-top: 20px;
-  gap: 10px;
-}
-
-.pagination button {
-  padding: 8px 12px;
-  border: none;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  font-weight: bold;
-  background-color: blue;
-  color: white;
-}
-
-.pagination button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 </style>
