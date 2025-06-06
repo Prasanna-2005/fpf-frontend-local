@@ -41,7 +41,7 @@ function handleSubmit(event){
         event.preventDefault();
         event.stopPropagation();
     } else {
-    console.log('yaaah!')
+    //API call
     }
     form.classList.add('was-validated');
 

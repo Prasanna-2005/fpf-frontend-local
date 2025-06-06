@@ -29,9 +29,7 @@ function submitotp(event){
         event.preventDefault();
         event.stopPropagation();
     } else {
-    // alert(`otp is here: ${otp}`)
-    
-    toast.success('Operation successful!')
+    //API Call
     setTimeout(3000)
     location.replace('/home')
     }
