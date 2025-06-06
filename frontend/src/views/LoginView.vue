@@ -17,7 +17,3 @@
 import LoginComponent from '@/components/Auth/LoginComponent.vue'
 import ImageComponent from '@/components/Auth/ImageComponent.vue'
 </script>
-<style scoped>
-
-
-</style>
