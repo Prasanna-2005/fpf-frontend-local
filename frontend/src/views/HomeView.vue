@@ -8,7 +8,7 @@
             <TableComponent @trigger-upload="openUpload" />
         </div>
         <div v-if="showUpload" class="upload-overlay-inside">
-          <UploadComponent  @close-click="closeUpload" />
+          <OverlayComponent  @close-upload="closeUpload"/>
         </div>
       </div> 
     </div>
@@ -17,7 +17,7 @@
 <script setup>
 import TableComponent from '@/components/Home/TableComponent.vue';
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
-import UploadComponent from '@/components/Home/UploadComponent.vue';
+import OverlayComponent from '@/components/Home/OverlayComponent.vue';
 import {ref} from 'vue';
 const showUpload=ref(false)
 
