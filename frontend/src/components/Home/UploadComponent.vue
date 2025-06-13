@@ -3,7 +3,7 @@
         <h3>Upload Files</h3>
         <div>
             <label for="filing_name"  class="form-label">Filing Name*</label>
-            <input type="text" class="form-control" id="filing_name" placeholder="Unique Name" v-bind="filingName">
+            <input type="text" class="form-control" id="filing_name" placeholder="Unique Name" v-model="filingName">
         </div>
         <div class="dropzone-container">
             <div class="max-dimensions">
@@ -39,6 +39,7 @@ const filingName=ref("");
 let filename = ref("");
 
 function onDrop(acceptedFiles) {
+    console.log(filingName.value)
     acceptedFiles.forEach((file, _) => {
             formData.append('files[]', file); 
         });
