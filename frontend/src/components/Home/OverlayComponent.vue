@@ -1,5 +1,5 @@
 <template>
-    <div >
+    <div class="max-dimensions d-flex justify-content-center align-items-center">
         <UploadComponent @close-click="closeUpload"/>
     </div>
 </template>
