@@ -3,7 +3,7 @@
         <h3>Upload Files</h3>
         <div>
             <label for="filing_name"  class="form-label">Filing Name*</label>
-            <input type="text" class="form-control" id="filing_name" placeholder="Unique Name">
+            <input type="text" class="form-control" id="filing_name" placeholder="Unique Name" v-bind="filingName">
         </div>
         <div class="dropzone-container">
             <div class="max-dimensions">
@@ -35,16 +35,15 @@ import { useDropzone } from "vue3-dropzone";
 import { ref } from "vue";
 const formData = new FormData();
 
+const filingName=ref("");
 let filename = ref("");
 
 function onDrop(acceptFiles) {
-  formData.append("file", acceptFiles[0]);
-  console.log(acceptFiles[0])
-  filename.value = acceptFiles[0].name;
+    filename.value = acceptFiles[0].name;
     alert('file')
-  if (acceptFiles[0].path.split(".")[1] != "pdf") {
-    throw new Error("wrong file format");
-  }
+    if (acceptFiles[0].path.split(".")[1] != "pdf") {
+        throw new Error("wrong file format");
+    }
 }
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
 </script>
