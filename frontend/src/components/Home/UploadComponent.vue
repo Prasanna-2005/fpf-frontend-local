@@ -54,11 +54,6 @@ const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
     background-color: #FAF9F6;
     width: 100%;
 }
-.max-dimensions{
-    height: 100%;
-    width: 100%;
-}
-
 .upload-container{    
      width: 70%; 
      height: 70%; 
