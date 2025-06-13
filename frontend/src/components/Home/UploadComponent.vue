@@ -38,12 +38,10 @@ const formData = new FormData();
 const filingName=ref("");
 let filename = ref("");
 
-function onDrop(acceptFiles) {
-    filename.value = acceptFiles[0].name;
-    alert('file')
-    if (acceptFiles[0].path.split(".")[1] != "pdf") {
-        throw new Error("wrong file format");
-    }
+function onDrop(acceptedFiles) {
+    acceptedFiles.forEach((file, _) => {
+            formData.append('files[]', file); 
+        });
 }
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
 </script>
