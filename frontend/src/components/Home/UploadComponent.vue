@@ -13,10 +13,7 @@
                         <div v-bind="getRootProps()" class="w-100 max-dimensions d-flex justify-content-center align-items-center flex-column">
                         <input v-bind="getInputProps()" class="w-100" />
                         <font-awesome-icon class="icon me-2" icon="cloud-arrow-up" style="font-size: 4em;" />
-                        <p v-if="isDragActive" class="dropMessage">
-                            Drop the files here ...
-                        </p>
-                        <h5 v-else class="dropMessage">Drop files here</h5>
+                        <h5 class="dropMessage">Drop files here</h5>
                         <p>Supported Format:XLSX, XLS, ZIP</p>
                         <p><b>OR</b></p>
                         <button class="btn" style="color:blue">Browse files</button>
