@@ -1,0 +1,72 @@
+<template>
+    <div class="form">
+    <form class="needs-validation" novalidate @submit.prevent="handleSubmit">
+        <div class="login-container" :class="{disabled :loginSuccess}">
+            <div class="box">
+                <h3>Login</h3>
+            </div>
+            <div class="mb-3">
+                <label for="emailInput" class="form-label">Email</label>
+                <input type="email" class="form-control" id="emailInput" name="email" autocomplete="email" aria-describedby="emailHelp" v-model="email" placeholder="prajjwal@quantrium.ai" required>
+                <div  class="invalid-feedback">
+                   Please enter a valid email address
+                </div>
+
+            </div>
+            <div class="mb-3">
+                <label for="passwordInput" class="form-label">Password</label>
+                <input type="password" class="form-control" id="passwordInput" autocomplete="current-password" v-model="password" placeholder="********" required>
+                <div  class="invalid-feedback">
+                   Please enter a valid password
+                </div>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Remember Me</label>
+            </div>
+            <div class="box">
+                <button type="submit" class="btn btn-primary button-in-box" >Login</button>
+            </div>
+        </div>
+        
+        
+    </form>
+    <div v-if="loginSuccess" class="otp-container"  >
+            <hr>
+            <OtpComponent/>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import {ref} from 'vue';
+import OtpComponent from './OtpComponent.vue';
+import { useUserStore } from '@/stores/userStore'
+import { useToast } from 'vue-toast-notification'
+
+const toast = useToast()
+
+
+const email=''
+const password=''
+const loginSuccess=ref(false)
+function handleSubmit(event){
+    event.preventDefault()
+    const userStore = useUserStore()
+    const form = event.target;
+    //Form validation check
+    if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+    } else {
+    loginSuccess.value=true
+    //API CALL
+    toast.success('Login successful!')
+
+    userStore.login({username:'prajjwal',email:'prajjwal.soni@quantrium.ai',role:'Contributor',userID:'1234',access_token:'esesf323dsfd4434',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
+    }
+    form.classList.add('was-validated');
+
+}
+   
+</script>
