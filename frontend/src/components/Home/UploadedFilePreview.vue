@@ -13,7 +13,7 @@
                         <div class=" file-list-grid max-dimensions " style="overflow: hidden;">
                             <fileComponent v-for="(file, index) in files"
                             :key="index"
-                            :filename="file.name"  />
+                            :filename="file.name" @remove-file="remove_file(filename)" />
                         
                         </div>
                         
