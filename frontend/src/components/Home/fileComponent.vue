@@ -21,8 +21,6 @@
 const props=defineProps({
     filename: String,
 })
-
-// const filename='Form PF - 2020 POF2 - Series A-redacted.xlsx'
 const emit=defineEmits(['remove-file'])
 
 function remove_file(filename){
