@@ -13,7 +13,7 @@
                         <div class=" file-list-grid max-dimensions " style="overflow: hidden;">
                             <fileComponent v-for="(file, index) in files"
                             :key="index"
-                            :filename="file.name" @remove-file="remove_file(filename)" />
+                            :filename="file.name" @remove-file="remove_file" />
                         
                         </div>
                         
@@ -33,10 +33,12 @@ import fileComponent from './fileComponent.vue';
 import { useFileStore } from '@/stores/fileStore'
 import {ref} from 'vue'
 const fileStore = useFileStore()
-const files=fileStore.getFiles()
+const files=ref(fileStore.getFiles())
 
 function remove_file(filename){
+    
     fileStore.removeFile(filename)
+    files.value=fileStore.getFiles()
 }
 
 </script>     
