@@ -29,13 +29,17 @@ export const useFileStore = defineStore('file', () => {
     formData.value = new FormData()
     files.value = []
   }
+  function getFiles() {
+    return [...files.value] // return a shallow copy
+  }
 
   return {
     formData,
     files,
     addFiles,
     removeFile,
-    clearFiles
+    clearFiles,
+    getFiles
   }
 
 })
