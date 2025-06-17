@@ -23,7 +23,7 @@ const fileStore = useFileStore()
 const props=defineProps({
     filename: String,
 })
-const emit=defineEmits(['remove-file'])
+
 
 
 </script>  
