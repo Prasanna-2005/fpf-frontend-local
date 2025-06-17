@@ -17,12 +17,13 @@
 </template>
 
 <script setup>
-import { useFileStore } from '@/stores/fileStore'
-
-const fileStore = useFileStore()
 const props=defineProps({
     filename: String,
 })
+const emit=defineEmits(['remove-file'])
+function remove_file(filename){
+    emit('remove-file',filename)
+}
 
 
 
