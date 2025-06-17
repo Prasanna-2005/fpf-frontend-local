@@ -3,7 +3,7 @@
         <h3>Uploaded Files</h3>
         <div>
             <label for="filing_name"  class="form-label">Filing Name*</label>
-            <p>{{ filingName }}</p>
+            <p><b>{{ filingName }} </b></p>
         </div>
         <div class="dropzone-container">
             <div class="max-dimensions">
