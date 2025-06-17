@@ -34,11 +34,7 @@ import { useFileStore } from '@/stores/fileStore'
 
 const fileStore = useFileStore()
 const files=fileStore.getFiles()
-function remove_file(val){
-    console.log(val)
-    filesdate.value=filesdate.value.filter(item => item !== val);
-    console.log(filesdate)
-}
+
 
 </script>     
 
