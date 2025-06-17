@@ -35,6 +35,9 @@ import { useFileStore } from '@/stores/fileStore'
 const fileStore = useFileStore()
 const files=fileStore.getFiles()
 
+function remove_file(filename){
+    fileStore.removeFile(filename)
+}
 
 </script>     
 
