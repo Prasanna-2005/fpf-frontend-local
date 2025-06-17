@@ -30,7 +30,6 @@
 </template>  
 <script setup>
 import fileComponent from './fileComponent.vue';
-import {ref} from 'vue'
 import { useFileStore } from '@/stores/fileStore'
 
 const fileStore = useFileStore()
