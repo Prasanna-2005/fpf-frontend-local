@@ -25,7 +25,5 @@ const props=defineProps({
 })
 const emit=defineEmits(['remove-file'])
 
-function remove_file(filename){
-    emit('remove-file',filename)
-}
+
 </script>  
