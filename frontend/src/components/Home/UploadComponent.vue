@@ -25,7 +25,7 @@
         </div>
         <div class="d-flex justify-content-end gap-2">
             <button class="btn" @click="$emit('close-click')">Cancel</button>
-            <button class="btn btn-primary">Upload</button>
+            <button class="btn btn-primary" v-on:click="UploadApiCall()">Upload</button>
         </div>
     </div>
 </template>       
@@ -36,15 +36,24 @@ import { ref } from "vue";
 const formData = new FormData();
 
 const filingName=ref("");
-let filename = ref("");
+let files=ref([])
+const emit=defineEmits(['Upload-done','filedetails'])
 
 function onDrop(acceptedFiles) {
     console.log(filingName.value)
     acceptedFiles.forEach((file, _) => {
             formData.append('files[]', file); 
+            files.append(file)
+            emit('filedetails',file)
         });
 }
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
+
+
+
+function UploadApiCall(){
+    emit('Upload-done')
+}
 </script>
 
 <style scoped>
