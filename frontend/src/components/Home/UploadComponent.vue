@@ -36,12 +36,13 @@ import { useFileStore } from '@/stores/fileStore'
 import {ref} from 'vue'
 const fileStore = useFileStore()
 const filingName=ref('')
-const emit=defineEmits(['Upload-done'])
+const emit=defineEmits(['Upload-done','filingname'])
 
 function onDrop(acceptedFiles) {
     fileStore.addFiles(acceptedFiles)
 
     if( filingName.value!=''){
+        emit('filingname',filingName)
         emit('Upload-done')
     }
 }
