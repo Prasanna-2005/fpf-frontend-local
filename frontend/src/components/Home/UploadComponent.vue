@@ -33,14 +33,18 @@
 <script setup>
 import { useDropzone } from "vue3-dropzone";
 import { useFileStore } from '@/stores/fileStore'
-
+import {ref} from 'vue'
 const fileStore = useFileStore()
-
+const filingName=ref('')
 const emit=defineEmits(['Upload-done'])
 
 function onDrop(acceptedFiles) {
     fileStore.addFiles(acceptedFiles)
     console.log(fileStore.getFiles())
+
+    if( filingName.value!=''){
+        emit('Upload-done')
+    }
 }
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
 
