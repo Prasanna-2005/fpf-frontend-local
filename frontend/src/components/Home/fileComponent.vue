@@ -3,7 +3,7 @@
         
         <div class="d-flex justify-content-between align-items-center max-dimensions">
             <font-awesome-icon class="icon me-2" icon="file" style="font-size: 2em;" />
-            <p>{{ filename }}</p>
+            <p style="max-width: 200px; overflow: hidden;">{{ filename }}</p>
             <div class="d-flex justify-content-end align-items-start " height="100%">
                 <button class="btn">
                     <font-awesome-icon class="icon me-2" icon="xmark" style="font-size: 0.7em;" @click="remove_file(filename)" />
@@ -25,7 +25,4 @@ function remove_file(filename){
     console.log(filename)
     emit('remove-file',filename)
 }
-
-
-
 </script>  
