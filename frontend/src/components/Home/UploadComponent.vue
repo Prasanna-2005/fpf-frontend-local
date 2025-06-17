@@ -40,7 +40,7 @@ const emit=defineEmits(['Upload-done'])
 
 function onDrop(acceptedFiles) {
     fileStore.addFiles(acceptedFiles)
-    fileStore.getFiles()
+    console.log(fileStore.getFiles())
 }
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
 
