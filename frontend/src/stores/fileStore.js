@@ -5,8 +5,10 @@ import { ref } from 'vue'
 export const useFileStore = defineStore('file', () => {
   const formData = ref(new FormData())
   const files = ref([])
+  const filing=ref('')
 
-  function addFiles(newFiles) {
+  function addFiles(filingName,newFiles) {
+    filing.value=filingName
     for (const file of newFiles) {
       if (!files.value.find(f => f.name === file.name)) {
         formData.value.append('files', file)
@@ -28,9 +30,13 @@ export const useFileStore = defineStore('file', () => {
   function clearFiles() {
     formData.value = new FormData()
     files.value = []
+    filing.value=''
   }
   function getFiles() {
     return [...files.value] 
+  }
+  function getfilingName(){
+    return filing.value
   }
 
   return {
@@ -39,7 +45,8 @@ export const useFileStore = defineStore('file', () => {
     addFiles,
     removeFile,
     clearFiles,
-    getFiles
+    getFiles,
+    getfilingName
   }
 
 })
