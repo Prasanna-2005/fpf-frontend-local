@@ -37,4 +37,5 @@ export const useFileStore = defineStore('file', () => {
     removeFile,
     clearFiles
   }
+
 })
