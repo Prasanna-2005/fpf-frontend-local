@@ -17,7 +17,9 @@
 </template>
 
 <script setup>
+import { useFileStore } from '@/stores/fileStore'
 
+const fileStore = useFileStore()
 const props=defineProps({
     filename: String,
 })
