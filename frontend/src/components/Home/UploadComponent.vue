@@ -39,7 +39,7 @@ const filingName=ref('')
 const emit=defineEmits(['Upload-done'])
 
 function onDrop(acceptedFiles) {
-    fileStore.addFiles(acceptedFiles)
+    fileStore.addFiles(filingName,acceptedFiles)
 
     if( filingName.value!=''){
         emit('Upload-done')
