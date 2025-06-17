@@ -31,13 +31,9 @@
 <script setup>
 import fileComponent from './fileComponent.vue';
 import {ref} from 'vue'
+import { useFileStore } from '@/stores/fileStore'
 
-let filesdate=ref([
-  "file1.xlsx", "file2.xlsx", "file3.xlsx", "file4.xlsx", "file5.xlsx",
-  "file6.xlsx", "file7.xlsx", "file8.xlsx", "file9.xlsx", "file10.xlsx",
- 
-])
-
+const fileStore = useFileStore()
 function remove_file(val){
     console.log(val)
     filesdate.value=filesdate.value.filter(item => item !== val);
