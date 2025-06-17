@@ -11,9 +11,9 @@
                     <div class="max-dimensions d-flex justify-content-center align-items-center">
                     <div class="DropZone max-dimensions d-flex justify-content-center align-items-center ">
                         <div class=" file-list-grid max-dimensions " style="overflow: hidden;">
-                            <fileComponent v-for="(file, index) in filesdate"
+                            <fileComponent v-for="(file, index) in files"
                             :key="index"
-                            :filename="file" @remove-file="remove_file" />
+                            :filename="file.name" @remove-file="remove_file" />
                         
                         </div>
                         
