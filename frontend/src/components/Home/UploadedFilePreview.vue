@@ -3,7 +3,7 @@
         <h3>Uploaded Files</h3>
         <div>
             <label for="filing_name"  class="form-label">Filing Name*</label>
-            <input type="text" class="form-control" id="filing_name" placeholder="Unique Name" disabled >
+            <p>{{ filingName }}</p>
         </div>
         <div class="dropzone-container">
             <div class="max-dimensions">
@@ -34,7 +34,7 @@ import { useFileStore } from '@/stores/fileStore'
 import {ref} from 'vue'
 const fileStore = useFileStore()
 const files=ref(fileStore.getFiles())
-
+const filingName= fileStore.getfilingName()
 function remove_file(filename){
     
     fileStore.removeFile(filename)
