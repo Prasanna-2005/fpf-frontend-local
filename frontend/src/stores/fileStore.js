@@ -30,7 +30,7 @@ export const useFileStore = defineStore('file', () => {
     files.value = []
   }
   function getFiles() {
-    return [...files.value] // return a shallow copy
+    return [...files.value] 
   }
 
   return {
