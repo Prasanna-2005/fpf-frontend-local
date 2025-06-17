@@ -31,7 +31,7 @@
 <script setup>
 import fileComponent from './fileComponent.vue';
 import { useFileStore } from '@/stores/fileStore'
-
+import {ref} from 'vue'
 const fileStore = useFileStore()
 const files=fileStore.getFiles()
 
