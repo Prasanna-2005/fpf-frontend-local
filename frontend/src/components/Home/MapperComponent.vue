@@ -22,7 +22,9 @@
             </tbody>
             </table>
         </div>
-        
+        <div>
+            <button class="btn btn-primary">Proceed</button>
+        </div>
     </div>
     
 </template>
