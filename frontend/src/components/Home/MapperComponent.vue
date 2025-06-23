@@ -4,6 +4,24 @@
             <h3>Mapped Files</h3>
             <button class="btn btn-primary"><font-awesome-icon class="icon me-2" icon="upload" style="font-size:1em;" />Upload More files</button>
         </div>
+        <div class="table-div max-dimensions">
+            <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                <th class="tr-padding" scope="col">s.no.</th>
+                <th scope="col">Fund Name</th>
+                <th scope="col">Mapped File</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                <tr v-for="(data, index) in Data" :key="index">
+                <th scope="row">{{ data['s.no'] }}</th>
+                <td>{{ data['fund Name'] }}</td>
+                <td>{{ data['Mapped file'] }}</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
     </div>
     
 </template>
