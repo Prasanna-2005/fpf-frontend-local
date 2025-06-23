@@ -8,12 +8,12 @@
             <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
-                <th class="tr-padding" scope="col">s.no.</th>
+                <th class="tr-padding" scope="col">S.no.</th>
                 <th scope="col">Fund Name</th>
                 <th scope="col">Mapped File</th>
                 </tr>
             </thead>
-            <tbody class="table-group-divider">
+            <tbody >
                 <tr v-for="(data, index) in Data" :key="index">
                 <th scope="row">{{ data['s.no'] }}</th>
                 <td>{{ data['fund Name'] }}</td>
@@ -22,6 +22,7 @@
             </tbody>
             </table>
         </div>
+        
     </div>
     
 </template>
