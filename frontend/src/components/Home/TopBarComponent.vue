@@ -22,7 +22,7 @@
                 </ul>
             </div>
 
-            <button class="btn btn-primary">Upload new filing</button>
+            <button class="btn btn-primary" @click="$emit('upload-click')">Upload new filing</button>
              
             <div class="input-group " style="width: 150px;">
                 <span class="input-group-text"><font-awesome-icon class="icon me-2" icon="search" /></span>
@@ -36,7 +36,6 @@
 import {ref} from 'vue';
 const emit = defineEmits(['update:search'])
 const search = ref('')
-
 function emitSearch() {
   emit('update:search', search.value)
 }

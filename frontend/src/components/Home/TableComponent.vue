@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <TopBarComponent @update:search="handleSearch" />
+    <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" />
   </div>
   <div class="table-div">
     <table class="table">
@@ -87,6 +87,11 @@ function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
   }
+}
+
+const emit = defineEmits(['trigger-upload'])
+function handleUploadClick() {
+  emit('trigger-upload') 
 }
 </script>
 
