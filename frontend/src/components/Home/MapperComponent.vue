@@ -53,7 +53,14 @@ function update_unmapped_files(fundname,filename){
     }
 }
 
+function remove_file_from_fund(fundname,filename){
+    const fund = Data.value.find(item => item["fund Name"] === fundname);
+    if (fund) {
+        fund["Mapped file"] = "";
+    }
+    unmapped_data.value.push({ filename: filename });
 
+}
 </script>x
 
 <style scoped>
