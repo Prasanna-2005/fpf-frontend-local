@@ -17,7 +17,7 @@
                 <tr v-for="(data, index) in Data" :key="index">
                 <th scope="row">{{ data['s.no'] }}</th>
                 <td>{{ data['fund Name'] }}</td>
-                <td v-if="data['Mapped file']!=''">{{ data['Mapped file'] }}</td>
+                <td v-if="data['Mapped file']!=''">{{ data['Mapped file'] }}  <font-awesome-icon class="icon me-2" icon="xmark" style="font-size: 0.7em;" @click="remove_file_from_fund(data['fund Name'],data['Mapped file'])" /></td>
                 <td v-else> 
                     <div class="dropdown">
                         <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
