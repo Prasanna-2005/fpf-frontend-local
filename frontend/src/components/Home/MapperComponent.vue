@@ -4,13 +4,13 @@
             <h3>Mapped Files</h3>
             <button class="btn btn-primary"><font-awesome-icon class="icon me-2" icon="upload" style="font-size:1em;" />Upload More files</button>
         </div>
-        <div class="table-div max-dimensions">
+        <div class="table-div max-dimensions pt-0">
             <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
-                <th class="tr-padding" scope="col">S.no.</th>
-                <th scope="col">Fund Name</th>
-                <th scope="col">Mapped File</th>
+                <th class="tr-padding fix" scope="col">S.no.</th>
+                <th class="fix" scope="col">Fund Name</th>
+                <th class="fix" scope="col">Mapped File</th>
                 </tr>
             </thead>
             <tbody >   
@@ -43,7 +43,7 @@ import { ref} from 'vue'
 
 import mapped_sample_json from '@/assets/Sample_data/mappedsample';
 const Data=ref(mapped_sample_json['data'])
-const unmapped_data=ref([{'filename':'file1'},{'filename':'file2'},{'filename':'file3'}]);
+const unmapped_data=ref([{'filename':'file7'},{'filename':'file9'},{'filename':'file11'}]);
 
 function update_unmapped_files(fundname,filename){
     unmapped_data.value = unmapped_data.value.filter(item => item.filename !== filename);
@@ -75,5 +75,8 @@ function remove_file_from_fund(fundname,filename){
     padding: 20px; 
     background-color: white;
     border-radius: 15px;
+}
+.fix{
+    position: sticky; top: 0; background: white; z-index: 1;
 }
 </style>
