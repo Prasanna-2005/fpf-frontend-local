@@ -1,16 +1,16 @@
 <template>
-    <div class="mapper-component custom-view d-flex flex-column justify-content-center align-items-center">
+    <div class="mapper-component custom-view d-flex flex-column justify-content-center align-items-center" v-if="!uploaderFlag">
         <div class="d-flex justify-content-between align-items-center w-100 ">
             <h3>Mapped Files</h3>
-            <button class="btn btn-primary"><font-awesome-icon class="icon me-2" icon="upload" style="font-size:1em;" />Upload More files</button>
+            <button class="btn btn-primary" @click="open_uploader()"><font-awesome-icon class="icon me-2" icon="upload" style="font-size:1em;" />Upload More files</button>
         </div>
         <div class="table-div max-dimensions pt-0">
             <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
-                <th class="tr-padding fix" scope="col">S.no.</th>
-                <th class="fix" scope="col">Fund Name</th>
-                <th class="fix" scope="col">Mapped File</th>
+                <th class="tr-padding " scope="col">S.no.</th>
+                <th  scope="col">Fund Name</th>
+                <th  scope="col">Mapped File</th>
                 </tr>
             </thead>
             <tbody >   
@@ -35,15 +35,18 @@
         <div class="w-100 d-flex justify-content-end align-items-center pt-2">
            <button class="btn btn-primary">Proceed</button>
         </div>
-    </div>
-    
+    </div >
+         <UploadComponent v-if="uploaderFlag" />
 </template>
 <script setup>
 import { ref} from 'vue'
+import UploadComponent from './UploadComponent.vue';
 
 import mapped_sample_json from '@/assets/Sample_data/mappedsample';
 const Data=ref(mapped_sample_json['data'])
-const unmapped_data=ref([{'filename':'file7'},{'filename':'file9'},{'filename':'file11'}]);
+const unmapped_data=ref([{'filename':'file7'},{'filename':'file9'},{'filename':'file11'}]); //Will be removed when api calls are added
+
+const uploaderFlag=ref(false)
 
 function update_unmapped_files(fundname,filename){
     unmapped_data.value = unmapped_data.value.filter(item => item.filename !== filename);
@@ -60,6 +63,10 @@ function remove_file_from_fund(fundname,filename){
     }
     unmapped_data.value.push({ filename: filename });
 
+}
+function open_uploader(){
+    console.log('open uploader')
+    uploaderFlag.value=true
 }
 </script>x
 
