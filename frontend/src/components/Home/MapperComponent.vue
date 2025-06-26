@@ -68,7 +68,7 @@ function open_uploader(){
     console.log('open uploader')
     uploaderFlag.value=true
 }
-</script>x
+</script>
 
 <style scoped>
 
