@@ -13,7 +13,7 @@
                 <th scope="col">Mapped File</th>
                 </tr>
             </thead>
-            <tbody >
+            <tbody >   
                 <tr v-for="(data, index) in Data" :key="index">
                 <th scope="row">{{ data['s.no'] }}</th>
                 <td>{{ data['fund Name'] }}</td>
@@ -24,7 +24,7 @@
                             Select file
                         </button>
                         <ul class="dropdown-menu">
-                            <li  v-for="(items, index) in unmapped_data" :key="index"><a class="dropdown-item" href="#" @click="Update(data['fund Name'],items['filename'])">{{items['filename']}}</a></li>
+                            <li  v-for="(items, index) in unmapped_data" :key="index"><a class="dropdown-item" href="#" @click="update_unmapped_files(data['fund Name'],items['filename'])">{{items['filename']}}</a></li>
                         </ul>
                     </div>
                 </td>
@@ -42,23 +42,25 @@
 import { ref} from 'vue'
 
 import mapped_sample_json from '@/assets/Sample_data/mappedsample';
-const Data=mapped_sample_json['data']
-
+const Data=ref(mapped_sample_json['data'])
 const unmapped_data=ref([{'filename':'file1'},{'filename':'file2'},{'filename':'file3'}]);
 
-function Update(fundname,filename){
-    
-     console.log(fundname)
-    console.log(filename)
+function update_unmapped_files(fundname,filename){
+    unmapped_data.value = unmapped_data.value.filter(item => item.filename !== filename);
+    const fund = Data.value.find(item => item["fund Name"] === fundname);
+    if (fund) {
+        fund["Mapped file"] = filename;
+    }
 }
-</script>
+
+
+</script>x
 
 <style scoped>
 
 .table-div {
     max-height: 450px !important;
     overflow-y: scroll;
-    padding-bottom: 5px;
 }
 .mapper-component{
     width: 70%; 
