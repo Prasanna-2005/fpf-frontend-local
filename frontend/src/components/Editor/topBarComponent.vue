@@ -1,5 +1,5 @@
 <template>
-    <div class="w-100 d-flex justify-content-between align-items-center">
+    <div class="w-100 p-4 d-flex justify-content-between align-items-center">
         <h2>Editing {{ filingName }}</h2>
         <button>Select fund</button>
     </div>
