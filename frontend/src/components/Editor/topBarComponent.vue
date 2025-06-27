@@ -7,11 +7,11 @@
 
 <script setup>
  
-const filingName="Finacial Year 2024-25"
+const filingName="Financial Year 2024-25"
 
+const fundDetails=['Private opportunity fund 1, L.P','Private opportunity fund 1, L.P','Private opportunity fund 1, L.P','Private opportunity fund 1, L.P']
 </script>
 
 <style scoped>
-
 
 </style>
