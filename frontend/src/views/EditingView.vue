@@ -4,7 +4,7 @@
                 <SideBarComponent />
             </div>
             <div class="flex-grow-1 d-flex justify-content-center align-items-start position-relative">
-                <topBarComponent />
+                <topBarComponent @selected-fund="selectFund"  />
             
             </div> 
         </div>
@@ -13,6 +13,12 @@
 <script setup>
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import topBarComponent from '@/components/Editor/topBarComponent.vue';
+
+function selectFund(fundName){
+    console.log(fundName)
+}
+
+
 
 </script>
 
