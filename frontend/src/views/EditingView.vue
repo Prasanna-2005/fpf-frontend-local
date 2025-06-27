@@ -4,6 +4,7 @@
                 <SideBarComponent />
             </div>
             <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative">
+                <topBarComponent />
             
             </div> 
         </div>
@@ -11,6 +12,7 @@
 
 <script setup>
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
+import topBarComponent from '@/components/Editor/topBarComponent.vue';
 
 </script>
 
