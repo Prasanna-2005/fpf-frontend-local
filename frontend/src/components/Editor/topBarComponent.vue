@@ -21,7 +21,7 @@ const fundDetails=['Private opportunity fund 1, L.P','Private opportunity fund 2
 const filingName="Financial Year 2024-25"
 const selectedFund=ref('')
 
-
+const emit= defineEmits(['selected-fund'])
 onMounted(() => {
   if (fundDetails.length > 0) {
     selectedFund.value = fundDetails[0];
@@ -30,6 +30,7 @@ onMounted(() => {
 
 function selectFund(item) {
   selectedFund.value = item;
+  emit('selected-fund',selectedFund.value)
 }
 
 
