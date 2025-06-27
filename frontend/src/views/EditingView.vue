@@ -3,7 +3,7 @@
             <div >
                 <SideBarComponent />
             </div>
-            <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative">
+            <div class="flex-grow-1 d-flex justify-content-center align-items-start position-relative">
                 <topBarComponent />
             
             </div> 
