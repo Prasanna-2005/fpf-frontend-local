@@ -14,7 +14,11 @@
 
 <script setup>
  
+import {ref} from 'vue';
+
+
 const filingName="Financial Year 2024-25"
+const selectedFund=ref('')
 
 const fundDetails=['Private opportunity fund 1, L.P','Private opportunity fund 1, L.P','Private opportunity fund 1, L.P','Private opportunity fund 1, L.P']
 </script>
