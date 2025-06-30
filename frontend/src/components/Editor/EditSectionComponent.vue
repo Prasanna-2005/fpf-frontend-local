@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="max-dimensions" style="border: 2px solid;">
         <div class="editor">
 
         </div>
