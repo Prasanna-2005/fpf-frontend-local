@@ -9,9 +9,9 @@
     </div>
 </template>
 
-<Script setup>
+<script setup>
 
-</Script>
+</script>
 
 <style scoped>
 
