@@ -3,9 +3,9 @@
             <div >
                 <SideBarComponent />
             </div>
-            <div class="flex-grow-1 d-flex justify-content-center align-items-start position-relative">
+            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <topBarComponent @selected-fund="selectFund"  />
-            
+                <EditSectionComponent/>
             </div> 
         </div>
 </template>
