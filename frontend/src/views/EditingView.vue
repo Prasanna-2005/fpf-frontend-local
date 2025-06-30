@@ -13,7 +13,7 @@
 <script setup>
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import topBarComponent from '@/components/Editor/topBarComponent.vue';
-
+import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue';
 function selectFund(fundName){
     console.log(fundName)
 }
@@ -24,6 +24,6 @@ function selectFund(fundName){
 
 <style scoped>
 
-
+   
 
 </style>
