@@ -1,5 +1,6 @@
 <template>
-    <div class="w-100 p-4 d-flex justify-content-between align-items-center">
+  <div class="w-100 d-flex justify-content-center">
+      <div class="main-container  d-flex justify-content-between align-items-center">
         <h2>Editing {{ filingName }}</h2>
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -9,7 +10,10 @@
                 <li  v-for="(item, index) in fundDetails" :key="index" @click="selectFund(item)"><a class="dropdown-item" href="#">{{item}}</a></li>
             </ul>
         </div>
-    </div>
+      </div>
+
+  </div>
+
 </template>
 
 <script setup>
@@ -37,5 +41,8 @@ function selectFund(item) {
 </script>
 
 <style scoped>
+.main-container{
+  width: 95%;
 
+}
 </style>    
