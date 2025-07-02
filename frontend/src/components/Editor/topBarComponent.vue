@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 d-flex justify-content-center">
+  <div class="w-100 d-flex pb-4 justify-content-center">
       <div class="main-container  d-flex justify-content-between align-items-center">
         <h2>Editing {{ filingName }}</h2>
         <div class="dropdown">
