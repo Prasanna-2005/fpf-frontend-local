@@ -1,18 +1,18 @@
 import './assets/main.css'
 import './assets/css/custom.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap'; 
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import VueToast from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faUpload} from '@fortawesome/free-solid-svg-icons'
 
 // Import specific icons (example: user and cog)
-import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faDownload,faCheckDouble,faArrowLeft} from '@fortawesome/free-solid-svg-icons'
+import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload} from '@fortawesome/free-solid-svg-icons'
 
-library.add(faUser,faFileLines,faTrash,faSearch,faBars,faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faDownload,faCheckDouble,faArrowLeft)
+library.add(faUser,faFileLines,faTrash,faSearch,faBars,faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload)
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
