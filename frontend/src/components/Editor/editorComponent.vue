@@ -7,14 +7,16 @@
             <button class="btn btn-primary m-2 border-0"><font-awesome-icon class="icon" icon="arrow-left" />Back</button>
         </div>
         <div class="max-dimensions" style="border: 1px solid; height: 730px;">
-            <div>
-                content 
+            <div> 
+                <InputItemComponent :itemNumber="5" itemText="this is a question"  /> 
             </div>
         </div>
     </div>
 
 </template>
 <script setup>
+import InputItemComponent from './subcomponent/InputItemComponent.vue';
+
 
 </script>
 
