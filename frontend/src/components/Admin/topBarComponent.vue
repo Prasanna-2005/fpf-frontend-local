@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <button class="btn btn-primary">Add New User</button>
-        <div class="dropdown">
+    <div class="d-flex flex-direction-col">
+        <button class="btn btn-primary m-3">Add New User</button>
+        <div class="dropdown m-3">
                 <button
                 type="button"
                 class="btn btn-outline-secondary dropdown-toggle"
