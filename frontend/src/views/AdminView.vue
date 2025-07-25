@@ -4,7 +4,7 @@
                 <SideBarComponent />
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
-                <topBarComponent/>
+                <TopBarComponent/>
                 <AnalyticsTableComponent />
             </div> 
         </div>
