@@ -7,7 +7,6 @@ import 'vue-toast-notification/dist/theme-sugar.css'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faUpload} from '@fortawesome/free-solid-svg-icons'
 
 // Import specific icons (example: user and cog)
 import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFile,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload} from '@fortawesome/free-solid-svg-icons'
