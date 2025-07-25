@@ -29,6 +29,7 @@ const emit= defineEmits(['selected-fund'])
 onMounted(() => {
   if (fundDetails.length > 0) {
     selectedFund.value = fundDetails[0];
+    emit('selected-fund',selectedFund.value)
   }
 });
 
