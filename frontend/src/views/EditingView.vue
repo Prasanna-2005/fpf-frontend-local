@@ -5,7 +5,7 @@
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <topBarComponent @selected-fund="selectFund"  />
-                <EditSectionComponent/>
+                <EditSectionComponent :fundName="fundName" />
             </div> 
         </div>
 </template>
@@ -14,8 +14,12 @@
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import topBarComponent from '@/components/Editor/topBarComponent.vue';
 import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue';
-function selectFund(fundName){
-    console.log(fundName)
+import {ref} from 'vue';
+
+
+const fundName=ref('')
+function selectFund(fund_name){
+    fundName.value=fund_name
 }
 
 
