@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex flex-direction-col">
-        <button class="btn btn-primary m-3">Add New User</button>
+        <button class="btn btn-primary m-3"><font-awesome-icon class="icon me-2" icon="user-plus" style="font-size: 1em;" />Add New User</button>
         <div class="dropdown m-3">
                 <button
                 type="button"
@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {ref} from 'vue'     
 const years = ['YEAR 2024-25', 'YEAR 2023-24', 'YEAR 2022-23']
 const selectedYear = ref(years[0])
 function selectYear(year) {
