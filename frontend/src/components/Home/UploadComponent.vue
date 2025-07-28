@@ -3,7 +3,7 @@
         <h3>Upload Files</h3>
         <div>
             <label for="filing_name"  class="form-label">Filing Name*</label>
-            <input type="text" class="form-control" id="filing_name" placeholder="Unique Name" v-model="filingName">
+            <input type="text" class="f-20 form-control " id="filing_name" placeholder="Unique Name" v-model="filingName">
         </div>
         <div class="dropzone-container">
             <div class="max-dimensions">
@@ -65,7 +65,7 @@ const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
      background-color: white;
      border-radius: 15px;
 }
-.form-control{
+.f-20{
     width: 20% !important;
 }
 .form-label{
