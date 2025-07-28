@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex flex-direction-col">
-        <button class="btn btn-primary m-4"><font-awesome-icon class="icon me-2" icon="user-plus" style="font-size: 1em;" />Add New User</button>
+        <button class="btn btn-primary m-4" @click="emit_add_User_event()"><font-awesome-icon class="icon me-2" icon="user-plus" style="font-size: 1em;" />Add New User</button>
         <div class="dropdown m-4">
                 <button
                 type="button"
@@ -29,5 +29,12 @@ function selectYear(year) {
   selectedYear.value = year
 }
 
+const emit=defineEmits(
+    ['add-user']
+)
+
+function emit_add_User_event(){
+    emit('add-user')
+}
 
 </script>
