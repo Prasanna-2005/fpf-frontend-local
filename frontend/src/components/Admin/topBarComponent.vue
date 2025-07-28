@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex flex-direction-col">
-        <button class="btn btn-primary m-3"><font-awesome-icon class="icon me-2" icon="user-plus" style="font-size: 1em;" />Add New User</button>
-        <div class="dropdown m-3">
+        <button class="btn btn-primary m-4"><font-awesome-icon class="icon me-2" icon="user-plus" style="font-size: 1em;" />Add New User</button>
+        <div class="dropdown m-4">
                 <button
                 type="button"
                 class="btn btn-outline-secondary dropdown-toggle"
