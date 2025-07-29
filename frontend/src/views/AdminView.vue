@@ -4,7 +4,7 @@
                 <SideBarComponent />
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
-                <TopBarComponent />
+                <TopBarComponent @add-user="handleAddUser"/>
                 <AnalyticsTableComponent class="h-75"@delete-user=handleDelete />
 
                 <div v-if="deletePopUp" class="backdrop">
@@ -16,6 +16,10 @@
                         </div>
                     </div>
                 </div>
+
+                <div v-if="adding_user" class="backdrop">
+                    <addUserComponent @cancel-add-user=handleCancel />
+                </div>
             </div> 
         </div>
 </template>
@@ -24,6 +28,7 @@
 import AnalyticsTableComponent from '@/components/Admin/analyticsTableComponent.vue';
 import TopBarComponent from '@/components/Admin/topBarComponent.vue';
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
+import addUserComponent from '@/components/Admin/addUserComponent.vue';
 import {ref} from 'vue'
 
 const deletePopUp=ref(false)
@@ -33,6 +38,13 @@ function handleDelete(name){
     userNameToBeDeleted.value=name
 }
 
+const adding_user=ref(false)
+function handleAddUser(){
+    adding_user.value=true
+}
+function handleCancel(){
+    adding_user.value=false
+}
 </script>
 
 <style scoped>
