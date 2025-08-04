@@ -58,7 +58,7 @@ function remove_file(filename){
      background-color: white;
      border-radius: 15px;
 }
-.form-control{
+.f-20{
     width: 20% !important;
 }
 .file-list-grid {
