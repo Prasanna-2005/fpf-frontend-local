@@ -123,7 +123,6 @@ const responseStore = useEditableStore()
 responseStore.setResponse(response)
 
 const data = computed(() => responseStore.getfundSeriesdata('1','A'))
-console.log('datalog',data)
 const editingFieldNo = ref(null)
 const editedData = reactive({})
 
