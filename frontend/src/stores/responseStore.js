@@ -38,33 +38,22 @@ export const useEditableStore=defineStore('response',()=>{
         return fundSeriesData
     }
 
-    function updateItem(fundName,seriesName,field_no,item_obj){
-        const target = fund_series_mapper.value[fundName]?.[seriesName]
-        if (!target) return
-
-        const index = target.findIndex(item => item.field_no === field_no)
-        
-        if (index !== -1) {
-            fund_series_mapper.value[fundName][seriesName][index]['isRestoreAvailable']=true
-            fund_series_mapper.value[fundName][seriesName][index]['restoreValue']=fund_series_mapper.value[fundName][seriesName][index]['field_data']
-            fund_series_mapper.value[fundName][seriesName][index]['field_data'] = item_obj 
-        }
-
-        
+    function updateItem(fundName,seriesName,field_no,item_obj,fieldIndex){ 
+        fund_series_mapper.value[fundName][seriesName][fieldIndex]['isRestoreAvailable']=true
+        fund_series_mapper.value[fundName][seriesName][fieldIndex]['restoreValue']=fund_series_mapper.value[fundName][seriesName][fieldIndex]['field_data']
+        fund_series_mapper.value[fundName][seriesName][fieldIndex]['field_data'] = item_obj    
     }
-    function restoreItem(fundName, seriesName, field_no) {
+    function restoreItem(fundName, seriesName, field_no,fieldIndex) {
         const target = fund_series_mapper.value[fundName]?.[seriesName]
         if (!target) return
-
-        const index = target.findIndex(item => item.field_no === field_no)
-        if (index !== -1) {
-        const restoreCopy = JSON.parse(JSON.stringify(target[index].restoreValue)) // deep clone
-        fund_series_mapper.value[fundName][seriesName][index] = {
-            ...fund_series_mapper.value[fundName][seriesName][index],
+        const item = target[fieldIndex]
+        if (!item) return
+        const restoreCopy = JSON.parse(JSON.stringify(item.restoreValue)) 
+        fund_series_mapper.value[fundName][seriesName][fieldIndex] = {
+            ...fund_series_mapper.value[fundName][seriesName][fieldIndex],
             isRestoreAvailable: false,
             field_data: restoreCopy
-            }
-        }
+            }    
     }
 
 
