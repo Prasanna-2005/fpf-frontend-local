@@ -4,7 +4,7 @@ import ResetView from '@/views/ResetView.vue'
 import HomeView from '@/views/HomeView.vue'
 import EditingView from '@/views/EditingView.vue'
 import AdminView from '@/views/AdminView.vue'
-
+import PreviewView from '@/views/PreviewView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +14,7 @@ const router = createRouter({
       name: 'login',
       component: LoginView,
     },
-    {
+    { 
       path: '/reset',
       name: 'reset',
       component: ResetView,
@@ -33,6 +33,11 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
+    },
+    {
+      path:'/preview',
+      name:'preview',
+      component: PreviewView
     }
   ],
 })
