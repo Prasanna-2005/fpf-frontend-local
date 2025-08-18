@@ -79,8 +79,8 @@
               <span class="line-number field-number">
                 {{ getDisplayFieldNo(items.line_item_no) }}).
               </span>
-              <span class="line-text">{{ items.line_text }}:</span>
-              <span class="line-value"><b>{{ items.value[0] }}</b></span>
+              <span class="line-text">{{ items.line_text }} :</span>
+              <span class="line-value"><b> {{ items.value[0] }}</b></span>
             </p>
           </span>
         </div>
