@@ -79,14 +79,38 @@
               <span class="line-number field-number">
                 {{ getDisplayFieldNo(items.line_item_no) }}).
               </span>
-              <span class="line-text">{{ items.line_text }} :</span>
-              <span class="line-value"><b> {{ items.value[0] }}</b></span>
+              <span class="line-text">{{ items.line_text }}:</span>
+
+              <!-- normal value -->
+              <span v-if="items.line_item_type !== 'table'" class="line-value">
+                <b>{{ items.value[0] }}</b>
+              </span>
             </p>
+
+            <!-- if line_item_type = table -->
+            <div v-if="items.line_item_type === 'table'" class="table-responsive my-2">
+              <table class="table table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th v-for="(val, key, colIndex) in items.table_data[0]" :key="colIndex">
+                      <b>{{ key.toUpperCase()}}</b>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, rowIndex) in items.table_data" :key="rowIndex">
+                    <td v-for="(val, key, colIndex) in row" :key="colIndex">
+                      {{ val }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </span>
         </div>
       </div>
     </div>
-  </div>
+  </div> 
 </div>
 
   </div>

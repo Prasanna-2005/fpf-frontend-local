@@ -879,7 +879,6 @@ const response={
               "field_heading":"Item B. Assets, financing, and investor concentration",
               "disclaimer_text": "(You are not required to respond to this question for any reporting fund with respect to which you are answering questions in Section 2 or Question 71 in Section 4. Do not net out amounts that the reporting fund loans to creditors or the value of collateral pledged to creditors.)( The percentages borrowed from the specified types of creditors should add up to approximately 100%.)",
               "field_data": [
-               
                 {
                   "line_item_no": "18_a",
                   "line_item_type": "text",
