@@ -50,18 +50,19 @@
           </span>
           <!-- if has_table_data -->
         <div v-if="fields.has_table_data" class="table-responsive my-2">
-          <table class="table table-bordered table-sm">
+          <table class="table table-bordered table-sm thick-border">
             <thead>
-              <tr>
-                <th v-for="(val, key, colIndex) in fields.table_data[0]" :key="colIndex">
+              <tr class="thick-border">
+                <th v-for="(val, key, colIndex) in fields.table_data[0]" :key="colIndex" class="thick-border">
                   <b>{{ key.toUpperCase()}}</b>
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(row, rowIndex) in fields.table_data" :key="rowIndex">
-                <td v-for="(val, key, colIndex) in row" :key="colIndex">
-                  {{ val }}
+              <tr v-for="(row, rowIndex) in fields.table_data" :key="rowIndex" class="thick-border">
+                <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
+                  <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
+                  <span v-else>{{ val }}</span>
                 </td>
               </tr>
             </tbody>
@@ -89,18 +90,19 @@
 
             <!-- if line_item_type = table -->
             <div v-if="items.line_item_type === 'table'" class="table-responsive my-2">
-              <table class="table table-bordered table-sm">
+              <table class="table table-bordered table-sm thick-border" >
                 <thead>
-                  <tr>
-                    <th v-for="(val, key, colIndex) in items.table_data[0]" :key="colIndex">
+                  <tr class="thick-border">
+                    <th v-for="(val, key, colIndex) in items.table_data[0]" :key="colIndex" class="thick-border">
                       <b>{{ key.toUpperCase()}}</b>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row, rowIndex) in items.table_data" :key="rowIndex">
-                    <td v-for="(val, key, colIndex) in row" :key="colIndex">
-                      {{ val }}
+                  <tr v-for="(row, rowIndex) in items.table_data" :key="rowIndex" class="thick-border">
+                    <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
+                      <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
+                      <span v-else>{{ val }}</span>
                     </td>
                   </tr>
                 </tbody>
@@ -166,7 +168,9 @@ const getIndent = (fieldNo) => {
 </script>
 
 <style scoped>
-
+.thick-border{
+  border: 2px solid black;
+}
 .pdf-viewer {
   border: 1px solid #ccc;
   height: 730px;
