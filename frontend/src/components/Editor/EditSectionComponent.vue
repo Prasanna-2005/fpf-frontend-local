@@ -2,7 +2,7 @@
     <div class="w-100 d-flex justify-content-center">
         <div class="main-container d-flex" style="max-width: 100%;border: 1px solid grey;">
             <div class="w-90 editor" >
-                <editorComponent :fundName="props.fundName" :seriesName="selected_series"/>
+                <editorComponent :fundName="props.fundName" :seriesName="A"/>
             </div>
             <div class="series-selector w-10 d-flex justify-content-end" >
                 <div class="w-100 d-flex flex-column align-items-end">

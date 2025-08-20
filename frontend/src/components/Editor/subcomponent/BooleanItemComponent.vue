@@ -5,7 +5,7 @@
             <span>{{ props.itemText }}</span>:
         </p>
         <p>
-            <input type="checkbox" v-model="checked" />
+            <input type="checkbox" v-model="checked" :disabled="disabled" />
             <span>{{ checked ? 'Yes' : 'No' }}</span>
     
         </p>
@@ -29,12 +29,18 @@ const props=defineProps({
     itemValue:{
         type:String,
         required:true
+    },
+    disabled: {
+        type:Boolean,
+        required:true
     }
 })
 const checked = ref(props.itemValue === 'Yes')
+const emit = defineEmits(['update'])
 watch(checked, () => {
-  console.log(checked.value)
+  emit('update', checked.value)    
 })
+
 
 </script>
 
