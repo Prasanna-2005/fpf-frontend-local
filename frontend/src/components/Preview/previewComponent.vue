@@ -129,6 +129,7 @@ responseStore.setResponse(response);
 const data = responseStore.getfundSeriesdata('1', 'A');
 const pdfContent = ref(null);
 
+// for grouping data based on heading
 const groupedData = computed(() => {
   return data.reduce((acc, item) => {
     if (!acc[item.field_heading]) {
@@ -140,7 +141,7 @@ const groupedData = computed(() => {
 });
 
 
-const downloadPDF = () => {
+function downloadPDF(){
   const element = pdfContent.value;
   const options = {
     margin: 10,
@@ -154,13 +155,13 @@ const downloadPDF = () => {
 };
 
 
-const getDisplayFieldNo = (fieldNo) => {
+function getDisplayFieldNo(fieldNo){
   const parts = fieldNo.split('_');
   return parts[parts.length - 1]; 
 };
 
 //for indentation
-const getIndent = (fieldNo) => {
+function getIndent(fieldNo){
   const depth = (fieldNo.match(/_/g) || []).length;
   return depth * 30; 
 };
