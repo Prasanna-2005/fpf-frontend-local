@@ -147,8 +147,7 @@ function saveEdits(fieldNo, fieldIndex) {
 }
 function restoreEdits(fieldNo, fieldIndex) {
     //API call
-    responseStore.restoreItem('1','A',fieldNo,fieldIndex)
-    editingFieldNo.value = null
+    
 
 }
 
