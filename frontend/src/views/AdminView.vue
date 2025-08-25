@@ -8,18 +8,14 @@
                 <AnalyticsTableComponent class="h-75"@delete-user=handleDelete />
 
                 <div v-if="deletePopUp" class="backdrop">
-                    <div class="content-box">
-                        <p>Are you sure you want to delete <strong>{{ userNameToBeDeleted }}</strong>?</p>
-                        <div class="mt-3 d-flex justify-content-end">
-                            <button class="btn btn-secondary me-2" @click="deletePopUp = false">Cancel</button>
-                            <button class="btn btn-danger">Delete</button>
-                        </div>
-                    </div>
+                    <popUpComponent userNameToBeDeleted="userNameToBeDeleted" type="createCopy" defaultCopyName="FinancialYear24-25(copy)" @remove-pop-up="deletePopUp = false"/>
                 </div>
 
                 <div v-if="adding_user" class="backdrop">
                     <addUserComponent @cancel-add-user=handleCancel />
                 </div>
+
+            
             </div> 
         </div>
 </template>
@@ -29,6 +25,7 @@ import AnalyticsTableComponent from '@/components/Admin/analyticsTableComponent.
 import TopBarComponent from '@/components/Admin/topBarComponent.vue';
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import addUserComponent from '@/components/Admin/addUserComponent.vue';
+import popUpComponent from '@/components/popUps/popUpComponent.vue';
 import {ref} from 'vue'
 
 const deletePopUp=ref(false)
@@ -61,14 +58,6 @@ function handleCancel(){
   align-items: center;
 }
 
-.content-box {
-  background: white;
-  padding: 50px 50px;
-  border-radius: 8px;
-  border: 2px solid greenyellow;
-  min-width: 300px;
-  max-width: 90%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
+
 
 </style>
