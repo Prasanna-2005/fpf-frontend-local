@@ -1,7 +1,7 @@
 <template>
         <div class="d-flex" >
             <div >
-                <SideBarComponent />
+                <SideBarComponent @add-fund="openAddFundPopUp=true"/>
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <TopBarComponent @add-user="handleAddUser"/>
@@ -15,6 +15,11 @@
                     <addUserComponent @cancel-add-user=handleCancel />
                 </div>
 
+                <div v-if="openAddFundPopUp" class="backdrop">
+                    <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
+
+                </div>
+
             
             </div> 
         </div>
@@ -26,10 +31,12 @@ import TopBarComponent from '@/components/Admin/topBarComponent.vue';
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import addUserComponent from '@/components/Admin/addUserComponent.vue';
 import popUpComponent from '@/components/popUps/popUpComponent.vue';
+import addFundComponent from '@/components/popUps/addFundComponent.vue';
 import {ref} from 'vue'
 
 const deletePopUp=ref(false)
 const userNameToBeDeleted=ref('')
+const openAddFundPopUp=ref(false)
 function handleDelete(name){
     deletePopUp.value=true
     userNameToBeDeleted.value=name
@@ -43,21 +50,3 @@ function handleCancel(){
     adding_user.value=false
 }
 </script>
-
-<style scoped>
-.backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-
-</style>
