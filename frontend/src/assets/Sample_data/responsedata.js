@@ -8,6 +8,11 @@ const response={
           "data": [
             {
               "field_no": "5",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item A. Reporting fund identifying information",
               "field_data": [
                 {
                   "line_item_no": "5_a",
@@ -60,6 +65,11 @@ const response={
             },
             {
               "field_no": "6",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item A. Reporting fund identifying information",
               "field_data": [
                 {
                   "line_item_no": "6_a",
@@ -187,6 +197,11 @@ const response={
             },
             {
               "field_no": "7",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item A. Reporting fund identifying information",
               "field_data": [
                 {
                   "line_item_no": "7_a",
@@ -259,6 +274,11 @@ const response={
             },
             {
               "field_no": "8",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item A. Reporting fund identifying information",
               "field_data": [
                 {
                   "line_item_no": "8_a",
@@ -325,18 +345,12 @@ const response={
             },
             {
               "field_no": "9",
+              "has_field_item_text": true,
+              "has_table_data":false,
+              "field_text": "If the reporting fund holds assets, incurs leverage, or conducts trading or other activities through a trading vehicle, provide the following information about each trading vehicle.",
+              "value": [],
+              "field_heading":"Item A. Reporting fund identifying information",
               "field_data": [
-                {
-                  "line_item_no": "9",
-                  "line_item_type": "none",
-                  "line_text": "If the reporting fund holds assets, incurs leverage, or conducts trading or other activities through a trading vehicle, provide the following information about each trading vehicle.",
-                  "value": "",
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": ""
-                },
                 {
                   "line_item_no": "9_a",
                   "line_item_type": "text",
@@ -419,6 +433,11 @@ const response={
             },
             {
               "field_no": "10",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item A. Reporting fund identifying information",
               "field_data": [
                 {
                   "line_item_no": "10_a",
@@ -527,6 +546,11 @@ const response={
             },
             {
               "field_no": "11",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
                 {
                   "line_item_no": "11_a",
@@ -596,6 +620,11 @@ const response={
             },
             {
               "field_no": "12",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
                 {
                   "line_item_no": "12_a",
@@ -665,18 +694,12 @@ const response={
             },
             {
               "field_no": "13",
+              "has_field_item_text": true,
+              "has_table_data":false,
+              "field_text":"Value of unfunded commitments included in gross asset value or gross reporting fund aggregate calculated value and net asset value or reporting fund aggregate calculated value reported in Questions 11 and 12 (if the reporting fund does not contract for unfunded commitments, enter 'NA')",
+              "value": ["$100,000,000"],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
-                {
-                  "line_item_no": "13",
-                  "line_item_type": "text",
-                  "line_text": "Value of unfunded commitments included in gross asset value or gross reporting fund aggregate calculated value and net asset value or reporting fund aggregate calculated value reported in Questions 11 and 12 (if the reporting fund does not contract for unfunded commitments, enter 'NA')",
-                  "value": ["$100,000,000"],
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": ""
-                }
               ],
               "confirmed": false,
               "editing": true,
@@ -684,18 +707,12 @@ const response={
             },
             {
               "field_no": "14",
+              "has_field_item_text": true,
+              "has_table_data":false,
+              "field_text": "Provide the following information concerning the reporting fund’s activity during the reporting period.",
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
-                {
-                  "line_item_no": "14",
-                  "line_item_type": "none",
-                  "line_text": "Provide the following information concerning the reporting fund’s activity during the reporting period.",
-                  "value": "",
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": "(For the purpose of this question, contributions include all new contributions from investors, but exclude contributions of committed capital that you have already included in gross asset value calculated in accordance with Form ADV, Part 1A, Instruction 6.e.(3). Withdrawals and redemptions from the reporting fund include all withdrawals, redemptions and other distributions of any kind to investors.)"
-                },
                 {
                   "line_item_no": "14_a",
                   "line_item_type": "text",
@@ -725,6 +742,11 @@ const response={
             },
             {
               "field_no": "15",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
                 {
                   "line_item_no": "15_a",
@@ -816,18 +838,12 @@ const response={
             },
             {
               "field_no": "16",
+              "has_field_item_text": true,
+              "field_text": "Value of all parallel managed accounts related to the reporting fund",
+              "value": ["$20,000,000"],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
+              "disclaimer_text": "If any of your parallel managed accounts relates to more than one of the private funds you advise, only report the value of the account once, in connection with the largest private fund to which it relates",
               "field_data": [
-                {
-                  "line_item_no": "16",
-                  "line_item_type": "text",
-                  "line_text": "Value of all parallel managed accounts related to the reporting fund",
-                  "value": ["$20,000,000"],
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": "If any of your parallel managed accounts relates to more than one of the private funds you advise, only report the value of the account once, in connection with the largest private fund to which it relates"
-                }
               ],
               "confirmed": false,
               "editing": true,
@@ -835,12 +851,10 @@ const response={
             },
             {
               "field_no": "17",
-              "field_data": [
-                {
-                  "line_item_no": "17",
-                  "line_item_type": "dropdown",
-                  "line_text": "What is the reporting fund’s base currency?",
-                  "value": ["USD"],
+              "has_field_item_text": true,
+              "field_item_type": "dropdown",
+              "field_text": "What is the reporting fund’s base currency?",
+              "value": ["USD"],
                   "options": [
                     "AUD",
                     "CAD",
@@ -849,11 +863,8 @@ const response={
                     "JPY",
                     "USD"
                   ],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": ""
-                }
+              "field_heading":"Item B. Assets, financing, and investor concentration",
+              "field_data": [
               ],
               "confirmed": false,
               "editing": true,
@@ -861,18 +872,13 @@ const response={
             },
             {
               "field_no": "18",
+              "has_field_item_text": true,
+              "has_table_data":false,
+              "field_text": "Provide the following information regarding the value of the reporting fund's borrowings and the types of creditors.",
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
+              "disclaimer_text": "(You are not required to respond to this question for any reporting fund with respect to which you are answering questions in Section 2 or Question 71 in Section 4. Do not net out amounts that the reporting fund loans to creditors or the value of collateral pledged to creditors.)( The percentages borrowed from the specified types of creditors should add up to approximately 100%.)",
               "field_data": [
-                {
-                  "line_item_no": "18",
-                  "line_item_type": "none",
-                  "line_text": "Provide the following information regarding the value of the reporting fund's borrowings and the types of creditors.",
-                  "value": [],
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": "(You are not required to respond to this question for any reporting fund with respect to which you are answering questions in Section 2 or Question 71 in Section 4. Do not net out amounts that the reporting fund loans to creditors or the value of collateral pledged to creditors.)( The percentages borrowed from the specified types of creditors should add up to approximately 100%.)"
-                },
                 {
                   "line_item_no": "18_a",
                   "line_item_type": "text",
@@ -924,6 +930,11 @@ const response={
             },
             {
               "field_no": "19",
+              "has_field_item_text": false,
+              "field_text": "",
+              "has_table_data":false,
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
                 {
                   "line_item_no": "19_a",
@@ -957,14 +968,12 @@ const response={
             },
             {
               "field_no": "20",
-              "field_data": [
-                {
-                  "line_item_no": "20",
-                  "line_item_type": "table",
-                  "line_text": "Provide a summary of the reporting fund's assets and liabilities categorized using the hierarchy below and indicate the date as of which this categorization was performed. For assets and liabilities that you report internally and to current and prospective investors as representing fair value, or for which you are required to determine fair value in order to report the reporting fund's regulatory assets under management on Form ADV, categorize them into the following categories based on the valuation assumptions utilized:Level 1 – Quoted prices (unadjusted) in active markets for identical assets or liabilities. Level 2 – Other than quoted prices included within Level 1 that are observable for the asset or liability, either directly or indirectly. Level 3 – Unobservable inputs, such as your assumptions or the fund’s assumptions used to determine the fair value of the asset or liability. For any assets and liabilities that you report internally and to current and prospective investors as representing a measurement attribute other than fair value, and for which you are not required to determine fair value in order to report the reporting fund's regulatory assets under management on Form ADV, separately report these assets and liabilities in the “cost-based” measurement column. Do not report cash and cash equivalents in any other column except for the cash and cash equivalents column. (If the fund’s financial statements are prepared in accordance with U.S. generally accepted accounting principles (“U.S. GAAP”) or another accounting standard that requires the categorization of assets and liabilities using a fair value hierarchy similar to that established under U.S. GAAP, then respond to this question using the fair value hierarchy established under the applicable accounting standard. Report the absolute value of all liabilities. If you report assets as a negative value, you must provide an explanation in Question 4.) (You should use the estimated values for the fiscal year for which you are reporting if the audit of the financial statement is not yet completed when the Form PF is required to be filed and explain that the information is an estimate in Question 4. You may, but are not required to, amend when the audited financial statements are complete.) (This question requires the use of fair values and cost-based measurements, which may be different from the values contemplated by Instruction 15. You are only required to respond to this question if you are filing an annual update or a quarterly update for your fourth fiscal quarter.)",
-                  "value": "2025-03-31",
-                  "options": [],
-                  "table_data": [
+              "has_field_item_text": true,
+              "field_text": "Provide a summary of the reporting fund's assets and liabilities categorized using the hierarchy below and indicate the date as of which this categorization was performed. For assets and liabilities that you report internally and to current and prospective investors as representing fair value, or for which you are required to determine fair value in order to report the reporting fund's regulatory assets under management on Form ADV, categorize them into the following categories based on the valuation assumptions utilized:Level 1 – Quoted prices (unadjusted) in active markets for identical assets or liabilities. Level 2 – Other than quoted prices included within Level 1 that are observable for the asset or liability, either directly or indirectly. Level 3 – Unobservable inputs, such as your assumptions or the fund’s assumptions used to determine the fair value of the asset or liability. For any assets and liabilities that you report internally and to current and prospective investors as representing a measurement attribute other than fair value, and for which you are not required to determine fair value in order to report the reporting fund's regulatory assets under management on Form ADV, separately report these assets and liabilities in the “cost-based” measurement column. Do not report cash and cash equivalents in any other column except for the cash and cash equivalents column. (If the fund’s financial statements are prepared in accordance with U.S. generally accepted accounting principles (“U.S. GAAP”) or another accounting standard that requires the categorization of assets and liabilities using a fair value hierarchy similar to that established under U.S. GAAP, then respond to this question using the fair value hierarchy established under the applicable accounting standard. Report the absolute value of all liabilities. If you report assets as a negative value, you must provide an explanation in Question 4.) (You should use the estimated values for the fiscal year for which you are reporting if the audit of the financial statement is not yet completed when the Form PF is required to be filed and explain that the information is an estimate in Question 4. You may, but are not required to, amend when the audited financial statements are complete.) (This question requires the use of fair values and cost-based measurements, which may be different from the values contemplated by Instruction 15. You are only required to respond to this question if you are filing an annual update or a quarterly update for your fourth fiscal quarter.)",
+              "value": ["2025-03-31"],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
+              "has_table_data":true,
+              "table_data": [
                     {
                       "s.name": "Assets",
                       "level_1": "10%",
@@ -984,8 +993,9 @@ const response={
                   ],
                   "require_date": true,
                   "date_value": "2025-03-31",
-                  "disclaimer_text": ""
-                }
+                  "disclaimer_text": "",
+              "field_data": [
+                
               ],
               "confirmed": false,
               "editing": true,
@@ -993,18 +1003,13 @@ const response={
             },
             {
               "field_no": "21",
+              "has_field_item_text": true,
+              "has_table_data":false,
+              "field_text": "Specify the approximate percentage of the reporting fund's equity that is beneficially owned by the five beneficial owners having the largest equity interests in the reporting fund.",
+              "value": ["65%"],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
+              "disclaimer_text": "(For purposes of this question, if you know that two or more beneficial owners of the reporting fund are affiliated with each other, you should treat them as a single beneficial owner. If the reporting fund is the master fund in a master-feeder arrangement, include the beneficial owners of a disregarded feeder fund described by Instruction 6 as beneficial owners of the reporting fund.)",
               "field_data": [
-                {
-                  "line_item_no": "21",
-                  "line_item_type": "text",
-                  "line_text": "Specify the approximate percentage of the reporting fund's equity that is beneficially owned by the five beneficial owners having the largest equity interests in the reporting fund.",
-                  "value": ["65%"],
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": "(For purposes of this question, if you know that two or more beneficial owners of the reporting fund are affiliated with each other, you should treat them as a single beneficial owner. If the reporting fund is the master fund in a master-feeder arrangement, include the beneficial owners of a disregarded feeder fund described by Instruction 6 as beneficial owners of the reporting fund.)"
-                }
               ],
               "confirmed": false,
               "editing": true,
@@ -1012,18 +1017,14 @@ const response={
             },
             {
               "field_no": "22",
+              "has_field_item_text": true,
+              "has_table_data":false,
+              "field_text": "Specify the approximate percentage of the reporting fund's equity that is beneficially owned by the following groups of investors. If you select “other,” describe in Question 4 the type of investor, why it would not qualify for any of the other groups, and any other information to explain your selection.",
+              "value":["40%"],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
+              "disclaimer_text": "(Include each investor in only one group. The total should add up to approximately 100%.With respect to beneficial interests outstanding prior to March 31, 2012, that have not been transferred on or after that date, you may respond to this question using good faith estimates based on data currently available to you. If the reporting fund is the master fund in a masterfeeder arrangement, include the beneficial owners of a disregarded feeder fund described by Instruction 6 as beneficial owners of the reporting fund.) ",
               "field_data": [
-                {
-                  "line_item_no": "22",
-                  "line_item_type": "text",
-                  "line_text": "Specify the approximate percentage of the reporting fund's equity that is beneficially owned by the following groups of investors. If you select “other,” describe in Question 4 the type of investor, why it would not qualify for any of the other groups, and any other information to explain your selection.",
-                  "value": ["40%"],
-                  "options": [],
-                  "table_data": [],
-                  "require_date": false,
-                  "date_value": "",
-                  "disclaimer_text": "(Include each investor in only one group. The total should add up to approximately 100%.With respect to beneficial interests outstanding prior to March 31, 2012, that have not been transferred on or after that date, you may respond to this question using good faith estimates based on data currently available to you. If the reporting fund is the master fund in a masterfeeder arrangement, include the beneficial owners of a disregarded feeder fund described by Instruction 6 as beneficial owners of the reporting fund.) "
-                },
+                
                 {
                   "line_item_no": "22_a",
                   "line_item_type": "text",
@@ -1251,6 +1252,11 @@ const response={
             },
             {
               "field_no": "23",
+              "has_field_item_text": false,
+              "has_table_data":false,
+              "field_text": "",
+              "value": [],
+              "field_heading":"Item B. Assets, financing, and investor concentration",
               "field_data": [
                 {
                   "line_item_no": "23_a",

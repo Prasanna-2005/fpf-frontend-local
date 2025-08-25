@@ -6,7 +6,7 @@
     </p>
     <p>
     <span class="dropdown">
-        <button class=" dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 180px; height: 30px; background-color: white;">
+        <button class=" dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 180px; height: 30px; background-color: white; overflow: hidden;"  :disabled="disabled">
             {{ selectedValue }}
         </button>
         <ul class="dropdown-menu">
@@ -36,15 +36,19 @@ const props=defineProps({
     options:{
         type:Array,
         required:true
+    },
+    disabled: {
+        type:Boolean,
+        required:true
     }
 }) 
-const emit = defineEmits(['update:selectedValue'])
+const emit = defineEmits(['update'])
 
 const selectedValue = ref(props.itemValue)
 
 function selectValue(val){
     selectedValue.value=val
-    emit('update:selectedValue', val)
+    emit('update', val)
 }
 
 </script>
