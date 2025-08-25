@@ -7,33 +7,32 @@
     </div>
 
     <form @submit.prevent="handleSubmit">
-      <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col">
           <label for="NameOfReportingFund" class="form-label">Name of reporting fund</label>
           <input type="text" class="form-control" id="NameOfReportingFund"  v-model="firstname" />
         </div>
-        <div class="col-md-6">
+        <div class="col">
           <label for="fundID" class="form-label">Private Fund ID of Reporting Fund</label>
           <input type="text" class="form-control" id="fundID"  v-model="fundID" />
         </div>
-      </div>
-      <div class="col-md-6">
-          <label for="NfaID" class="form-label">Private Fund ID of Reporting Fund</label>
+      
+      <div class="col">
+          <label for="NfaID" class="form-label">NFA ID of Reporting Fund</label>
           <input type="text" class="form-control" id="NfaID"  v-model="NfaID" />
       </div>
-      <div class="col-md-6">
-          <label for="Lei" class="form-label">Private Fund ID of Reporting Fund</label>
+      <div class="col">
+          <label for="Lei" class="form-label">LEI of Reporting Fund</label>
           <input type="text" class="form-control" id="Lei"  v-model="Lei" />
       </div>
-      <div class="col-md-6">
+      <div class="col">
           <label for="isMasterFund" class="form-label">Is a Master Fund in a Master-Feeder structure?</label>
-          <input type="checkbox" class="form-control"  v-model="isMasterFund" id="isMasterFund" />
-          <span>{{ isMasterFund ? 'Yes' : 'No' }}</span>
+          <input type="checkbox"  v-model="isMasterFund" id="isMasterFund" />
+          <span>  {{ isMasterFund ? 'Yes' : 'No' }}</span>
       </div>
-      <div class="col-md-6">
+      <div class="col">
           <label for="isParallelFund" class="form-label">Is a Master Fund in a Master-Feeder structure?</label>
-          <input type="checkbox" class="form-control"  v-model="isParallelFund" id="isParallelFund" />
-          <span>{{ isParallelFund ? 'Yes' : 'No' }}</span>
+          <input type="checkbox"  v-model="isParallelFund" id="isParallelFund" />
+          <span>  {{ isParallelFund ? 'Yes' : 'No' }}</span>
       </div>
 
       <div class="w-100">
