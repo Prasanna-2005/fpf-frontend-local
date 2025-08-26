@@ -5,10 +5,10 @@
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <TopBarComponent @add-user="handleAddUser"/>
-                <AnalyticsTableComponent class="h-75"@delete-user=handleDelete />
+                <AnalyticsTableComponent class="h-75" @delete-user=handleDelete />
 
                 <div v-if="deletePopUp" class="backdrop">
-                    <popUpComponent userNameToBeDeleted="userNameToBeDeleted" type="createCopy" defaultCopyName="FinancialYear24-25(copy)" @remove-pop-up="deletePopUp = false"/>
+                    <popUpComponent :userNameToBeDeleted="userNameToBeDeleted" type="deleteUser"  @remove-pop-up="deletePopUp = false"/>
                 </div>
 
                 <div v-if="adding_user" class="backdrop">
