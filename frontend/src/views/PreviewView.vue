@@ -5,8 +5,14 @@
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <topBarComponent @selected-fund="selectFund"  />
-                <previewComponent />
+                <previewComponent @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" />
             </div> 
+            <div v-if="createCopyPopUp" class="backdrop">
+                    <popUpComponent  type="createCopy"  @remove-pop-up="createCopyPopUp = false" defaultCopyName="FinancialPaper24-25: Copy"/>
+            </div>
+            <div v-if="approvePopUp" class="backdrop">
+                    <popUpComponent  type="approveFiling"  @remove-pop-up="approvePopUp = false" />
+            </div>
         </div>
     
 </template>
@@ -15,4 +21,9 @@
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import topBarComponent from '@/components/Editor/topBarComponent.vue';
 import previewComponent from '@/components/Preview/previewComponent.vue';
+import popUpComponent from '@/components/popUps/popUpComponent.vue';
+import {ref} from 'vue'
+
+const createCopyPopUp=ref(false)
+const approvePopUp=ref(false)
 </script>
