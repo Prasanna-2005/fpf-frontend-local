@@ -1,5 +1,5 @@
 <template>
-    <div class="content-box">
+    <div class="content-box p-4">
         <span class="close-icon d-flex justify-content-end mt-1v  " @click="deletePopUp"><font-awesome-icon class="icon me-2" icon="xmark" style="font-size: 1em;" /></span>
 
 
