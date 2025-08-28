@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import {ref,toRaw} from'vue'
+import {ref} from'vue'
 
 export const useEditableStore=defineStore('response',()=>{
     const response=ref([])
@@ -12,10 +12,14 @@ export const useEditableStore=defineStore('response',()=>{
         rawResponse.funds.forEach(fund => {
         const fundId = fund.fund_id
         fund_series_mapper.value[fundId] = {}
-
+   
         fund.series.forEach(series => {
             const seriesName = series.series_name
-            fund_series_mapper.value[fundId][seriesName] = series.data.map(q => ({ ...q }))
+            fund_series_mapper.value[fundId][seriesName] = series.data.map(q => ({ 
+                ...q,
+                isRestoreAvailable: false,
+                restoreValue: null
+            }))
         })
         })
     }
@@ -27,11 +31,30 @@ export const useEditableStore=defineStore('response',()=>{
 
     function getSeries(fundName){
         const series_names= Object.keys(fund_series_mapper.value[fundName])
-        return series_names    
+        return series_names
     }
     function getfundSeriesdata(fundName,seriesName){
-        const data=toRaw(fund_series_mapper.value[fundName][seriesName])
-        return data
+        const fundSeriesData=fund_series_mapper.value[fundName][seriesName]
+        return fundSeriesData
+    }
+
+    function updateItem(fundName,seriesName,field_no,item_obj,fieldIndex){ 
+        fund_series_mapper.value[fundName][seriesName][fieldIndex]['isRestoreAvailable']=true
+        fund_series_mapper.value[fundName][seriesName][fieldIndex]['restoreValue']=fund_series_mapper.value[fundName][seriesName][fieldIndex]['field_data']
+        fund_series_mapper.value[fundName][seriesName][fieldIndex]['field_data'] = item_obj    
+    }
+    function restoreItem(fundName, seriesName, field_no,fieldIndex) {
+        //to be used in later stage of development
+        const target = fund_series_mapper.value[fundName]?.[seriesName]
+        if (!target) return
+        const item = target[fieldIndex]
+        if (!item) return
+        const restoreCopy = JSON.parse(JSON.stringify(item.restoreValue)) 
+        fund_series_mapper.value[fundName][seriesName][fieldIndex] = {
+            ...fund_series_mapper.value[fundName][seriesName][fieldIndex],
+            isRestoreAvailable: false,
+            field_data: restoreCopy
+            }    
     }
 
 
@@ -39,7 +62,10 @@ export const useEditableStore=defineStore('response',()=>{
         setResponse,
         getFunds,
         getSeries,
-        getfundSeriesdata  
+        getfundSeriesdata,
+        updateItem,
+        restoreItem
+        
     }
 
 
