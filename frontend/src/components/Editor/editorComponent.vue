@@ -84,6 +84,7 @@
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
                 />
                 <DropdownItemComponent
@@ -93,6 +94,7 @@
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :options="items.options"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
                 />
               </span>
