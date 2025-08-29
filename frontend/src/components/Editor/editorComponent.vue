@@ -26,7 +26,9 @@
       <div>
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
           <div class="d-flex justify-content-between align-items-center">
-            <p><span>{{ fields.field_no }})</span></p>
+            <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }">
+              <span>{{ fields.field_no }})</span>
+            </p>
             <div>
               <button
                 v-if="editingFieldNo !== fields.field_no"
@@ -64,19 +66,21 @@
             <div style="width: 95%;">
               <span
                 v-for="(items, itemIndex) in fields.field_data"
-                :key="itemIndex"
+                :key="itemIndex" 
+                :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
               >
                 <InputItemComponent
                   v-if="items.line_item_type === 'text'"
-                  :itemNumber="items.line_item_no"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"  
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
                 />
                 <BooleanItemComponent
                   v-else-if="items.line_item_type === 'bool'"
-                  :itemNumber="items.line_item_no"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :disabled="editingFieldNo !== fields.field_no"
@@ -84,7 +88,7 @@
                 />
                 <DropdownItemComponent
                   v-else-if="items.line_item_type === 'dropdown'"
-                  :itemNumber="items.line_item_no"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :options="items.options"
@@ -154,6 +158,17 @@ function restoreEdits(fieldNo, fieldIndex) {
 function cancelEditing() {
   editingFieldNo.value = null
 }
+
+function getDisplayFieldNo(fieldNo){
+  const parts = fieldNo.split('_');
+  return parts[parts.length - 1]; 
+};
+
+//for indentation
+function getIndent(fieldNo){
+  const depth = (fieldNo.match(/_/g) || []).length;
+  return depth * 30; 
+};
 </script>
 
 <style scoped>
