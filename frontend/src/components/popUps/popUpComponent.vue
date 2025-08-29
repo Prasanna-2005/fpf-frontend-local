@@ -87,7 +87,7 @@ function approveFiling(){
   background: white;
   border-radius: 8px;
   border: 2px solid greenyellow;
-  width:300px ;
+  width:350px ;
   height: 250px;
   max-width: 90%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
