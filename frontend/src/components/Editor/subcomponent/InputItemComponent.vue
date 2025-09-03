@@ -6,7 +6,7 @@
             <span>{{ props.itemText }}</span>: 
         </p>
         <p>
-            <input type="text" v-model="inputValue" style="width: 180px;" :disabled="disabled">
+            <input type="text" v-if="inputNeeded" v-model="inputValue" style="width: 180px;" :disabled="disabled">
         </p>
     </div>
 
@@ -37,6 +37,10 @@ const props=defineProps({
     indent: { 
         type: Number,
         default: 0 
+    },
+    inputNeeded:{
+        type: Boolean,
+        default:true
     }
 }) 
 const inputValue=ref(props.itemValue)
