@@ -10,7 +10,7 @@ const response={
               "field_no": "5",
               "has_field_item_text": false,
               "has_table_data":false,
-              "line_item_type":'None',
+              "field_item_type":'None',
               "field_text": "",
               "value": [],
               "field_heading":"Item A. Reporting fund identifying information",
@@ -68,7 +68,7 @@ const response={
               "field_no": "6",
               "has_field_item_text": false,
               "has_table_data":false,
-              "line_item_type":'None',
+              "field_item_type":'None',
               "field_text": "",
               "value": [],
               "field_heading":"Item A. Reporting fund identifying information",
@@ -351,7 +351,7 @@ const response={
               "field_no": "9",
               "has_field_item_text": true,
               "has_table_data":false,
-               "field_item_type":'None',
+              "field_item_type":'None',
               "field_text": "If the reporting fund holds assets, incurs leverage, or conducts trading or other activities through a trading vehicle, provide the following information about each trading vehicle.",
               "value": [],
               "field_heading":"Item A. Reporting fund identifying information",
@@ -982,7 +982,7 @@ const response={
               "is_multiple_add": false
             },
             {
-              "field_no": "20",
+              "field_no": "20", 
               "has_field_item_text": true,
               "field_item_type":'date',
               "field_text": "Provide a summary of the reporting fund's assets and liabilities categorized using the hierarchy below and indicate the date as of which this categorization was performed. For assets and liabilities that you report internally and to current and prospective investors as representing fair value, or for which you are required to determine fair value in order to report the reporting fund's regulatory assets under management on Form ADV, categorize them into the following categories based on the valuation assumptions utilized:Level 1 – Quoted prices (unadjusted) in active markets for identical assets or liabilities. Level 2 – Other than quoted prices included within Level 1 that are observable for the asset or liability, either directly or indirectly. Level 3 – Unobservable inputs, such as your assumptions or the fund’s assumptions used to determine the fair value of the asset or liability. For any assets and liabilities that you report internally and to current and prospective investors as representing a measurement attribute other than fair value, and for which you are not required to determine fair value in order to report the reporting fund's regulatory assets under management on Form ADV, separately report these assets and liabilities in the “cost-based” measurement column. Do not report cash and cash equivalents in any other column except for the cash and cash equivalents column. (If the fund’s financial statements are prepared in accordance with U.S. generally accepted accounting principles (“U.S. GAAP”) or another accounting standard that requires the categorization of assets and liabilities using a fair value hierarchy similar to that established under U.S. GAAP, then respond to this question using the fair value hierarchy established under the applicable accounting standard. Report the absolute value of all liabilities. If you report assets as a negative value, you must provide an explanation in Question 4.) (You should use the estimated values for the fiscal year for which you are reporting if the audit of the financial statement is not yet completed when the Form PF is required to be filed and explain that the information is an estimate in Question 4. You may, but are not required to, amend when the audited financial statements are complete.) (This question requires the use of fair values and cost-based measurements, which may be different from the values contemplated by Instruction 15. You are only required to respond to this question if you are filing an annual update or a quarterly update for your fourth fiscal quarter.)",
@@ -2553,10 +2553,7 @@ const response={
             },
             {
               "field_no": "17",
-              "field_data": [
-                {
-                  "line_item_no": "17",
-                  "line_item_type": "dropdown",
+              "field_type": "dropdown",
                   "line_text": "What is the reporting fund’s base currency?",
                   "value": ["USD"],
                   "options": [
@@ -2570,9 +2567,7 @@ const response={
                   "table_data": [],
                   "require_date": false,
                   "date_value": "",
-                  "disclaimer_text": ""
-                }
-              ],
+                  "disclaimer_text": "",
               "confirmed": false,
               "editing": true,
               "is_multiple_add": false
