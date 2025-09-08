@@ -31,19 +31,47 @@
     </div>
 </template>
 <script setup>
-const password=''
-const confirm_password=''
-function handleSubmit(event){
-    const form = event.target;
+import { useUserStore } from '@/stores/userStore'
+import { ref } from 'vue'
+import { useToast } from 'vue-toast-notification';
+import api_call_methods from '@/assets/api_calls/api_calls';
 
-    if (!form.checkValidity()) {
-        
+const toast = useToast();
+
+const password=ref('')
+const confirm_password=ref('')
+async function handleSubmit(event){
+    const form = event.target;
+    const userStore = useUserStore()
+    const user_id = userStore.userID
+
+    if (!form.checkValidity()){
         event.preventDefault();
         event.stopPropagation();
     } else {
-    //API call
-    }
-    form.classList.add('was-validated');
+        try {
+            
+            const result = await api_call_methods.reset_password({
+                new_password:password.value
+            },user_id,);
 
+            if (result.status == '200') {
+                toast.success('Password change successful!');
+                console.log('result reset',result)
+                // userStore.login({ username: result.data.response.username, email: props.email, role: result.data.response.role, userID: props.user_id });
+                // location.replace('/home');
+            } else {
+                toast.error('Invalid OTP!');
+                console.log('result reset',result)
+
+            }
+        } catch (error) {
+            toast.error('Something went wrong!');
+            console.error(error);
+        } finally {
+           
+        }
+
+}
 }
 </script>
