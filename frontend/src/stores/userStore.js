@@ -27,8 +27,6 @@ export const useUserStore = defineStore('user', {
     email: (state) => state.user?.email || '',
     role: (state) => state.user?.role || '',
     userID: (state) => state.user?.userID || '',
-    access_token:(state) => state.user?.access_token || '',
-    refresh_token:(state) => state.user?.refresh_token || '',
   },
 
   persist: true
