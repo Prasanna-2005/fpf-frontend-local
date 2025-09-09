@@ -22,7 +22,11 @@
             </div>
             
             <div class="box">
-                <button type="submit" class="btn btn-primary button-in-box" >Reset</button>
+                <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
+                    <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!isLoading">Change Password</span>
+                    <span v-else>Changing Password...</span>
+                </button>
             </div>
         </div>
         
@@ -41,6 +45,7 @@ const toast = useToast();
 const password=ref('')
 const confirm_password=ref('')
 const userStore = useUserStore()
+const isLoading = ref(false); 
 
 
 onMounted(() => {
@@ -59,6 +64,7 @@ async function handleSubmit(event){
         event.stopPropagation();
     } else {
         try {
+            isLoading.value = true; 
             const result = await api_call_methods.reset_password({
                 new_password:password.value
             },user_id,);
@@ -72,7 +78,9 @@ async function handleSubmit(event){
         } catch (error) {
             toast.error('Something went wrong!');
             console.error(error);
-        } 
+        } finally {
+            isLoading.value = false; 
+        }
 
 }
 }
