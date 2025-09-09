@@ -13,7 +13,7 @@
       <button class="btn btn-primary m-2 border-0">
         <font-awesome-icon class="icon" icon="arrow-left" /> Back
       </button>
-      <button class="btn btn-primary m-2 border-0">
+      <button class="btn btn-primary m-2 border-0" @click="openUpload">
         <font-awesome-icon class="icon" icon="upload" /> Upload More Files
       </button>
     </div>
@@ -207,6 +207,7 @@ const props = defineProps({
    }
 })
 
+const emit=defineEmits(['open-upload'])
 const responseStore = useEditableStore()
 responseStore.setResponse(response)
 
@@ -241,6 +242,10 @@ function restoreEdits(fieldNo, fieldIndex) {
 
 function cancelEditing() {
   editingFieldNo.value = null
+}
+
+function openUpload(){
+  emit('open-upload')
 }
 
 function getDisplayFieldNo(fieldNo){

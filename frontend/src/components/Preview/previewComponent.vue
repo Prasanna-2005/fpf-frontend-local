@@ -1,5 +1,6 @@
 <template>
   <div class="w-100 p-2">
+
     <div class="button-options mb-3">
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
         <font-awesome-icon class="icon" icon="download" /> Pdf Preview
@@ -7,8 +8,14 @@
       <button class="btn btn-primary m-2 border-0">
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
+      <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
+        <font-awesome-icon class="icon" icon="check-double" /> Duplicate
+      </button>
+      <button class="btn btn-primary m-2 border-0"  @click="approvePopUp">
+        <font-awesome-icon class="icon" icon="check-double"/> Approve
+      </button>
       <button class="btn btn-primary m-2 border-0">
-        <font-awesome-icon class="icon" icon="check-double" /> Save
+        <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
       <button class="btn btn-primary m-2 border-0">
         <font-awesome-icon class="icon" icon="arrow-left" /> Back
@@ -128,7 +135,7 @@ const responseStore = useEditableStore();
 responseStore.setResponse(response);
 const data = responseStore.getfundSeriesdata('1', 'A');
 const pdfContent = ref(null);
-
+const emit= defineEmits(['create-copy','approve'])
 // for grouping data based on heading
 const groupedData = computed(() => {
   return data.reduce((acc, item) => {
@@ -166,6 +173,13 @@ function getIndent(fieldNo){
   return depth * 30; 
 };
 
+function createCopyPopUp(){
+  emit('create-copy')
+}
+function approvePopUp(){
+  console.log('jellp')
+  emit('approve')
+}
 </script>
 
 <style scoped>

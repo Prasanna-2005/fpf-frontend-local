@@ -1,25 +1,26 @@
 <template>
         <div class="d-flex" >
             <div >
-                <SideBarComponent />
+                <SideBarComponent @add-fund="openAddFundPopUp=true"/>
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <TopBarComponent @add-user="handleAddUser"/>
-                <AnalyticsTableComponent class="h-75"@delete-user=handleDelete />
+                <AnalyticsTableComponent class="h-75" @delete-user=handleDelete />
 
                 <div v-if="deletePopUp" class="backdrop">
-                    <div class="content-box">
-                        <p>Are you sure you want to delete <strong>{{ userNameToBeDeleted }}</strong>?</p>
-                        <div class="mt-3 d-flex justify-content-end">
-                            <button class="btn btn-secondary me-2" @click="deletePopUp = false">Cancel</button>
-                            <button class="btn btn-danger">Delete</button>
-                        </div>
-                    </div>
+                    <popUpComponent :userNameToBeDeleted="userNameToBeDeleted" type="deleteUser"  @remove-pop-up="deletePopUp = false"/>
                 </div>
 
                 <div v-if="adding_user" class="backdrop">
                     <addUserComponent @cancel-add-user=handleCancel />
                 </div>
+
+                <div v-if="openAddFundPopUp" class="backdrop">
+                    <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
+
+                </div>
+
+            
             </div> 
         </div>
 </template>
@@ -29,10 +30,13 @@ import AnalyticsTableComponent from '@/components/Admin/analyticsTableComponent.
 import TopBarComponent from '@/components/Admin/topBarComponent.vue';
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import addUserComponent from '@/components/Admin/addUserComponent.vue';
+import popUpComponent from '@/components/popUps/popUpComponent.vue';
+import addFundComponent from '@/components/popUps/addFundComponent.vue';
 import {ref} from 'vue'
 
 const deletePopUp=ref(false)
 const userNameToBeDeleted=ref('')
+const openAddFundPopUp=ref(false)
 function handleDelete(name){
     deletePopUp.value=true
     userNameToBeDeleted.value=name
@@ -46,29 +50,3 @@ function handleCancel(){
     adding_user.value=false
 }
 </script>
-
-<style scoped>
-.backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.content-box {
-  background: white;
-  padding: 50px 50px;
-  border-radius: 8px;
-  border: 2px solid greenyellow;
-  min-width: 300px;
-  max-width: 90%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-</style>

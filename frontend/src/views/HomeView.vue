@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex" >
       <div >
-        <SideBarComponent />
+        <SideBarComponent @add-fund="openAddFundPopUp=true" />
       </div>
       <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative">
         <div :class="['table-container custom-view', { 'blurred': showUpload }]">
@@ -11,6 +11,9 @@
           <OverlayComponent  @close-upload="closeUpload"/>
         </div>
       </div> 
+      <div v-if="openAddFundPopUp" class="backdrop">
+            <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
+      </div>
     </div>
 </template>
   
@@ -18,9 +21,10 @@
 import TableComponent from '@/components/Home/TableComponent.vue';
 import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import OverlayComponent from '@/components/Home/OverlayComponent.vue';
+import addFundComponent from '@/components/popUps/addFundComponent.vue';
 import {ref} from 'vue';
 const showUpload=ref(false)
-
+const openAddFundPopUp=ref(false)
 function openUpload(){
   showUpload.value=true
 }
