@@ -54,6 +54,7 @@
 <script setup>
 import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls'
 
 const userStore = useUserStore()
 const email = userStore.email
@@ -68,8 +69,18 @@ const toggleSetting=()=>{
   isSetting.value=!isSetting.value
 }
 
-const Logout=()=>{
+async function Logout(){
+  const user_id=userStore.userID
+  const current_time = new Date();
   userStore.logout()
+  try {
+      await api_call_methods.logout({
+        user_id: user_id,
+        logout_time: current_time.toISOString()
+      });
+  } catch (error) {
+      console.error(error);
+  } 
   window.location.replace('/')
 
 }
