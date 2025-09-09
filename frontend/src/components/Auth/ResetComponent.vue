@@ -48,11 +48,7 @@ const userStore = useUserStore()
 const isLoading = ref(false); 
 
 
-onMounted(() => {
-    if (!userStore.isAuthenticated) {
-        location.replace('/')
-    }
-})
+
 
 async function handleSubmit(event){
     const form = event.target;
