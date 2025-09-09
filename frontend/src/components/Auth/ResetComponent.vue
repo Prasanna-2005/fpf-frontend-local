@@ -14,8 +14,8 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="passwordInput" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="passwordInput"  v-model="confirm_password" placeholder="********" required>
+                <label for="confirmpasswordInput" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmpasswordInput"  v-model="confirm_password" placeholder="********" required>
                 <div  class="invalid-feedback">
                    Please enter a valid password
                 </div>
@@ -32,7 +32,7 @@
 </template>
 <script setup>
 import { useUserStore } from '@/stores/userStore'
-import { ref } from 'vue'
+import { ref, onMounted} from 'vue'
 import { useToast } from 'vue-toast-notification';
 import api_call_methods from '@/assets/api_calls/api_calls';
 
@@ -40,9 +40,18 @@ const toast = useToast();
 
 const password=ref('')
 const confirm_password=ref('')
+const userStore = useUserStore()
+
+
+onMounted(() => {
+    if (!userStore.isAuthenticated) {
+        location.replace('/')
+    }
+})
+
 async function handleSubmit(event){
     const form = event.target;
-    const userStore = useUserStore()
+   
     const user_id = userStore.userID
 
     if (!form.checkValidity()){
@@ -50,27 +59,20 @@ async function handleSubmit(event){
         event.stopPropagation();
     } else {
         try {
-            
             const result = await api_call_methods.reset_password({
                 new_password:password.value
             },user_id,);
-
             if (result.status == '200') {
-                toast.success('Password change successful!');
-                console.log('result reset',result)
-                // userStore.login({ username: result.data.response.username, email: props.email, role: result.data.response.role, userID: props.user_id });
-                // location.replace('/home');
+                toast.success('Password change successful!')
+                userStore.logout()
+                location.replace('/')
             } else {
-                toast.error('Invalid OTP!');
-                console.log('result reset',result)
-
+                toast.error('Password change Unsuccesful! Please try again');
             }
         } catch (error) {
             toast.error('Something went wrong!');
             console.error(error);
-        } finally {
-           
-        }
+        } 
 
 }
 }
