@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-
+//-----------AUTH ENDPOINT CALLS-----------------//
 async function login(data){
     const response=await axios.post('http://localhost:8080/api/v1/auth/login',data)
     console.log(data)
@@ -26,6 +26,8 @@ async function logout(data){
     return response
 }
 
+//-----------PROFILE ENDPOINT CALLS-----------------//
+
 async function reset_password(data,user_id){
     const response=await axios.post('http://localhost:8080/api/v1/profile/reset_password',
         data,
@@ -39,6 +41,24 @@ async function reset_password(data,user_id){
     )
     return response
 }
+//----------- ENDPOINT CALLS-----------------//
+
+
+async function filings_list(user_id){
+    const response=await axios.get('http://localhost:8080/api/v1/filings_list',
+        { params: {
+                user_id:user_id
+            },
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
+
 
 
 const api_call_methods={
@@ -47,6 +67,7 @@ const api_call_methods={
     resend_otp,
     logout,
     reset_password,
+    filings_list
 
 }
 
