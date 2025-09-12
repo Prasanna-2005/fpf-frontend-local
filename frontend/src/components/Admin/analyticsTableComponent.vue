@@ -17,7 +17,7 @@
           <td>{{ data['uploaded'] }}</td>
           <td>{{ data['reviewed'] }}</td>
           <td>
-            <a href="#"><font-awesome-icon class="icon" icon="trash" @click="handleDelete(data['name'])"/></a>
+            <a href="#"><font-awesome-icon class="icon" icon="trash" @click="handleDelete(data['name'],data['id'])"/></a>
           </td>
         </tr>
       </tbody>
@@ -31,18 +31,18 @@
 
 
 const table_data = [
-  { name: 'Alice', role: 'Contributor', uploaded: 12, reviewed: 9 },
-  { name: 'Bob', role: 'Reviewer', uploaded: 5, reviewed: 15 },
-  { name: 'Charlie', role: 'Contributor', uploaded: 8, reviewed: 8 },
-  { name: 'Diana', role: 'Reviewer', uploaded: 3, reviewed: 10 },
-  { name: 'Ethan', role: 'Admin', uploaded: 20, reviewed: 18 },
-  { name: 'Fiona', role: 'Contributor', uploaded: 6, reviewed: 6 },
+  { id:'12344',name: 'Alice', role: 'Contributor', uploaded: 12, reviewed: 9 },
+  { id:'12344',name: 'Bob', role: 'Reviewer', uploaded: 5, reviewed: 15 },
+  { id:'12344',name: 'Charlie', role: 'Contributor', uploaded: 8, reviewed: 8 },
+  { id:'12344',name: 'Diana', role: 'Reviewer', uploaded: 3, reviewed: 10 },
+  { id:'12344',name: 'Ethan', role: 'Admin', uploaded: 20, reviewed: 18 },
+  { id:'12344',name: 'Fiona', role: 'Contributor', uploaded: 6, reviewed: 6 },
 ];
 
 const emit= defineEmits(['delete-user'])
 
-function handleDelete(name){
-    emit('delete-user',name)
+function handleDelete(name,id){
+    emit('delete-user',{ name, id })
     
 }
 
