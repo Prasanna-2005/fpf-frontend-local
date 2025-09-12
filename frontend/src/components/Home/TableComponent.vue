@@ -49,12 +49,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import TopBarComponent from '@/components/Home/TopBarComponent.vue';
 import sample_json from '@/assets/Sample_data/sample'
-
+import api_call_methods from '@/assets/api_calls/api_calls';
+import { useUserStore } from '@/stores/userStore';
+const userStore = useUserStore();
 
 const data = sample_json
+const user_id=userStore.userID
+onMounted(async () => {
+  try {
+    const result=await api_call_methods.filings_list(user_id)
+    console.log(result)
+  } catch (error) {
+    console.error("Error fetching data:", error)
+  }
+})
 
 const currentPage = ref(1)
 const itemsPerPage = 5
