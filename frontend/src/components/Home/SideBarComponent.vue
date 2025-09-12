@@ -27,7 +27,7 @@
           <a href="#" class="nav-link link-dark">Report</a>
         </li>
         <li>
-          <a href="#" class="nav-link link-dark">Add Fund</a>
+          <a  class="nav-link link-dark" @click="addFund">Add Fund</a>
         </li>
         <li class="d-flex justify-content-between align-items-center">
           <a  class="nav-link link-dark">Setting</a>
@@ -83,6 +83,11 @@ async function Logout(){
   } 
   window.location.replace('/')
 
+}
+
+const emit = defineEmits(['add-fund'])
+function addFund(){
+  emit('add-fund')
 }
 </script>
 
