@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }" >
     <p> 
     <span>{{ props.itemNumber }}</span>)
     <span>{{ props.itemText }}</span>:
@@ -40,6 +40,10 @@ const props=defineProps({
     disabled: {
         type:Boolean,
         required:true
+    },
+    indent: { 
+        type: Number,
+        default: 0 
     }
 }) 
 const emit = defineEmits(['update'])

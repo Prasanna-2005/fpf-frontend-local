@@ -26,7 +26,71 @@
       <div>
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
           <div class="d-flex justify-content-between align-items-center">
-            <p><span>{{ fields.field_no }})</span></p>
+            <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }">
+              
+              <span >
+                <span class="line-value">
+                    <InputItemComponent
+                    v-if="fields.field_item_type === 'text' || fields.field_item_type === 'None'"
+                    :itemNumber="getDisplayFieldNo(fields.field_no)"
+                    :itemText="fields.field_text"
+                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(fields.field_no)"  
+                    :inputNeeded="fields.field_item_type !== 'None'"
+                    @update="val => updateValue(fields.field_no, itemIndex, val)"
+                  />
+                  <BooleanItemComponent
+                    v-else-if="fields.field_item_type === 'bool'"
+                    :itemNumber="getDisplayFieldNo(fields.field_no)"
+                    :itemText="fields.field_text"
+                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(fields.field_no)"  
+                    @update="val => updateValue(fields.field_no, itemIndex, val)"
+                  />
+                  <DropdownItemComponent
+                    v-else-if="fields.field_item_type === 'dropdown'"
+                    :itemNumber="getDisplayFieldNo(fields.field_no)"
+                    :itemText="fields.field_text"
+                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                    :options="fields.options"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(fields.field_no)"
+                    @update="val => updateValue(fields.field_no, itemIndex, val)"
+                  />
+                  <TableItemComponent  
+                  v-else-if="fields.field_item_type === 'table'" 
+                  :indent="getIndent(fields.field_no)" 
+                  :itemNumber="getDisplayFieldNo(fields.field_no)" 
+                  :itemText="fields.field_text" 
+                  :itemData="fields.table_data" 
+                  :disabled="editingFieldNo !== fields.field_no"
+                  />
+                  <!-- <DateItemComponent 
+                  v-else-if="fields.field_item_type === 'date'"
+                  :itemNumber="getDisplayFieldNo(fields.field_no)"
+                  :itemText="fields.field_text"
+                  :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(fields.field_no)"  
+                  @update="val => updateValue(fields.field_no, itemIndex, val)"
+                /> -->
+                <TableItemComponent  
+                  v-if="fields.has_table_data" 
+                  :indent="getIndent(fields.field_no)" 
+                  :itemNumber="getDisplayFieldNo(fields.field_no)" 
+                  :isDateInput="fields.field_item_type === 'date'"
+                  :dateValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                  :itemText="fields.field_text" 
+                  :itemData="fields.table_data" 
+                  :disabled="editingFieldNo !== fields.field_no"
+                  />
+                </span>
+
+              </span>
+             
+            </p>
             <div>
               <button
                 v-if="editingFieldNo !== fields.field_no"
@@ -58,38 +122,60 @@
               </button>
               
             </div>
+            
           </div>
 
           <div class="d-flex justify-content-end">
             <div style="width: 95%;">
               <span
                 v-for="(items, itemIndex) in fields.field_data"
-                :key="itemIndex"
+                :key="itemIndex" 
+                :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
               >
                 <InputItemComponent
                   v-if="items.line_item_type === 'text'"
-                  :itemNumber="items.line_item_no"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"  
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
                 />
                 <BooleanItemComponent
                   v-else-if="items.line_item_type === 'bool'"
-                  :itemNumber="items.line_item_no"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
                 />
                 <DropdownItemComponent
                   v-else-if="items.line_item_type === 'dropdown'"
-                  :itemNumber="items.line_item_no"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
                   :options="items.options"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
+                />
+                <TableItemComponent  
+                v-else-if="items.line_item_type === 'table'" 
+                :indent="getIndent(items.line_item_no)" 
+                :itemNumber="getDisplayFieldNo(items.line_item_no)" 
+                :itemText="items.line_text" 
+                :itemData="items.table_data" 
+                :disabled="editingFieldNo !== fields.field_no"
+                />
+                <DateItemComponent 
+                   v-else-if="items.line_item_type === 'date'" 
+                  :item-number="getDisplayFieldNo(items.line_item_no)"
+                  :itemText="items.line_text"
+                  :item-value="items.value[0]"
+                  :disabled="false"
+                  :indent="getIndent(items.line_item_no)"
+                  @update="val => selectedDate = val"
                 />
               </span>
             </div>
@@ -105,6 +191,8 @@ import { ref, reactive , computed} from 'vue'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
+import TableItemComponent from './subcomponent/TableItemComponent.vue'
+import DateItemComponent from './subcomponent/DateItemComponent.vue'
 import response from '@/assets/Sample_data/responsedata'
 import { useEditableStore } from '@/stores/responseStore'
 
@@ -159,6 +247,17 @@ function cancelEditing() {
 function openUpload(){
   emit('open-upload')
 }
+
+function getDisplayFieldNo(fieldNo){
+  const parts = fieldNo.split('_');
+  return parts[parts.length - 1]; 
+};
+
+//for indentation
+function getIndent(fieldNo){
+  const depth = (fieldNo.match(/_/g) || []).length;
+  return depth * 30; 
+};
 </script>
 
 <style scoped>
