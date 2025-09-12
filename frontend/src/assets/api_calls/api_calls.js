@@ -60,6 +60,38 @@ async function filings_list(user_id){
 }
 
 
+//-----------ADMIN ENDPOINT CALLS-----------------//
+
+async function create_user(data,user_id){
+    const response=await axios.post('http://localhost:8080/api/v1/admin/create_user',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
+
+
+async function delete_user(data,user_id){
+    const response=await axios.post('http://localhost:8080/api/v1/admin/create_user',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
+
+
+
+
 
 const api_call_methods={
     login,
@@ -67,7 +99,9 @@ const api_call_methods={
     resend_otp,
     logout,
     reset_password,
-    filings_list
+    filings_list,
+    create_user,
+    delete_user
 
 }
 
