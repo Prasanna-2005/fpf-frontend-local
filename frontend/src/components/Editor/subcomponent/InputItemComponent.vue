@@ -1,11 +1,12 @@
 <template>
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }" >
+
         <p>
             <span>{{ props.itemNumber }}</span>)
             <span>{{ props.itemText }}</span>: 
         </p>
         <p>
-            <input type="text" v-model="inputValue" style="width: 180px;" :disabled="disabled">
+            <input type="text" v-if="inputNeeded" v-model="inputValue" style="width: 180px;" :disabled="disabled">
         </p>
     </div>
 
@@ -29,9 +30,17 @@ const props=defineProps({
         required:true,
         default:''
     },
-       disabled: {
+    disabled: {
         type:Boolean,
         required:true
+    },
+    indent: { 
+        type: Number,
+        default: 0 
+    },
+    inputNeeded:{
+        type: Boolean,
+        default:true
     }
 }) 
 const inputValue=ref(props.itemValue)
@@ -39,6 +48,7 @@ const emit = defineEmits(['update'])
 watch(inputValue, () => {
   emit('update', inputValue.value)    
 })
+
 
 </script>
 
