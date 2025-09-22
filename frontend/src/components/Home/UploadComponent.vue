@@ -59,7 +59,7 @@ const emit = defineEmits(['Upload-done'])
 
 function onDrop(acceptedFiles) {
   files.value = acceptedFiles
-  fileStore.addFiles(filingName, acceptedFiles)
+  fileStore.addFiles(filingName.value, acceptedFiles)
 }
 
 function submitUpload() {
