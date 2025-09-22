@@ -77,6 +77,8 @@ import api_call_methods from "@/assets/api_calls/api_calls";
 import { ref } from "vue";
 import { useFileStore} from '@/stores/fileStore'
 import { useUserStore } from '@/stores/userStore'
+import { useToast } from 'vue-toast-notification';
+const toast = useToast();
 
 const fileStore = useFileStore()
 const filingName = fileStore.getfilingName()
@@ -129,7 +131,6 @@ function update_unmapped_files(fund, filename) {
     fundname: fund.fundname,
   });
 
-  console.log(localData.value);
 }
 
 
@@ -174,13 +175,12 @@ async function proceed() {
         "timestamp": current_time
         }
 
-    print("data for submit::::::",data)
     await api_call_methods.submit_files(data,user_id)
+    toast.success("Mappings updated successfully!")
     location.reload();
-    alert("Mappings updated successfully!");
   } catch (err) {
     console.error("Error updating mappings:", err);
-    alert("Failed to update mappings.");
+    toast.error("Failed to update mappings.");
   }
 }
 
