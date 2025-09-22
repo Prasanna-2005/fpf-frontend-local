@@ -21,7 +21,7 @@
       <hr />
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="#" class="nav-link active">Home</a>
+          <a href="/home" class="nav-link active">Home</a>
         </li>
         <li>
           <a href="#" class="nav-link link-dark">Report</a>
