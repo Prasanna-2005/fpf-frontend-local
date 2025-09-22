@@ -79,6 +79,7 @@ import { useFileStore} from '@/stores/fileStore'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification';
 const toast = useToast();
+const emit=defineEmits(['open-uploader'])
 
 const fileStore = useFileStore()
 const filingName = fileStore.getfilingName()
@@ -185,6 +186,7 @@ async function proceed() {
 }
 
 function open_uploader() {
+  emit('open-uploader')
   uploaderFlag.value = true;
 }
 </script>
