@@ -18,11 +18,11 @@
       </thead>
       <tbody class="table-group-divider">
         <tr v-for="(data, index) in paginatedData" :key="index">
-          <th scope="row"><a href="">{{ data['filing name'] }}</a></th>
-          <td>{{ data['Prepared By'] }}</td>
-          <td>{{ data['Status'] }}</td>
-          <td>{{ data['Modified By'] }}</td>
-          <td>{{ data['Modified On'] }}</td>
+          <th scope="row"><a href="">{{ data['filing_name'] }}</a></th>
+          <td>{{ data['prepared_by'] }}</td>
+          <td>{{ data['status'] }}</td>
+          <td>{{ data['modified_by'] }}</td>
+          <td>{{ data['modified_on'] }}</td>
           <td>
             <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
           </td>
@@ -49,15 +49,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import TopBarComponent from '@/components/Home/TopBarComponent.vue';
 import sample_json from '@/assets/Sample_data/sample'
+import api_call_methods from '@/assets/api_calls/api_calls';
+import { useUserStore } from '@/stores/userStore';
+const userStore = useUserStore();
 
-
-const data = sample_json
+const data = ref({ data: [] })   
+const user_id=userStore.userID
+onMounted(async () => {
+  try {
+    const result=await api_call_methods.filings_list(user_id)
+    data.value=result
+  } catch (error) {
+    console.error("Error fetching data:", error)
+  }
+})
 
 const currentPage = ref(1)
-const itemsPerPage = 5
+const itemsPerPage = 4
 const searchQuery = ref('')
 
 
@@ -68,9 +79,9 @@ function handleSearch(query) {
 
 
 const filteredData = computed(() => {
-  if (!searchQuery.value.trim()) return data['data']
+  if (!searchQuery.value.trim()) return data.value['data']
   const q = searchQuery.value.toLowerCase()
-  return data['data'].filter(item =>
+  return data.value['data'].filter(item =>
     Object.values(item).some(value =>
       String(value).toLowerCase().includes(q)
     )

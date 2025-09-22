@@ -6,7 +6,7 @@
         <!-- delete user popup -->
         <div v-if="type=='deleteUser'" class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
             <h4>Are you sure you want to delete  <strong>{{ userNameToBeDeleted }}</strong>?</h4>
-            <button class="btn btn-danger me-2 mt-2 mb-2 w-100">DELETE</button>
+            <button class="btn btn-danger me-2 mt-2 mb-2 w-100" @click="deleteUser(userIdToBeDeleted)">DELETE</button>
             
         </div>
 
@@ -52,14 +52,22 @@
 </template>
 <script setup>
 import {ref} from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls'
+import { useUserStore } from '@/stores/userStore'
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
+const userStore=useUserStore()
+const user_id=userStore.userID
 const props=defineProps({
     type:{
         type:String,
         required:true,
     },
     userNameToBeDeleted:{
+        type:String,
+        required:true,
+    },
+    userIdToBeDeleted:{
         type:String,
         required:true,
     },
@@ -93,6 +101,19 @@ async function approveFiling(){
         approving.value=false
     }
 
+}
+ 
+async function deleteUser(){
+    console.log(props.userIdToBeDeleted)
+    try{
+        const result=await api_call_methods.delete_user(props.userIdToBeDeleted,
+            user_id) 
+        console.log(result)
+    }
+    catch(error) {
+        console.log(error)
+    }
+    
 }
 
 </script>

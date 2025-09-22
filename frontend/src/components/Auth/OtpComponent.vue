@@ -2,37 +2,120 @@
     <form class="needs-validation" novalidate @submit.prevent="submitotp" >
         <div class="mb-3">
         <label for="OTPInput" class="form-label">Enter OTP</label>
-        <input type="number" class="form-control" id="OTPInput"  v-model="otp" required >
+        <input type="text" class="form-control" id="OTPInput"  v-model="otp" required >
         <div  class="invalid-feedback">
                    Please enter a valid OTP
         </div>
     </div>
     <div class="box">
-        <button type="submit" class="btn btn-primary button-in-box" >Submit</button>
+        <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
+            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span v-if="!isLoading">Verify OTP</span>
+            <span v-else>Verfiying OTP...</span>
+        </button>
     </div>
 
-    <span class="box">Resend otp in </span>
+    <div class="mt-3 text-center">
+        <span v-if="timer > 0">
+            Resend OTP in <strong>{{ timer }}</strong> sec
+        </span>
+        <a v-else href="#" @click.prevent="resendOtp" class="ms-2">Resend OTP</a>
+    </div>
     </form>
     
 </template>
+
 <script setup>
-import { useToast } from 'vue-toast-notification'
-import { useUserStore } from '@/stores/userStore'
-const otp=''
-const toast = useToast()
-function submitotp(event){
-    event.preventDefault()
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useToast } from 'vue-toast-notification';
+import { useUserStore } from '@/stores/userStore';
+import api_call_methods from '@/assets/api_calls/api_calls';
+
+const otp = ref('');
+const isLoading = ref(false);
+const timer = ref(60); 
+let intervalId = null;
+
+const toast = useToast();
+
+const props = defineProps({
+    user_id: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    }
+});
+
+onMounted(() => {
+    startTimer();
+});
+
+onBeforeUnmount(() => {
+    clearInterval(intervalId);
+});
+
+function startTimer() {
+    timer.value = 60;
+    intervalId = setInterval(() => {
+        if (timer.value > 0) {
+            timer.value--;
+        } else {
+            clearInterval(intervalId);
+        }
+    }, 1000);
+}
+
+async function submitotp(event) {
+    event.preventDefault();
     const form = event.target;
-    const userStore = useUserStore()
+    const userStore = useUserStore();
 
     if (!form.checkValidity()) {
-        event.preventDefault();
         event.stopPropagation();
     } else {
-    //API Call
-    setTimeout(3000)
-    location.replace('/home')
+        try {
+            isLoading.value = true;
+            const result = await api_call_methods.verify_otp({
+                user_id: props.user_id,
+                otp: otp.value.toString()
+            });
+
+            if (result.status == '200') {
+                toast.success('OTP Verified Successfully!');
+                userStore.login({
+                    username: result.data.response.username,
+                    email: props.email,
+                    role: result.data.response.role,
+                    userID: props.user_id
+                });
+                location.replace('/home');
+            } else {
+                toast.error('Invalid OTP!');
+            }
+        } catch (error) {
+            toast.error('Something went wrong!');
+            console.error(error);
+        } finally {
+            isLoading.value = false;
+        }
     }
     form.classList.add('was-validated');
+}
+
+
+async function resendOtp() {
+    try {
+        toast.info('Resending OTP...');
+        const result=await api_call_methods.resend_otp({ user_id: props.user_id });
+        console.log(result)
+        toast.success('OTP Sent Successfully!');
+        startTimer(); 
+    } catch (error) {
+        toast.error('Failed to resend OTP!');
+        console.error(error);
+    }
 }
 </script>

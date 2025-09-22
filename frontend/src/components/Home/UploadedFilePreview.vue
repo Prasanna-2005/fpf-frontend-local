@@ -1,72 +1,165 @@
 <template>
-    <div class="upload-container d-flex flex-column gap-2 custom-view"  >
-        <h3>Uploaded Files</h3>
-        <div>
-            <label for="filing_name"  class="form-label">Filing Name*</label>
-            <p><b>{{ filingName }} </b></p>
-        </div>
-        <div class="dropzone-container">
-            <div class="max-dimensions">
-                <div class="max-dimensions">
-                    <div class="max-dimensions d-flex justify-content-center align-items-center">
-                    <div class="DropZone max-dimensions d-flex justify-content-center align-items-center ">
-                        <div class=" file-list-grid max-dimensions " style="overflow: hidden;">
-                            <fileComponent v-for="(file, index) in files"
-                            :key="index"
-                            :filename="file.name" @remove-file="remove_file" />
-                        
-                        </div>
-                        
-                    </div>
-                    </div>
-                </div>
-                </div>
-        </div>
-        <div class="d-flex justify-content-end gap-2">
-            <button class="btn" @click="$emit('close-click')">Cancel</button>
-            <button class="btn btn-primary" >Submit</button>
-        </div>
+  <div class="upload-container d-flex flex-column gap-3">
+    <!-- Header -->
+    <h3 class="section-title">Uploaded Files</h3>
+
+    <!-- Filing Name -->
+    <div>
+      <label for="filing_name" class="form-label">Filing Name*</label>
+      <p class="filing-name"><b>{{ filingName }}</b></p>
     </div>
-</template>  
+
+    <!-- Dropzone -->
+    <div class="dropzone-container d-flex justify-content-center align-items-center">
+      <div class="file-list-grid">
+        <fileComponent
+          v-for="(file, index) in files"
+          :key="index"
+          :filename="file.name"
+          @remove-file="remove_file"
+        />
+      </div>
+    </div>
+
+    <!-- Footer buttons -->
+    <div class="d-flex justify-content-end gap-2 mt-2">
+      <button class="btn btn-outline-secondary" @click="$emit('close-click')">Cancel</button>
+      <!-- <button class="btn btn-primary" @click="upload_files()">Submit</button> -->
+      <button type="submit" @click="upload_files()" class="btn btn-primary " :disabled="isLoading_uploading || isLoading_mapping">
+                    <span v-if="isLoading_uploading & isLoading_mapping " class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!isLoading_uploading & !isLoading_mapping ">Submit</span>
+                    <span v-else-if="isLoading_uploading & !isLoading_mapping ">Uploading...</span>
+                    <span v-else>Mapping...</span>
+                </button>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import fileComponent from './fileComponent.vue';
-import { useFileStore } from '@/stores/fileStore'
-import {ref} from 'vue'
+import { useFileStore} from '@/stores/fileStore'
+import { useUserStore } from '@/stores/userStore'
+import { ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls';
+
 const fileStore = useFileStore()
-const files=ref(fileStore.getFiles())
-const filingName= fileStore.getfilingName()
-function remove_file(filename){
-    
-    fileStore.removeFile(filename)
-    files.value=fileStore.getFiles()
+const files = ref(fileStore.getFiles())
+const filingName = fileStore.getfilingName()
+
+const userStore=useUserStore()
+const user_id=userStore.userID
+const isLoading_uploading= ref(false);
+const isLoading_mapping=ref(false)
+
+const mapped_data=ref('')
+const emit=defineEmits(['files-mapped'])
+function remove_file(filename) {
+  fileStore.removeFile(filename)
+  files.value = fileStore.getFiles()
 }
 
-</script>     
 
-<style>
-.dropzone-container{
-    height:70%;
-    border: 2px solid grey;
-    border-radius:10px ;
-    background-color: #FFF;
-    width: 100%;
+async function upload_files(){
+    try{
+      isLoading_uploading.value=true
+      const formData=fileStore.getFormData()
+      const current_time = new Date();
+      formData.append('user_id', user_id)
+      formData.append('new_filing', true)
+      formData.append('filing_name', filingName)
+      formData.append('timestamp', current_time.toISOString())
+      await api_call_methods.upload(formData,user_id)
+      const data={
+        'filing_name':filingName
+      }
+      isLoading_mapping.value=true
+      const result=await api_call_methods.map_files(data,user_id)
+      console.log(result)
+      mapped_data.value=result
+      if(mapped_data===''){
+        mapped_data.value={}
+      }
+
+    }
+    catch(error){
+      console.log(error)
+    }
+    finally{
+      isLoading_uploading.value=false 
+      isLoading_mapping.value=false
+      emit('files-mapped', mapped_data.value)
+    }
+
 }
-.upload-container{    
-     width: 70%; 
-     height: 70%; 
-     padding: 20px; 
-     background-color: white;
-     border-radius: 15px;
+</script>
+
+<style scoped>
+/* Container */
+.upload-container {
+  width: 70%;
+  height: 70%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
-.f-20{
-    width: 20% !important;
+
+/* Section title */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  color: #333;
 }
+
+/* Filing name */
+.filing-name {
+  font-size: 1rem;
+  color: #444;
+  margin: 0;
+}
+
+/* Dropzone */
+.dropzone-container {
+  flex: 1;
+  border: 2px dashed #bbb;
+  border-radius: 10px;
+  background-color: #fafafa;
+  padding: 15px;
+  min-height: 200px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.dropzone-container:hover {
+  border-color: #4a90e2;
+  background-color: #f9fcff;
+}
+
+/* File grid */
 .file-list-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+  gap: 16px;
+  width: 100%;
   overflow-y: auto;
-  padding: 10px;
+  max-height: 100%;
+  padding: 4px;
 }
 
+
+/* Buttons */
+.btn {
+  min-width: 100px;
+}
+
+.btn-outline-secondary {
+  border-radius: 8px;
+}
+
+.btn-primary {
+  border-radius: 8px;
+  font-weight: 500;
+}
 </style>

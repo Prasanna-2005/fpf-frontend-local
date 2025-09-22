@@ -69,6 +69,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls'
+import { useUserStore } from '@/stores/userStore';
+const userStore = useUserStore();
 
 const firstname = ref('')
 const lastname = ref('')
@@ -77,7 +80,8 @@ const role = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
-function handleSubmit() {
+const user_id=userStore.userID
+async function handleSubmit() {
   if (!firstname.value || !lastname.value || !email.value || !role.value || !password.value || !confirmPassword.value) {
     alert('Please fill out all fields.')
     return
@@ -89,13 +93,18 @@ function handleSubmit() {
   }
 
   const userData = {
-    firstname: firstname.value,
-    lastname: lastname.value,
-    email: email.value,
-    role: role.value,
-    password: password.value,
+    'username': firstname.value+'.'+lastname.value,
+    'email':email.value,
+    'user_role': role.value,
+    'password': password.value,
   }
 
+  const data={
+    'data':userData
+  }
+  console.log(user_id)
+  const result=await api_call_methods.create_user(data,user_id)
+  console.log(result)
 
 }
 const emit=defineEmits(['cancel-add-user'])

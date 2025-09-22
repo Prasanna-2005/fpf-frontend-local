@@ -3,50 +3,52 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useFileStore = defineStore('file', () => {
-  const formData = ref(new FormData())
-  const files = ref([])
-  const filing=ref('')
-
-  function addFiles(filingName,newFiles) {
-    filing.value=filingName
+  const files = ref([]);
+  const filing = ref('');
+  let filing_name=''
+  function addFiles(filingName, newFiles) {
+    filing.value = filingName;
+    filing_name=filingName
     for (const file of newFiles) {
       if (!files.value.find(f => f.name === file.name)) {
-        formData.value.append('files', file)
-        files.value.push(file)
+        files.value.push(file);
       }
     }
   }
 
   function removeFile(filename) {
-    files.value = files.value.filter(file => file.name !== filename)
-
-    const newForm = new FormData()
-    for (const file of files.value) {
-      newForm.append('files', file)
-    }
-    formData.value = newForm
+    files.value = files.value.filter(file => file.name !== filename);
   }
 
   function clearFiles() {
-    formData.value = new FormData()
-    files.value = []
-    filing.value=''
+    files.value = [];
+    filing.value = '';
   }
+
   function getFiles() {
-    return [...files.value] 
+    return [...files.value];
   }
-  function getfilingName(){
-    return filing.value
+
+  function getfilingName() {
+    return filing_name
+
+
+  }
+
+  function getFormData() {
+    const fd = new FormData();
+    files.value.forEach(file => fd.append('files', file));
+    // fd.append('filing_name', filing.value);
+    return fd;
   }
 
   return {
-    formData,
     files,
     addFiles,
     removeFile,
     clearFiles,
     getFiles,
-    getfilingName
-  }
-
-})
+    getfilingName,
+    getFormData
+  };
+});
