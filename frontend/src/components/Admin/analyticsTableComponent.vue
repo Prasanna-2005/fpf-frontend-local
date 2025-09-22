@@ -5,19 +5,19 @@
         <tr>
           <th class="tr-padding" scope="col">Name</th>
           <th scope="col">Role</th>
-          <th scope="col">Filings Uploaded</th>
-          <th scope="col">Filings Reviewed</th>
+          <th scope="col">Email</th>
+          <th scope="col">Created at</th>
           <th scope="col"></th>
         </tr>
       </thead>
       <tbody class="table-group-divider">
-        <tr v-for="(data, index) in table_data" :key="index">
-          <th scope="row">{{ data['name'] }}</th>
+        <tr v-for="(data, index) in data" :key="index">
+          <th scope="row">{{ data['username'] }}</th>
           <td><button class="btn rounded-pill btn-outline-info" disabled>{{ data['role'] }}</button></td>
-          <td>{{ data['uploaded'] }}</td>
-          <td>{{ data['reviewed'] }}</td>
+          <td>{{ data['email'] }}</td>
+          <td>{{ data['created_at'] }}</td>
           <td>
-            <a href="#"><font-awesome-icon class="icon" icon="trash" @click="handleDelete(data['name'],data['id'])"/></a>
+            <a href="#"><font-awesome-icon class="icon" icon="trash" @click="handleDelete(data['username'],data['user_id'])"/></a>
           </td>
         </tr>
       </tbody>
@@ -29,6 +29,25 @@
 
 <script setup>
 
+import {ref,onMounted} from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import api_call_methods from '@/assets/api_calls/api_calls';
+
+
+
+
+const userStore = useUserStore();
+const user_id=userStore.userID
+const data=ref('')
+onMounted(async () => {
+  try {
+    const result=await api_call_methods.get_users(user_id)
+    data.value=result.data.users
+    console.log('table',data.value)
+  } catch (error) {
+    console.error("Error fetching data:", error)
+  }
+})
 
 const table_data = [
   { id:'12344',name: 'Alice', role: 'Contributor', uploaded: 12, reviewed: 9 },
@@ -42,7 +61,7 @@ const table_data = [
 const emit= defineEmits(['delete-user'])
 
 function handleDelete(name,id){
-    emit('delete-user',{ name, id })
+    emit('delete-user',{ 'name':name, 'id':id })
     
 }
 
