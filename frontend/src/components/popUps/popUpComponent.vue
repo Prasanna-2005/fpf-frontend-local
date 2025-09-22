@@ -40,7 +40,11 @@
         <div v-if="type=='approveFiling'" class="max-dimensions">
             <div class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
                 <h4><b>Are you sure you want to approve this filing?</b></h4>
-                <button class="btn btn-primary me-2 mt-2 mb-2" @click="approveFiling">APPROVE</button>
+                 <button class="btn btn-primary " @click="approveFiling" :disabled="approving">
+                    <span v-if="approving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!approving">Approve filing</span>
+                    <span v-else>Approving...</span>
+                </button>
             </div>
         </div>
         
@@ -49,7 +53,6 @@
 <script setup>
 import {ref} from 'vue'
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
-
 
 const props=defineProps({
     type:{
@@ -65,6 +68,7 @@ const props=defineProps({
         default:''
     }
 })
+const approving=ref(false)
 
 const nameOfCopyfiling=ref(props.defaultCopyName)
 function deletePopUp(){
@@ -76,8 +80,19 @@ function createCopy(){
 function downloadPdf(){
     emit('downloadPdf')
 }
-function approveFiling(){
-    emit('approveFiling')
+async function approveFiling(){
+    try{
+        approving.value=true
+        console.log(approving.value)
+         
+    }
+    catch(err){
+
+    }
+    finally{
+        approving.value=false
+    }
+
 }
 
 </script>
