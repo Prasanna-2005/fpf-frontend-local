@@ -24,23 +24,72 @@
     <!-- Footer buttons -->
     <div class="d-flex justify-content-end gap-2 mt-2">
       <button class="btn btn-outline-secondary" @click="$emit('close-click')">Cancel</button>
-      <button class="btn btn-primary">Submit</button>
+      <!-- <button class="btn btn-primary" @click="upload_files()">Submit</button> -->
+      <button type="submit" @click="upload_files()" class="btn btn-primary " :disabled="isLoading_uploading || isLoading_mapping">
+                    <span v-if="isLoading_uploading & isLoading_mapping " class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!isLoading_uploading & !isLoading_mapping ">Submit</span>
+                    <span v-else-if="isLoading_uploading & !isLoading_mapping ">Uploading...</span>
+                    <span v-else>Mapping...</span>
+                </button>
     </div>
   </div>
 </template>
 
 <script setup>
 import fileComponent from './fileComponent.vue';
-import { useFileStore } from '@/stores/fileStore'
+import { useFileStore} from '@/stores/fileStore'
+import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls';
 
 const fileStore = useFileStore()
 const files = ref(fileStore.getFiles())
 const filingName = fileStore.getfilingName()
 
+const userStore=useUserStore()
+const user_id=userStore.userID
+const isLoading_uploading= ref(false);
+const isLoading_mapping=ref(false)
+
+const mapped_data=ref('')
+const emit=defineEmits(['files-mapped'])
 function remove_file(filename) {
   fileStore.removeFile(filename)
   files.value = fileStore.getFiles()
+}
+
+
+async function upload_files(){
+    try{
+      isLoading_uploading.value=true
+      const formData=fileStore.getFormData()
+      const current_time = new Date();
+      formData.append('user_id', user_id)
+      formData.append('new_filing', true)
+      formData.append('filing_name', filingName)
+      formData.append('timestamp', current_time.toISOString())
+      await api_call_methods.upload(formData,user_id)
+      const data={
+        'filing_name':filingName
+      }
+      isLoading_mapping.value=true
+      const result=await api_call_methods.map_files(data,user_id)
+      console.log(result)
+      mapped_data.value=result
+      if(mapped_data===''){
+        mapped_data.value={}
+      }
+
+    }
+    catch(error){
+      console.log(error)
+    }
+    finally{
+      isLoading_uploading.value=false 
+      isLoading_mapping.value=false
+      emit('files-mapped', mapped_data.value)
+    }
+
 }
 </script>
 
