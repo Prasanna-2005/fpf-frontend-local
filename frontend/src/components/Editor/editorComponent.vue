@@ -20,7 +20,7 @@
 
     <div class="max-dimensions" style="border: 1px solid; height: 730px; overflow: scroll;">
       <div class="editor-header">
-        <h3>{{ props.fundName }} {{ props.seriesName }}</h3>
+        <h3>{{ props.fundName }} </h3>
       </div>
 
       <div>
@@ -34,7 +34,7 @@
                     v-if="fields.field_item_type === 'text' || fields.field_item_type === 'None'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
-                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                    :itemValue="editedData[fields.field_no]?.value ?? fields.value"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"  
                     :inputNeeded="fields.field_item_type !== 'None'"
@@ -136,7 +136,7 @@
                   v-if="items.line_item_type === 'text'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
-                  :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
+                  :itemValue="editedData[fields.field_no]?.[itemIndex]?.value ?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"  
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
@@ -187,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, reactive , computed} from 'vue'
+import { ref, reactive , computed,onMounted} from 'vue'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
@@ -196,24 +196,27 @@ import DateItemComponent from './subcomponent/DateItemComponent.vue'
 import response from '@/assets/Sample_data/responsedata'
 import { useEditableStore } from '@/stores/responseStore'
 
+
 const props = defineProps({
   fundName: { 
     type: String, 
     required: true 
   },
-  seriesName: { 
-    type: String, 
-    required: true
-   }
+  
+  
+
 })
+
 
 const emit=defineEmits(['open-upload'])
 const responseStore = useEditableStore()
-responseStore.setResponse(response)
 
-const data = computed(() => responseStore.getfundSeriesdata('1','A'))
+const data = computed(() => responseStore.getFundData(props.fundName))
+console.log('data in ediror page ',data)
 const editingFieldNo = ref(null)
 const editedData = reactive({})
+
+
 
 function startEditing(fieldNo) {
   editingFieldNo.value = fieldNo
@@ -249,6 +252,7 @@ function openUpload(){
 }
 
 function getDisplayFieldNo(fieldNo){
+  console.log(fieldNo)
   const parts = fieldNo.split('_');
   return parts[parts.length - 1]; 
 };
