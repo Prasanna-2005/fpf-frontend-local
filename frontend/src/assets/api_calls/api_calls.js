@@ -144,6 +144,38 @@ async function submit_files(data,user_id) {
 }
 
 
+async function get_response(user_id) {
+    const id=30
+    const response=await axios.get(`http://localhost:8080/api/edit/v1/response/${id}`,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+
+}
+
+
+async function get_xml_data(user_id) {
+    const id=45
+    const response=await axios.get(`http://localhost:8080/api/v1/edit/approved/45`,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+
+}
+
+
 
 
 const api_call_methods={
@@ -158,7 +190,9 @@ const api_call_methods={
     get_users,
     upload,
     map_files,
-    submit_files
+    submit_files,
+    get_response,
+    get_xml_data
 
 }
 
