@@ -54,6 +54,9 @@
 import {ref} from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
+import { create } from 'xmlbuilder2';
+import { saveAs } from 'file-saver';
+
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
 const userStore=useUserStore()
@@ -91,11 +94,13 @@ function downloadPdf(){
 async function approveFiling(){
     try{
         approving.value=true
-        console.log(approving.value)
-         
+        const result=await api_call_methods.get_xml_data(user_id) 
+        console.log('tetseesetestetse',result.data)    
+        downloadXMLFile(result.data)    
     }
-    catch(err){
-
+    catch(error){
+        console.log(error)
+        
     }
     finally{
         approving.value=false
@@ -113,8 +118,33 @@ async function deleteUser(){
     catch(error) {
         console.log(error)
     }
-    
 }
+function downloadXMLFile(data) {
+  const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
+  const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
+  data.fund_info.forEach(fund => {
+    const fundElem = sectionA.ele('PFSection1bItemAFundIdentInfo');
+    fundElem.ele('FundID').txt(fund.fund_id);
+    fundElem.ele('FundName').txt(fund.fund_name);
+    fundElem.ele('FundType').txt(fund.fund_type);
+  });
+  const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
+  data.tags_info.forEach(fundTags => {
+    const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
+    fundTags.forEach(tag => {
+      fundElem.ele(tag.xmltags).txt(tag.value);
+    });
+  });
+  const xmlString = root.end({ prettyPrint: true });
+  const blob = new Blob([xmlString], { type: "application/xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fund_data.xml';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 
 </script>
 
