@@ -4,7 +4,7 @@
                 <SideBarComponent @add-fund="openAddFundPopUp=true" />
             </div>
             <div v-if="loading" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative">
-                    Please wait
+                    Please wait loading editing page....
                 </div>
             <div v-else class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 

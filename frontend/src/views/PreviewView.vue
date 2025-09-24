@@ -3,11 +3,12 @@
             <div >
                 <SideBarComponent  @add-fund="openAddFundPopUp=true"/>
             </div>
-            <div  class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
+            <div v-if="loading" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative">
+                  <div >Please wait loading PDF preview....</div>
+            </div>
+            <div v-else class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <!-- <topBarComponent @selected-fund="selectFund"  /> -->
-                <div v-if="loading">Loadind PDF Preview</div>
-
-                <previewComponent v-else @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id"/>
+                <previewComponent  @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id"/>
             </div> 
             <div v-if="createCopyPopUp" class="backdrop">
                     <popUpComponent  type="createCopy"  @remove-pop-up="createCopyPopUp = false" defaultCopyName="FinancialPaper24-25: Copy"/>
