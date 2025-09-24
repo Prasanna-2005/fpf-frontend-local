@@ -4,7 +4,7 @@
                 <SideBarComponent  @add-fund="openAddFundPopUp=true"/>
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
-                <topBarComponent @selected-fund="selectFund"  />
+                <!-- <topBarComponent @selected-fund="selectFund"  /> -->
                 <previewComponent @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" />
             </div> 
             <div v-if="createCopyPopUp" class="backdrop">

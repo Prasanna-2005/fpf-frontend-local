@@ -126,14 +126,13 @@
 </template>
 
 <script setup>
-import response from '@/assets/Sample_data/responsedata';
 import { useEditableStore } from '@/stores/responseStore';
 import { ref, computed} from 'vue';
 import html2pdf from 'html2pdf.js';
 
 const responseStore = useEditableStore();
-responseStore.setResponse(response);
-const data = responseStore.getfundSeriesdata('1', 'A');
+const data = responseStore.getAllData();
+console.log(data)
 const pdfContent = ref(null);
 const emit= defineEmits(['create-copy','approve'])
 // for grouping data based on heading
