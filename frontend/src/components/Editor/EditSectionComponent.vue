@@ -2,7 +2,7 @@
     <div class="w-100 d-flex justify-content-center">
         <div class="main-container d-flex" style="max-width: 100%;border: 1px solid grey;">
             <div class="w-100 editor" >
-                <editorComponent :fundName="fundName"   @open-upload="openUpload" />
+                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId"/>
             </div>
             <!-- <div class="series-selector w-10 d-flex justify-content-end" >
                 <div class="w-100 d-flex flex-column align-items-end">
@@ -22,6 +22,10 @@ import {ref} from 'vue'
 import editorComponent from './editorComponent.vue';
 const props=defineProps({
     fundName:{
+        type:String,
+        required:true
+    },
+    filingId:{
         type:String,
         required:true
     },
