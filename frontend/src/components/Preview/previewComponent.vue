@@ -14,7 +14,7 @@
       <button class="btn btn-primary m-2 border-0" @click="approvePopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Approve
       </button>
-      <button class="btn btn-primary m-2 border-0">
+      <button class="btn btn-primary m-2 border-0" @click="goBackToEdit">
         <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
       <button class="btn btn-primary m-2 border-0">
@@ -136,7 +136,18 @@
 import { useEditableStore } from '@/stores/responseStore';
 import { ref, nextTick } from 'vue';
 import html2pdf from 'html2pdf.js';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+const props = defineProps({
+  filingId:{
+        type:String,
+        required:true
+    },
+  
+  
+
+})
 const responseStore = useEditableStore();
 const data = responseStore.getAllData();
 console.log("data==============", data);
@@ -188,6 +199,9 @@ function createCopyPopUp() {
 
 function approvePopUp() {
   emit('approve');
+}
+function goBackToEdit(){
+  router.push({ name: 'editing', query: { filing_id: props.filingId } });
 }
 </script>
 
