@@ -23,7 +23,7 @@
         <h3>{{ props.fundName }} </h3>
       </div>
 
-      <div>
+      <div :key="props.fundName">
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
           <div class="d-flex justify-content-between align-items-center">
             <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }">
@@ -187,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, reactive , computed,onMounted} from 'vue'
+import { ref, reactive ,watch} from 'vue'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
@@ -210,11 +210,26 @@ const props = defineProps({
 
 const emit=defineEmits(['open-upload'])
 const responseStore = useEditableStore()
-
-const data = computed(() => responseStore.getFundData(props.fundName))
+const editedData = reactive({})
+console.log("fundname lofg",props.fundName)
+const data=ref(responseStore.getFundData(props.fundName))
+// const data = computed(() => responseStore.getFundData(props.fundName))
 console.log('data in ediror page ',data)
 const editingFieldNo = ref(null)
-const editedData = reactive({})
+
+watch(
+  () => props.fundName,  
+  (newVal) => {
+    console.log('change in val', newVal)
+    data.value = responseStore.getFundData(newVal)
+    console.log(data.value)
+     for (const key in editedData) {
+      delete editedData[key]
+    }
+    
+    editingFieldNo.value = null
+  }
+)
 
 
 
