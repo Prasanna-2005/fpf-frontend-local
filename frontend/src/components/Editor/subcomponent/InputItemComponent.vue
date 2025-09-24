@@ -1,9 +1,9 @@
 <template>
-    <div class="d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }" >
+    <div class="w-100 d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }" >
 
-        <p>
+        <p style="max-width: 70%;">
             <span>{{ props.itemNumber }}</span>)
-            <span>{{ props.itemText }}</span>: 
+            <span>{{ props.itemText }}</span>
         </p>
         <p>
             <input type="text" v-if="inputNeeded" v-model="inputValue" style="width: 180px;" :disabled="disabled">
