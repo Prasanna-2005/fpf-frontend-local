@@ -1,31 +1,67 @@
 <template>
   <div class="w-100 p-2">
     <div class="button-options">
+      <button class="btn btn-primary m-2 border-0" @click="goToHome">
+        <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
+      </button>
       <button class="btn btn-primary m-2 border-0"  @click="goToPreview">
         <font-awesome-icon class="icon" icon="eye" /> Pdf Preview
       </button>
-      <button class="btn btn-primary m-2 border-0">
+      <button class="btn btn-secondary m-2 border-0" disabled>
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
-      <button class="btn btn-primary m-2 border-0">
+      <!-- <button class="btn btn-primary m-2 border-0">
         <font-awesome-icon class="icon" icon="check-double" /> Save
-      </button>
-      <button class="btn btn-primary m-2 border-0">
-        <font-awesome-icon class="icon" icon="arrow-left" /> Back
-      </button>
-      <button class="btn btn-primary m-2 border-0" @click="openUpload">
+      </button> -->
+      
+      <button class="btn btn-secondary m-2 border-0" @click="openUpload" disabled>
         <font-awesome-icon class="icon" icon="upload" /> Upload More Files
       </button>
     </div>
 
-    <div class="max-dimensions" style="border: 1px solid; height: 730px; overflow: scroll;">
+    <div class="max-dimensions" style="padding: 10px 30px 10px 30px; height: 730px; overflow: scroll;">
       <div class="editor-header">
         <h3>{{ props.fundName }} </h3>
       </div>
 
       <div :key="props.fundName">
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
+          <div class="d-flex justify-content-end align-items-center">
+            <div>
+              <button
+                v-if="editingFieldNo !== fields.field_no"
+                class="btn btn-sm  me-2"
+                @click="startEditing(fields.field_no)"
+              >
+                <font-awesome-icon class="icon" icon="pen" />
+              </button>
+              <button
+                v-if="editingFieldNo === fields.field_no"
+                class="btn btn-sm btn-success me-2"
+                @click="saveEdits(fields.field_no, fields.value, fieldIndex)"
+              >
+                <font-awesome-icon class="icon" icon="floppy-disk" />
+              </button>
+              <button
+                v-if="editingFieldNo === fields.field_no" 
+                class="btn btn-sm btn-warning me-2"
+                @click="restoreEdits(fields.field_no, fieldIndex)"
+                >
+                <font-awesome-icon class="icon" icon="rotate-left" />
+              </button>
+              <button
+                v-if="editingFieldNo === fields.field_no"
+                class="btn btn-sm btn-danger "
+                @click="cancelEditing"
+              >
+               <font-awesome-icon class="icon" icon="xmark" />
+              </button>
+              
+            </div>
+          </div>
+          
           <div class="d-flex justify-content-between align-items-center">
+
             <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }">
               
               <span >
@@ -91,37 +127,7 @@
               </span>
              
             </p>
-            <div>
-              <button
-                v-if="editingFieldNo !== fields.field_no"
-                class="btn btn-sm  me-2"
-                @click="startEditing(fields.field_no)"
-              >
-                <font-awesome-icon class="icon" icon="pen" />
-              </button>
-              <button
-                v-if="editingFieldNo === fields.field_no"
-                class="btn btn-sm btn-success me-2"
-                @click="saveEdits(fields.field_no, fields.value, fieldIndex)"
-              >
-                <font-awesome-icon class="icon" icon="floppy-disk" />
-              </button>
-              <button
-                v-if="editingFieldNo === fields.field_no" 
-                class="btn btn-sm btn-warning me-2"
-                @click="restoreEdits(fields.field_no, fieldIndex)"
-                >
-                <font-awesome-icon class="icon" icon="rotate-left" />
-              </button>
-              <button
-                v-if="editingFieldNo === fields.field_no"
-                class="btn btn-sm btn-danger "
-                @click="cancelEditing"
-              >
-               <font-awesome-icon class="icon" icon="xmark" />
-              </button>
-              
-            </div>
+            
             
           </div>
 
@@ -180,6 +186,8 @@
               </span>
             </div>
           </div>
+          <hr class="question-separator" />
+
         </div>
       </div>
     </div>
@@ -307,8 +315,17 @@ function goToPreview(){
   console.log(props.filingId)
   router.push({ name: 'preview', query: { filing_id: props.filingId } });
 };
+
+
+function goToHome(){
+  window.location='/home'
+}
 </script>
 
 <style scoped>
-/* Optional styles */
+.question-separator {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
 </style>
