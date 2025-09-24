@@ -258,6 +258,8 @@ function updateValue(fieldNo, itemIndex, newVal) {
 
 async function saveEdits(fieldNo,value, fieldIndex) {
   console.log('value:',value)
+  // responseStore.getFundId(props.fundName)
+  const fund_id=responseStore.getFundId(props.fundName)
   responseStore.updateItem(props.fundName,fieldNo,editedData[fieldNo],fieldIndex)
   console.log("save------->",editedData[fieldNo])
   const acceptApiData={
@@ -268,7 +270,7 @@ async function saveEdits(fieldNo,value, fieldIndex) {
     "editing": false
   }
   console.log("data for api:::::",acceptApiData)
-  const response=await api_call_methods.accept_data(user_id,acceptApiData)
+  const response=await api_call_methods.accept_data(user_id,acceptApiData,fund_id,props.filingId)
   console.log(response)
   editingFieldNo.value = null
   delete editedData[fieldNo]    
