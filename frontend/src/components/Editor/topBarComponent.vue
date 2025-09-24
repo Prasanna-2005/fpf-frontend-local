@@ -20,8 +20,15 @@
  
 import {ref,onMounted} from 'vue';
 
-const fundDetails=['Private opportunity fund 1, L.P','Private opportunity fund 2, L.P','Private opportunity fund 3, L.P','Private opportunity fund 4, L.P']
+const props = defineProps({
+  fundNames: { 
+    type: String, 
+    required: true 
+  },
+})
 
+console.log('topbar',props.fundNames)
+const fundDetails=props.fundNames
 const filingName="Financial Year 2024-25"
 const selectedFund=ref('')
 
