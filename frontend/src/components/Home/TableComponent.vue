@@ -10,10 +10,10 @@
         <tr>
           <th class="tr-padding" scope="col">Filing Name</th>
           <th scope="col">Prepared By</th>
-          <th scope="col">Status</th>
+          <!-- <th scope="col">Status</th> -->
           <th scope="col">Modified By</th>
           <th scope="col">Modified On</th>
-          <th scope="col"></th>
+          <!-- <th scope="col"></th> -->
         </tr>
       </thead>
       <tbody class="table-group-divider">
@@ -24,12 +24,12 @@
             </router-link>
           </td>
           <td>{{ data['prepared_by'] }}</td>
-          <td>{{ data['status'] }}</td>
+          <!-- <td>{{ data['status'] }}</td> -->
           <td>{{ data['modified_by'] }}</td>
           <td>{{ data['modified_on'] }}</td>
-          <td>
+          <!-- <td>
             <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
-          </td>
+          </td> -->
         </tr>
       </tbody>
     </table>
