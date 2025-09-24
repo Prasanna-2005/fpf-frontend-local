@@ -38,7 +38,7 @@ import { useEditableStore } from '@/stores/responseStore'
 const openAddFundPopUp=ref(false)
 const openUploadPopUp=ref(false)
 const fundName=ref('')
-const loading=ref('false')
+const loading=ref('true')
 const fundNames=ref([])
 
 const responseStore = useEditableStore()
