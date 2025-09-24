@@ -67,7 +67,11 @@
     </div>
 
     <div class="w-100 d-flex justify-content-end align-items-center pt-2">
-      <button class="btn btn-primary" @click="proceed">Proceed</button>
+      <button type="submit" class="btn btn-primary" @click="proceed" :disabled="isLoading">
+          <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <span v-if="!isLoading">Submit</span>
+          <span v-else>Submitting...</span>
+      </button>
     </div>
   </div>
 </template>
@@ -80,7 +84,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification';
 const toast = useToast();
 const emit=defineEmits(['open-uploader'])
-
+const isLoading=ref(false)
 const fileStore = useFileStore()
 const filingName = fileStore.getfilingName()
 
@@ -167,6 +171,7 @@ function remove_file_from_fund(fund, filename) {
 
 async function proceed() {
   try {
+    isLoading.value=true
     const current_time = new Date();
     const data={
         "user_id": user_id,
@@ -182,6 +187,9 @@ async function proceed() {
   } catch (err) {
     console.error("Error updating mappings:", err);
     toast.error("Failed to update mappings.");
+  }
+  finally{
+    isLoading.value=false
   }
 }
 
