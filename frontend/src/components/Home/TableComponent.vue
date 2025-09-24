@@ -4,7 +4,10 @@
   <div>
     <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" />
   </div>
-  <div class="table-div">
+  <div v-if="isLoading" style="height: 300px" class="d-flex justify-content-center align-items-center">
+    <p>Loading Filings table....</p>
+  </div>
+  <div v-else class="table-div">
     <table class="table">
       <thead class="table-light">
         <tr>
@@ -59,15 +62,19 @@ import sample_json from '@/assets/Sample_data/sample'
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useUserStore } from '@/stores/userStore';
 const userStore = useUserStore();
-
+const isLoading=ref(true)
 const data = ref({ data: [] })   
 const user_id=userStore.userID
 onMounted(async () => {
   try {
+    isLoading.value=true
     const result=await api_call_methods.filings_list(user_id)
     data.value=result
   } catch (error) {
     console.error("Error fetching data:", error)
+  }
+  finally{
+    isLoading.value=false
   }
 })
 
