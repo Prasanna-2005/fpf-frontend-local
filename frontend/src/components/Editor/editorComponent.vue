@@ -306,7 +306,7 @@ function getDisplayFieldNo(fieldNo){
 //for indentation
 function getIndent(fieldNo){
   const depth = (fieldNo.match(/_/g) || []).length;
-  return depth * 30; 
+  return depth * 5; 
 };
 
 
