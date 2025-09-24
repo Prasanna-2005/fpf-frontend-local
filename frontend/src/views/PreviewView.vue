@@ -7,7 +7,7 @@
                 <!-- <topBarComponent @selected-fund="selectFund"  /> -->
                 <div v-if="loading">Loadind PDF Preview</div>
 
-                <previewComponent v-else @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" />
+                <previewComponent v-else @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id"/>
             </div> 
             <div v-if="createCopyPopUp" class="backdrop">
                     <popUpComponent  type="createCopy"  @remove-pop-up="createCopyPopUp = false" defaultCopyName="FinancialPaper24-25: Copy"/>
@@ -34,7 +34,10 @@ import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
 
 import { useEditableStore } from '@/stores/responseStore'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 const responseStore = useEditableStore()
+const filing_id=route.query.filing_id
 
 const openAddFundPopUp=ref(false)
 const createCopyPopUp=ref(false)
@@ -48,7 +51,7 @@ const user_id=userStore.userID
 onMounted(async () => {
   try {
     loading.value=true
-    const result=await api_call_methods.get_response(user_id)
+    const result=await api_call_methods.get_response(user_id,filing_id)
     data=result.data 
     responseStore.setResponse(data)
  
