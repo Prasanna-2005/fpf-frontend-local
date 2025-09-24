@@ -7,7 +7,7 @@
             </div>
             <div class="mb-3">
                 <label for="emailInput" class="form-label">Email</label>
-                <input type="email" class="form-control" id="emailInput" name="email" autocomplete="email" aria-describedby="emailHelp" v-model="email" placeholder="prajjwal@quantrium.ai" required>
+                <input type="email" class="form-control" id="emailInput" name="email" autocomplete="email" aria-describedby="emailHelp" v-model="email" placeholder="user@company.com" required>
                 <div  class="invalid-feedback">
                    Please enter a valid email address
                 </div>
@@ -15,7 +15,7 @@
             </div>
             <div class="mb-3">
                 <label for="passwordInput" class="form-label">Password</label>
-                <input type="password" class="form-control" id="passwordInput" autocomplete="current-password"  v-model="password" placeholder="********" required>
+                <input type="password" class="form-control" id="passwordInput" autocomplete="current-password"  v-model="password" required>
                 <div  class="invalid-feedback">
                    Please enter a valid password
                 </div>
@@ -77,14 +77,14 @@ async function handleSubmit(event) {
             if (result.status == '200') {
                 user_id.value = result.data['user_id'];
                 loginSuccess.value = true;
-                toast.success('OTP Sent!');
+                toast.success('Verification code sent!');
                 userStore.login({ email: email.value, role: 'Contributor', userID: user_id.value });
             } else {
                 toast.error('Login failed!');
                 console.log(result);
             }
         } catch (error) {
-            toast.error('Something went wrong!');
+            toast.error('Failed to validate credentials');
             console.error(error);
         } finally {
             isLoading.value = false; 
