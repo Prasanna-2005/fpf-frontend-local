@@ -14,7 +14,8 @@ export const useEditableStore = defineStore('response', () => {
       fund_mapper.value[fundName] = fund.fund_data.map(q => ({
         ...q,
         isRestoreAvailable: false,
-        restoreValue: null
+        restoreValue: null,
+        fund_id: fund.fund_id
       }))
     })
     console.log(fund_mapper.value)
@@ -31,6 +32,13 @@ export const useEditableStore = defineStore('response', () => {
   }
   function getAllData(){
     return fund_mapper.value
+  }
+  function getFundId(fundName) {
+    const fundData = fund_mapper.value[fundName];
+    if (!fundData || fundData.length === 0) return null;
+
+    // since each question object has fund_id now, just take it from the first one
+    return fundData[0].fund_id || null;
   }
 
   function updateItem(fundName, field_no, item_obj, fieldIndex) {
@@ -63,7 +71,8 @@ export const useEditableStore = defineStore('response', () => {
     getFundData,   
     updateItem,
     restoreItem,
-    getAllData
+    getAllData,
+    getFundId
   }
 
 })
