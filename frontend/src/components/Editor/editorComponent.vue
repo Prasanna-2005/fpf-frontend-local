@@ -1,8 +1,8 @@
 <template>
   <div class="w-100 p-2">
     <div class="button-options">
-      <button class="btn btn-primary m-2 border-0">
-        <font-awesome-icon class="icon" icon="download" /> Pdf Preview
+      <button class="btn btn-primary m-2 border-0"  @click="goToPreview">
+        <font-awesome-icon class="icon" icon="eye" /> Pdf Preview
       </button>
       <button class="btn btn-primary m-2 border-0">
         <font-awesome-icon class="icon" icon="download" /> Input File
@@ -44,7 +44,7 @@
                     v-else-if="fields.field_item_type === 'bool'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
-                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"  
                     @update="val => updateValue(fields.field_no, itemIndex, val)"
@@ -53,7 +53,7 @@
                     v-else-if="fields.field_item_type === 'dropdown'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
-                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value"
                     :options="fields.options"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"
@@ -81,7 +81,7 @@
                   :indent="getIndent(fields.field_no)" 
                   :itemNumber="getDisplayFieldNo(fields.field_no)" 
                   :isDateInput="fields.field_item_type === 'date'"
-                  :dateValue="editedData[fields.field_no]?.value?.[0] ?? fields.value[0]"
+                  :dateValue="editedData[fields.field_no]?.value?.[0] ?? fields.value"
                   :itemText="fields.field_text" 
                   :itemData="fields.table_data" 
                   :disabled="editingFieldNo !== fields.field_no"
@@ -102,7 +102,7 @@
               <button
                 v-if="editingFieldNo === fields.field_no"
                 class="btn btn-sm btn-success me-2"
-                @click="saveEdits(fields.field_no, fieldIndex)"
+                @click="saveEdits(fields.field_no, fields.value, fieldIndex)"
               >
                 <font-awesome-icon class="icon" icon="floppy-disk" />
               </button>
@@ -145,7 +145,7 @@
                   v-else-if="items.line_item_type === 'bool'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
-                  :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
+                  :itemValue="editedData[fields.field_no]?.[itemIndex]?.value?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
                   @update="val => updateValue(fields.field_no, itemIndex, val)"
@@ -154,7 +154,7 @@
                   v-else-if="items.line_item_type === 'dropdown'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
-                  :itemValue="editedData[fields.field_no]?.[itemIndex]?.value[0] ?? items.value[0]"
+                  :itemValue="editedData[fields.field_no]?.[itemIndex]?.value ?? items.value"
                   :options="items.options"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
@@ -172,7 +172,7 @@
                    v-else-if="items.line_item_type === 'date'" 
                   :item-number="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
-                  :item-value="items.value[0]"
+                  :item-value="items.value"
                   :disabled="false"
                   :indent="getIndent(items.line_item_no)"
                   @update="val => selectedDate = val"
@@ -195,34 +195,43 @@ import TableItemComponent from './subcomponent/TableItemComponent.vue'
 import DateItemComponent from './subcomponent/DateItemComponent.vue'
 import response from '@/assets/Sample_data/responsedata'
 import { useEditableStore } from '@/stores/responseStore'
+import api_call_methods from '@/assets/api_calls/api_calls'
+import { useUserStore } from '@/stores/userStore';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+
+const userStore = useUserStore();
+
+const user_id=userStore.userID
 
 const props = defineProps({
   fundName: { 
     type: String, 
     required: true 
   },
+  filingId:{
+        type:String,
+        required:true
+    },
   
   
 
 })
 
 
+
+
 const emit=defineEmits(['open-upload'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
-console.log("fundname lofg",props.fundName)
 const data=ref(responseStore.getFundData(props.fundName))
-// const data = computed(() => responseStore.getFundData(props.fundName))
-console.log('data in ediror page ',data)
 const editingFieldNo = ref(null)
 
 watch(
   () => props.fundName,  
   (newVal) => {
-    console.log('change in val', newVal)
     data.value = responseStore.getFundData(newVal)
-    console.log(data.value)
      for (const key in editedData) {
       delete editedData[key]
     }
@@ -238,22 +247,35 @@ function startEditing(fieldNo) {
   const original = data.value.find(f => f.field_no === fieldNo)?.field_data
   editedData[fieldNo] = original?.map(item => ({
     ...item,
-    value: [...item.value], 
+    value: item.value, 
   })) || []
 }
 
 function updateValue(fieldNo, itemIndex, newVal) {
   if (!editedData[fieldNo]) return
-  editedData[fieldNo][itemIndex].value[0] = newVal
+  editedData[fieldNo][itemIndex].value= newVal
 }
 
-function saveEdits(fieldNo, fieldIndex) {
-  responseStore.updateItem('1','A',fieldNo,editedData[fieldNo],fieldIndex)
+async function saveEdits(fieldNo,value, fieldIndex) {
+  console.log('value:',value)
+  responseStore.updateItem(props.fundName,fieldNo,editedData[fieldNo],fieldIndex)
+  console.log("save------->",editedData[fieldNo])
+  const acceptApiData={
+    'field_no':fieldNo,
+    'value':value,
+    'field_data':editedData[fieldNo],
+    "confirmed": true,
+    "editing": false
+  }
+  console.log("data for api:::::",acceptApiData)
+  const response=await api_call_methods.accept_data(user_id,acceptApiData)
+  console.log(response)
   editingFieldNo.value = null
   delete editedData[fieldNo]    
 }
 function restoreEdits(fieldNo, fieldIndex) {
     //API call
+
     
 
 }
@@ -267,7 +289,6 @@ function openUpload(){
 }
 
 function getDisplayFieldNo(fieldNo){
-  console.log(fieldNo)
   const parts = fieldNo.split('_');
   return parts[parts.length - 1]; 
 };
@@ -276,6 +297,13 @@ function getDisplayFieldNo(fieldNo){
 function getIndent(fieldNo){
   const depth = (fieldNo.match(/_/g) || []).length;
   return depth * 30; 
+};
+
+
+function goToPreview(){
+  console.log("works go to preview")
+  console.log(props.filingId)
+  router.push({ name: 'preview', query: { filing_id: props.filingId } });
 };
 </script>
 
