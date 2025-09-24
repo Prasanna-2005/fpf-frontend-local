@@ -13,7 +13,7 @@
                     <popUpComponent  type="createCopy"  @remove-pop-up="createCopyPopUp = false" defaultCopyName="FinancialPaper24-25: Copy"/>
             </div>
             <div v-if="approvePopUp" class="backdrop">
-                    <popUpComponent  type="approveFiling"  @remove-pop-up="approvePopUp = false" />
+                    <popUpComponent  type="approveFiling"  @remove-pop-up="approvePopUp = false" :filingId="filing_id"/>
             </div>
             <div v-if="openAddFundPopUp" class="backdrop">
                     <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
