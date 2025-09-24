@@ -144,9 +144,8 @@ async function submit_files(data,user_id) {
 }
 
 
-async function get_response(user_id) {
-    const id=45
-    const response=await axios.get(`http://localhost:8080/api/v1/edit/response/${id}`,
+async function get_response(user_id,filing_id) {
+    const response=await axios.get(`http://localhost:8080/api/v1/edit/response/${filing_id}`,
         {
             withCredentials: true ,
             headers:{
@@ -162,7 +161,7 @@ async function get_response(user_id) {
 
 async function get_xml_data(user_id) {
     const id=45
-    const response=await axios.get(`http://localhost:8080/api/v1/edit/approved/45`,
+    const response=await axios.get(`http://localhost:8080/api/v1/edit/approved/${id}`,
         {
             withCredentials: true ,
             headers:{
@@ -175,6 +174,20 @@ async function get_xml_data(user_id) {
 
 }
 
+
+async function accept_data(user_id,data) {
+    const id=45
+    const response=await axios.put(`http://localhost:8080/api/v1/submissions/45/805-1064745024`,data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+}
 
 
 
@@ -192,7 +205,8 @@ const api_call_methods={
     map_files,
     submit_files,
     get_response,
-    get_xml_data
+    get_xml_data,
+    accept_data
 
 }
 
