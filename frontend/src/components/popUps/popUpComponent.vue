@@ -55,7 +55,6 @@ import {ref} from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 import { create } from 'xmlbuilder2';
-import { saveAs } from 'file-saver';
 
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
@@ -77,7 +76,12 @@ const props=defineProps({
     defaultCopyName:{
         type:String,
         default:''
-    }
+    },
+    filingId:{
+        type:String,
+        required:true
+    },
+
 })
 const approving=ref(false)
 
@@ -94,8 +98,7 @@ function downloadPdf(){
 async function approveFiling(){
     try{
         approving.value=true
-        const result=await api_call_methods.get_xml_data(user_id) 
-        console.log('tetseesetestetse',result.data)    
+        const result=await api_call_methods.get_xml_data(user_id,props.filingId) 
         downloadXMLFile(result.data)    
     }
     catch(error){
