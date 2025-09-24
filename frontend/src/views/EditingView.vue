@@ -10,7 +10,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" />
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" />
                 
                 
             </div>
@@ -34,7 +34,10 @@ import {ref,onMounted} from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useEditableStore } from '@/stores/responseStore'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
+console.log(route.query.filing_id)
 const openAddFundPopUp=ref(false)
 const openUploadPopUp=ref(false)
 const fundName=ref('')
@@ -47,13 +50,13 @@ const responseStore = useEditableStore()
 
 
 const userStore = useUserStore();
-
+const filing_id=route.query.filing_id
 let data = ''
 const user_id=userStore.userID
 onMounted(async () => {
   try {
     loading.value=true
-    const result=await api_call_methods.get_response(user_id)
+    const result=await api_call_methods.get_response(user_id,filing_id)
     data=result.data 
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
