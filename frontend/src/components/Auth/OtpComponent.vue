@@ -1,25 +1,25 @@
 <template>
     <form class="needs-validation" novalidate @submit.prevent="submitotp" >
         <div class="mb-3">
-        <label for="OTPInput" class="form-label">Enter OTP</label>
+        <label for="OTPInput" class="form-label">Enter verification code</label>
         <input type="text" class="form-control" id="OTPInput"  v-model="otp" required >
         <div  class="invalid-feedback">
-                   Please enter a valid OTP
+                   Please enter a valid verification code
         </div>
     </div>
     <div class="box">
         <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
             <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            <span v-if="!isLoading">Verify OTP</span>
-            <span v-else>Verfiying OTP...</span>
+            <span v-if="!isLoading">Verify code</span>
+            <span v-else>Verfiying code...</span>
         </button>
     </div>
 
     <div class="mt-3 text-center">
         <span v-if="timer > 0">
-            Resend OTP in <strong>{{ timer }}</strong> sec
+            Resend verification code in <strong>{{ timer }}</strong> sec
         </span>
-        <a v-else href="#" @click.prevent="resendOtp" class="ms-2">Resend OTP</a>
+        <a v-else href="#" @click.prevent="resendOtp" class="ms-2">Resend verification code</a>
     </div>
     </form>
     
@@ -84,7 +84,7 @@ async function submitotp(event) {
             });
 
             if (result.status == '200') {
-                toast.success('OTP Verified Successfully!');
+                toast.success('Code Verified Successfully!');
                 userStore.login({
                     username: result.data.response.username,
                     email: props.email,
@@ -93,7 +93,7 @@ async function submitotp(event) {
                 });
                 location.replace('/home');
             } else {
-                toast.error('Invalid OTP!');
+                toast.error('Invalid 249030!');
             }
         } catch (error) {
             toast.error('Something went wrong!');
