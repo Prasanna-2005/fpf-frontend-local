@@ -18,7 +18,11 @@
       </thead>
       <tbody class="table-group-divider">
         <tr v-for="(data, index) in paginatedData" :key="index">
-          <th scope="row"><a href="">{{ data['filing_name'] }}</a></th>
+          <td>
+            <router-link :to="{ name: 'editing', query: { filing_id: data['id']} }">
+              {{ data['filing_name'] }}
+            </router-link>
+          </td>
           <td>{{ data['prepared_by'] }}</td>
           <td>{{ data['status'] }}</td>
           <td>{{ data['modified_by'] }}</td>
@@ -94,6 +98,7 @@ const paginatedData = computed(() => {
   return filteredData.value.slice(start, start + itemsPerPage)
 })
 
+console.log('paginatedData',paginatedData)
 function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
