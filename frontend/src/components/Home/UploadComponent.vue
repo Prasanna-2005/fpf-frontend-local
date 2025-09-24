@@ -5,7 +5,7 @@
     <!-- Filing Name -->
     <div>
       <label for="filing_name" class="form-label">Filing Name*</label>
-      <input
+      <input 
         type="text"
         class="f-20 form-control"
         id="filing_name"
@@ -51,9 +51,10 @@
 import { useDropzone } from "vue3-dropzone"
 import { useFileStore } from '@/stores/fileStore'
 import { ref } from 'vue'
-
 const fileStore = useFileStore()
-const filingName = ref('')
+
+const filingName = ref(fileStore.getfilingName() || '')
+
 const files = ref([])
 const emit = defineEmits(['Upload-done'])
 
