@@ -2,24 +2,25 @@
   <div class="w-100 p-2">
     <!-- Buttons -->
     <div class="button-options mb-3">
+      <button class="btn btn-primary m-2 border-0" @click="goToHome">
+        <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
+      </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
         <font-awesome-icon class="icon" icon="download" /> Pdf Preview
       </button>
-      <button class="btn btn-primary m-2 border-0">
+      <button class="btn btn-secondary m-2 border-0" disabled>
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
+      <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Duplicate
-      </button>
+      </button> -->
       <button class="btn btn-primary m-2 border-0" @click="approvePopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Approve
       </button>
       <button class="btn btn-primary m-2 border-0" @click="goBackToEdit">
         <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
-      <button class="btn btn-primary m-2 border-0">
-        <font-awesome-icon class="icon" icon="arrow-left" /> Back
-      </button>
+      
     </div>
 
     <!-- PDF Viewer -->
@@ -202,6 +203,9 @@ function approvePopUp() {
 }
 function goBackToEdit(){
   router.push({ name: 'editing', query: { filing_id: props.filingId } });
+}
+function goToHome(){
+  window.location='/home'
 }
 </script>
 
