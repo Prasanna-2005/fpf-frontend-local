@@ -159,9 +159,9 @@ async function get_response(user_id,filing_id) {
 }
 
 
-async function get_xml_data(user_id) {
+async function get_xml_data(user_id,filing_id) {
     const id=45
-    const response=await axios.get(`http://localhost:8080/api/v1/edit/approved/${id}`,
+    const response=await axios.get(`http://localhost:8080/api/v1/edit/approved/${filing_id}`,
         {
             withCredentials: true ,
             headers:{
@@ -175,9 +175,8 @@ async function get_xml_data(user_id) {
 }
 
 
-async function accept_data(user_id,data) {
-    const id=45
-    const response=await axios.put(`http://localhost:8080/api/v1/submissions/45/805-1064745024`,data,
+async function accept_data(user_id,data,fund_id,filing_id) {
+    const response=await axios.put(`http://localhost:8080/api/v1/submissions/${filing_id}/${fund_id}`,data,
         {
             withCredentials: true ,
             headers:{
