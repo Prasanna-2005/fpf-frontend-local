@@ -136,9 +136,10 @@
 <script setup>
 import { useEditableStore } from '@/stores/responseStore';
 import { ref, nextTick } from 'vue';
-import html2pdf from 'html2pdf.js';
+// import html2pdf from 'html2pdf.js';
 import { useRouter } from 'vue-router';
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 const router = useRouter();
 const props = defineProps({
   filingId:{
@@ -166,23 +167,83 @@ function groupByHeading(seriesData) {
   }, {});
 }
 
-// PDF download
+// // PDF download
+// async function downloadPDF() {
+//   await nextTick(); 
+//   const element = pdfContent.value;
+//   if (!element) return;
+
+//   const options = {
+//     margin: 10,
+//     filename: 'preview.pdf',
+//     image: { type: 'jpeg', quality: 0.98 },
+//     html2canvas: { scale: 1.5, useCORS: true, scrollY: 0 },
+//     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+//     pagebreak: { mode: ['css', 'legacy'] }
+//   };
+
+//   html2pdf().set(options).from(element).save();
+// }
+
+
 async function downloadPDF() {
-  await nextTick(); 
+  await nextTick();
+  await document.fonts.ready;
+
   const element = pdfContent.value;
   if (!element) return;
 
-  const options = {
-    margin: 10,
-    filename: 'preview.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 1.5, useCORS: true, scrollY: 0 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['css', 'legacy'] }
-  };
+  const scale = 1.2; // slightly reduced for speed
+  const canvas = await html2canvas(element, {
+    scale,
+    useCORS: true,
+    scrollY: -window.scrollY,
+  });
 
-  html2pdf().set(options).from(element).save();
+  const imgWidth = canvas.width;
+  const imgHeight = canvas.height;
+
+  const pdf = new jsPDF('p', 'pt', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  // scale canvas to PDF width
+  const ratio = pageWidth / imgWidth;
+  const pdfHeight = imgHeight * ratio;
+
+  let position = 0;
+
+  // Add pages one by one, slicing canvas vertically
+  while (position < pdfHeight) {
+    const canvasPage = document.createElement('canvas');
+    const ctx = canvasPage.getContext('2d');
+
+    canvasPage.width = canvas.width;
+    canvasPage.height = Math.min(canvas.height - position / ratio, pageHeight / ratio);
+
+    ctx.drawImage(
+      canvas,
+      0,
+      position / ratio,
+      canvas.width,
+      canvasPage.height,
+      0,
+      0,
+      canvasPage.width,
+      canvasPage.height
+    );
+
+    const imgData = canvasPage.toDataURL('image/jpeg', 0.8);
+    pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, (canvasPage.height * ratio));
+
+    position += pageHeight;
+    if (position < pdfHeight) pdf.addPage();
+  }
+
+  pdf.save('preview.pdf');
 }
+
+
 
 function getDisplayFieldNo(fieldNo) {
   const parts = fieldNo.split('_');
