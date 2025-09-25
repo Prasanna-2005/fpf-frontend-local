@@ -90,14 +90,24 @@ function handleSearch(query) {
 
 
 const filteredData = computed(() => {
-  if (!searchQuery.value.trim()) return data.value['data']
-  const q = searchQuery.value.toLowerCase()
-  return data.value['data'].filter(item =>
-    Object.values(item).some(value =>
-      String(value).toLowerCase().includes(q)
-    )
-  )
-})
+  let tempData = data.value['data'];
+
+  // Apply search filter
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase();
+    tempData = tempData.filter(item =>
+      Object.values(item).some(value =>
+        String(value).toLowerCase().includes(q)
+      )
+    );
+  }
+
+  // Sort by latest modified_on
+  tempData = [...tempData].sort((a, b) => new Date(b.modified_on) - new Date(a.modified_on));
+
+  return tempData;
+});
+
 
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage))
 const paginatedData = computed(() => {
