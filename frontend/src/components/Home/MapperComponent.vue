@@ -44,7 +44,8 @@
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Select file
+                  Select file 
+
                 </button>
                 <ul class="dropdown-menu">
                   <li
@@ -66,8 +67,11 @@
       </table>
     </div>
 
-    <div class="w-100 d-flex justify-content-end align-items-center pt-2">
-      <button type="submit" class="btn btn-primary" @click="proceed" :disabled="isLoading">
+    <div class="w-100 d-flex justify-content-end align-items-center pt-2 gap-2">
+      <button class="btn btn-outline-secondary" @click="$emit('close-click')">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary " @click="proceed" :disabled="isLoading">
           <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           <span v-if="!isLoading">Submit</span>
           <span v-else>Submitting...</span>
@@ -97,10 +101,17 @@ const props = defineProps({
   },
 });
 
+
+console.log(props.data.unmapped_files)
 const localData = ref({
   ...JSON.parse(JSON.stringify(props.data)),
-  unmapped_files: props.data.unmapped_files || []   
+  unmapped_files: (props.data.unmapped_files || []).map(file =>
+    typeof file === "string" ? { filename: file } : file
+  )
 });
+
+console.log(localData.value.unmapped_files)
+
 
 
 const uploaderFlag = ref(false);
