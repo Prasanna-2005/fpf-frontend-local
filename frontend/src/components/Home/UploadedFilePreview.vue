@@ -41,6 +41,9 @@ import { useFileStore} from '@/stores/fileStore'
 import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls';
+import { useToast } from 'vue-toast-notification';
+
+const toast = useToast();
 
 const fileStore = useFileStore()
 const files = ref(fileStore.getFiles())
@@ -52,7 +55,8 @@ const isLoading_uploading= ref(false);
 const isLoading_mapping=ref(false)
 
 const mapped_data=ref('')
-const emit=defineEmits(['files-mapped'])
+
+const emit=defineEmits(['files-mapped','open-uploader','close-preview'])
 function remove_file(filename) {
   fileStore.removeFile(filename)
   files.value = fileStore.getFiles()
@@ -75,19 +79,29 @@ async function upload_files(){
       isLoading_mapping.value=true
       const result=await api_call_methods.map_files(data,user_id)
       console.log(result)
+      console.log(result.status)
       mapped_data.value=result
       if(mapped_data===''){
         mapped_data.value={}
       }
       fileStore.clearFiles()
+      
+      emit('files-mapped', mapped_data.value)
     }
     catch(error){
       console.log(error)
+      console.log(error.status)
+      if(error.status=='409'){
+        toast.error("Duplicate filing name.")
+        fileStore.clearAllData()
+        emit('close-preview')
+        emit('open-uploader')
+       
+      }
     }
     finally{
       isLoading_uploading.value=false 
       isLoading_mapping.value=false
-      emit('files-mapped', mapped_data.value)
       fileStore.updateNewFiling()
     }
 

@@ -6,7 +6,7 @@ export const useFileStore = defineStore('file', () => {
   const files = ref([]);
   const filing = ref('');
   const filing_name=ref('')
-  const new_filing=ref('true')
+  const new_filing=ref(true)
   function addFiles(filingName, newFiles) {
     filing.value = filingName;
     filing_name.value=filingName
@@ -37,7 +37,9 @@ export const useFileStore = defineStore('file', () => {
     new_filing.value=false
     console.log('updated NEw-filing')
   }
-
+  function getNewFilingField(){
+    return new_filing.value
+  }
   function getFormData() {
     const fd = new FormData();
     files.value.forEach(file => fd.append('files', file));
@@ -54,7 +56,7 @@ export const useFileStore = defineStore('file', () => {
 
   return {
     files,
-    new_filing,
+    getNewFilingField,
     addFiles,
     removeFile,
     clearFiles,

@@ -1,7 +1,7 @@
 <template>
     <div class="max-dimensions d-flex justify-content-center align-items-center">
         <UploadComponent v-if="upload" @close-click="closeUpload" @Upload-done="uploadCompleted"/>
-        <UploadedFilePreview v-if="uploadedFilePreview" @close-click="closeUpload" @files-mapped="openMapperComp"/>
+        <UploadedFilePreview v-if="uploadedFilePreview" @close-click="closeUpload" @files-mapped="openMapperComp" @open-uploader="openUploaderComp" @close-preview="closePreview"/>
         <MapperComponent v-if="openMapper" :data="mapped_data"  @close-click="closeUpload" @open-uploader="openUploaderComp"/>
     </div>
 </template>
@@ -27,6 +27,9 @@ function uploadCompleted(){
     upload.value=false
     uploadedFilePreview.value=true
 
+}
+function closePreview(){
+    uploadedFilePreview.value=false
 }
 function openMapperComp(data){
     uploadedFilePreview.value=false
