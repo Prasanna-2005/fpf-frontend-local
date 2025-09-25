@@ -41,7 +41,7 @@ function emitSearch() {
 }
 
 
-const years = ['2025', '2024', '2023']
+const years = ['2025']
 const selectedYear = ref(years[0])
 function selectYear(year) {
   selectedYear.value = year
