@@ -5,7 +5,9 @@
     <!-- Filing Name -->
     <div>
       <label for="filing_name" class="form-label">Filing Name*</label>
+      <p v-if="!new_filing" class="filing-name"><b>{{ filingName }}</b></p>
       <input 
+        v-else
         type="text"
         class="f-20 form-control"
         id="filing_name"
@@ -53,8 +55,8 @@ import { useFileStore } from '@/stores/fileStore'
 import { ref } from 'vue'
 const fileStore = useFileStore()
 
+const new_filing=ref(fileStore.new_filing)
 const filingName = ref(fileStore.getfilingName() || '')
-
 const files = ref([])
 const emit = defineEmits(['Upload-done'])
 

@@ -5,10 +5,11 @@ import { ref } from 'vue'
 export const useFileStore = defineStore('file', () => {
   const files = ref([]);
   const filing = ref('');
-  let filing_name=''
+  const filing_name=ref('')
+  const new_filing=ref('true')
   function addFiles(filingName, newFiles) {
     filing.value = filingName;
-    filing_name=filingName
+    filing_name.value=filingName
     for (const file of newFiles) {
       if (!files.value.find(f => f.name === file.name)) {
         files.value.push(file);
@@ -30,25 +31,37 @@ export const useFileStore = defineStore('file', () => {
   }
 
   function getfilingName() {
-    return filing_name
-
-
+    return filing_name.value
+  }
+  function updateNewFiling(){
+    new_filing.value=false
+    console.log('updated NEw-filing')
   }
 
   function getFormData() {
     const fd = new FormData();
     files.value.forEach(file => fd.append('files', file));
+    fd.append('new_filing', new_filing.value)
     // fd.append('filing_name', filing.value);
     return fd;
   }
+  function clearAllData(){
+    files.value = [];
+    filing.value = '';
+    filing_name.value=''
+    new_filing.value=true
+  } 
 
   return {
     files,
+    new_filing,
     addFiles,
     removeFile,
     clearFiles,
     getFiles,
     getfilingName,
-    getFormData
+    getFormData,
+    updateNewFiling,
+    clearAllData
   };
 });

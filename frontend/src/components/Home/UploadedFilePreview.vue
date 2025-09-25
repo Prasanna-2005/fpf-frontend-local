@@ -65,7 +65,7 @@ async function upload_files(){
       const formData=fileStore.getFormData()
       const current_time = new Date();
       formData.append('user_id', user_id)
-      formData.append('new_filing', true)
+      // formData.append('new_filing', true)
       formData.append('filing_name', filingName)
       formData.append('timestamp', current_time.toISOString())
       await api_call_methods.upload(formData,user_id)
@@ -79,7 +79,7 @@ async function upload_files(){
       if(mapped_data===''){
         mapped_data.value={}
       }
-
+      fileStore.clearFiles()
     }
     catch(error){
       console.log(error)
@@ -88,6 +88,7 @@ async function upload_files(){
       isLoading_uploading.value=false 
       isLoading_mapping.value=false
       emit('files-mapped', mapped_data.value)
+      fileStore.updateNewFiling()
     }
 
 }
