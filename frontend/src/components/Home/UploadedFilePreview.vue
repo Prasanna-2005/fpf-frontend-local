@@ -84,7 +84,7 @@ async function upload_files(){
       if(mapped_data===''){
         mapped_data.value={}
       }
-      fileStore.clearFiles()
+      // fileStore.clearFiles()
       
       emit('files-mapped', mapped_data.value)
     }
