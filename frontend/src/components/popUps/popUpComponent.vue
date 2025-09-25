@@ -1,6 +1,6 @@
 <template>
     <div class="content-box p-4">
-        <span class="close-icon d-flex justify-content-end mt-1v  " @click="deletePopUp"><font-awesome-icon class="icon me-2" icon="xmark" style="font-size: 1em;" /></span>
+        <span class="close-icon d-flex justify-content-end mt-1  " @click="deletePopUp"><font-awesome-icon class="icon me-2" icon="xmark" style="font-size: 1em;" /></span>
 
 
         <!-- delete user popup -->
@@ -39,11 +39,20 @@
         <!-- approve filing popup  -->
         <div v-if="type=='approveFiling'" class="max-dimensions">
             <div class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
-                <h4><b>Are you sure you want to approve this filing?</b></h4>
-                 <button class="btn btn-primary " @click="approveFiling" :disabled="approving">
+                <div class="mb-4">
+                <h4  >
+                    <b v-if="!downloadXMl">Are you sure you want to approve this filing?</b>
+                    <b v-else>Your Filing Has Been Approved. Download XML Below:</b>
+                </h4>
+                </div>
+                 <button v-if="!downloadXMl" class="btn btn-primary " @click="approveFiling" :disabled="approving">
                     <span v-if="approving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span v-if="!approving">Approve filing</span>
+                    <span v-if="!approving ">Approve filing</span>
                     <span v-else>Approving...</span>
+                    
+                </button>
+                <button v-else  class="btn btn-primary" @click="downloadXMLFile">
+                    <span>Download XML</span>
                 </button>
             </div>
         </div>
@@ -84,7 +93,8 @@ const props=defineProps({
 
 })
 const approving=ref(false)
-
+const downloadXMl=ref(false)
+const dataForXML=ref({})
 const nameOfCopyfiling=ref(props.defaultCopyName)
 function deletePopUp(){
     emit('removePopUp')
@@ -99,15 +109,16 @@ async function approveFiling(){
     try{
         approving.value=true
         const result=await api_call_methods.get_xml_data(user_id,props.filingId) 
-        downloadXMLFile(result.data)    
+        approving.value=false
+        downloadXMl.value=true
+        dataForXML.value=result.data
+        // downloadXMLFile(result.data)    
     }
     catch(error){
         console.log(error)
         
     }
-    finally{
-        approving.value=false
-    }
+    
 
 }
  
@@ -122,7 +133,8 @@ async function deleteUser(){
         console.log(error)
     }
 }
-function downloadXMLFile(data) {
+function downloadXMLFile() {
+  const data=dataForXML.value
   const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
   const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
   data.fund_info.forEach(fund => {
