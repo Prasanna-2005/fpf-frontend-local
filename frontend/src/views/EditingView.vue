@@ -37,7 +37,6 @@ import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
 const route = useRoute()
 
-console.log(route.query.filing_id)
 const openAddFundPopUp=ref(false)
 const openUploadPopUp=ref(false)
 const fundName=ref('')
@@ -60,7 +59,6 @@ onMounted(async () => {
     data=result.data 
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
-    console.log('funds',funds)
     responseStore.setResponse(data)
     fundName.value=fundNames.value[0]
     loading.value=false
@@ -70,7 +68,6 @@ onMounted(async () => {
 })
 function selectFund(fund_name){
     fundName.value=fund_name
-    console.log(fundName.value)
 }
 
 

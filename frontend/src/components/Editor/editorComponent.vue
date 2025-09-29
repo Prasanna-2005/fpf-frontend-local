@@ -265,11 +265,8 @@ function updateValue(fieldNo, itemIndex, newVal) {
 }
 
 async function saveEdits(fieldNo,value, fieldIndex) {
-  console.log('value:',value)
-  // responseStore.getFundId(props.fundName)
   const fund_id=responseStore.getFundId(props.fundName)
   responseStore.updateItem(props.fundName,fieldNo,editedData[fieldNo],fieldIndex)
-  console.log("save------->",editedData[fieldNo])
   const acceptApiData={
     'field_no':fieldNo,
     'value':value,
@@ -277,9 +274,7 @@ async function saveEdits(fieldNo,value, fieldIndex) {
     "confirmed": true,
     "editing": false
   }
-  console.log("data for api:::::",acceptApiData)
   const response=await api_call_methods.accept_data(user_id,acceptApiData,fund_id,props.filingId)
-  console.log(response)
   editingFieldNo.value = null
   delete editedData[fieldNo]    
 }
@@ -311,8 +306,6 @@ function getIndent(fieldNo){
 
 
 function goToPreview(){
-  console.log("works go to preview")
-  console.log(props.filingId)
   router.push({ name: 'preview', query: { filing_id: props.filingId } });
 };
 

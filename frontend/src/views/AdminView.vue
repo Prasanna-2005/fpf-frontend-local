@@ -40,7 +40,6 @@ const userIdToBeDeleted=ref('')
 const openAddFundPopUp=ref(false)
 function handleDelete(details){
     deletePopUp.value=true
-    console.log('details',details)
     userNameToBeDeleted.value=details.name
     userIdToBeDeleted.value=details.id
     

@@ -35,10 +35,8 @@ export const useFileStore = defineStore('file', () => {
   }
   function updateNewFiling(){
     new_filing.value=false
-    console.log('updated NEw-filing')
   }
   function getNewFilingField(){
-    console.log('new filing valu',new_filing.value)
     return new_filing.value
   }
   function getFormData() {

@@ -27,7 +27,6 @@ const props = defineProps({
   },
 })
 
-console.log('topbar',props.fundNames)
 const fundDetails=props.fundNames
 const filingName="Financial Year 2024-25"
 const selectedFund=ref('')

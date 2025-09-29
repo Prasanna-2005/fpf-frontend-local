@@ -152,8 +152,6 @@ const props = defineProps({
 })
 const responseStore = useEditableStore();
 const data = responseStore.getAllData();
-console.log("data==============", data);
-
 const pdfContent = ref(null);
 const emit = defineEmits(['create-copy', 'approve']);
 

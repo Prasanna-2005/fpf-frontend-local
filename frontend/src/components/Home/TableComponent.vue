@@ -115,7 +115,6 @@ const paginatedData = computed(() => {
   return filteredData.value.slice(start, start + itemsPerPage)
 })
 
-console.log('paginatedData',paginatedData)
 function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page

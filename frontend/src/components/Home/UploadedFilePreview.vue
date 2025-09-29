@@ -78,19 +78,16 @@ async function upload_files(){
       }
       isLoading_mapping.value=true
       const result=await api_call_methods.map_files(data,user_id)
-      console.log(result)
-      console.log(result.status)
+
       mapped_data.value=result
       if(mapped_data===''){
         mapped_data.value={}
       }
-      // fileStore.clearFiles()
+      fileStore.clearFiles()
       
       emit('files-mapped', mapped_data.value)
     }
     catch(error){
-      console.log(error)
-      console.log(error.status)
       if(error.status=='409'){
         toast.error("Duplicate filing name.")
         fileStore.clearAllData()

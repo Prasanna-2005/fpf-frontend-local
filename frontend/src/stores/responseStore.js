@@ -18,7 +18,6 @@ export const useEditableStore = defineStore('response', () => {
         fund_id: fund.fund_id
       }))
     })
-    console.log(fund_mapper.value)
    
   }
 
