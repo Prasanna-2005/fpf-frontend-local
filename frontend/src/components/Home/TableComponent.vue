@@ -29,7 +29,7 @@
           <td>{{ data['prepared_by'] }}</td>
           <!-- <td>{{ data['status'] }}</td> -->
           <td>{{ data['modified_by'] }}</td>
-          <td>{{ data['modified_on'] }}</td>
+          <td>{{ formatDate(data['modified_on'] )}}</td>
           <!-- <td>
             <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
           </td> -->
@@ -125,6 +125,17 @@ const emit = defineEmits(['trigger-upload'])
 function handleUploadClick() {
   emit('trigger-upload') 
 }
+
+
+function formatDate(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', 
+    { day: '2-digit', month: 'short', year: 'numeric' }
+  );
+  }
+
+
 </script>
 
 <style scoped>
