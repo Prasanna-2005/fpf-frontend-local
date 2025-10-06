@@ -21,7 +21,7 @@
       <hr />
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="#" class="nav-link active">Home</a>
+          <a href="/home" class="nav-link active">Home</a>
         </li>
         <li>
           <a href="#" class="nav-link link-dark">Report</a>
@@ -54,6 +54,7 @@
 <script setup>
 import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls'
 
 const userStore = useUserStore()
 const email = userStore.email
@@ -68,8 +69,18 @@ const toggleSetting=()=>{
   isSetting.value=!isSetting.value
 }
 
-const Logout=()=>{
+async function Logout(){
+  const user_id=userStore.userID
+  const current_time = new Date();
   userStore.logout()
+  try {
+      await api_call_methods.logout({
+        user_id: user_id,
+        logout_time: current_time.toISOString()
+      });
+  } catch (error) {
+      console.error(error);
+  } 
   window.location.replace('/')
 
 }

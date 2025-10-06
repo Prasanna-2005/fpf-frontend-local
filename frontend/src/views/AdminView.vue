@@ -8,7 +8,7 @@
                 <AnalyticsTableComponent class="h-75" @delete-user=handleDelete />
 
                 <div v-if="deletePopUp" class="backdrop">
-                    <popUpComponent :userNameToBeDeleted="userNameToBeDeleted" type="deleteUser"  @remove-pop-up="deletePopUp = false"/>
+                    <popUpComponent :userNameToBeDeleted="userNameToBeDeleted" :userIdToBeDeleted="userIdToBeDeleted"  type="deleteUser"  @remove-pop-up="deletePopUp = false"/>
                 </div>
 
                 <div v-if="adding_user" class="backdrop">
@@ -36,11 +36,16 @@ import {ref} from 'vue'
 
 const deletePopUp=ref(false)
 const userNameToBeDeleted=ref('')
+const userIdToBeDeleted=ref('')
 const openAddFundPopUp=ref(false)
-function handleDelete(name){
+function handleDelete(details){
     deletePopUp.value=true
-    userNameToBeDeleted.value=name
+    userNameToBeDeleted.value=details.name
+    userIdToBeDeleted.value=details.id
+    
 }
+
+
 
 const adding_user=ref(false)
 function handleAddUser(){

@@ -7,7 +7,7 @@
             </div>
             <div class="mb-3">
                 <label for="emailInput" class="form-label">Email</label>
-                <input type="email" class="form-control" id="emailInput" name="email" autocomplete="email" aria-describedby="emailHelp" v-model="email" placeholder="prajjwal@quantrium.ai" required>
+                <input type="email" class="form-control" id="emailInput" name="email" autocomplete="email" aria-describedby="emailHelp" v-model="email" placeholder="user@company.com" required>
                 <div  class="invalid-feedback">
                    Please enter a valid email address
                 </div>
@@ -15,7 +15,7 @@
             </div>
             <div class="mb-3">
                 <label for="passwordInput" class="form-label">Password</label>
-                <input type="password" class="form-control" id="passwordInput" autocomplete="current-password" v-model="password" placeholder="********" required>
+                <input type="password" class="form-control" id="passwordInput" autocomplete="current-password"  v-model="password" required>
                 <div  class="invalid-feedback">
                    Please enter a valid password
                 </div>
@@ -25,48 +25,70 @@
                 <label class="form-check-label" for="rememberMe">Remember Me</label>
             </div>
             <div class="box">
-                <button type="submit" class="btn btn-primary button-in-box" >Login</button>
+                <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
+                    <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!isLoading">Login</span>
+                    <span v-else>Logging in...</span>
+                </button>
             </div>
+
         </div>
         
         
     </form>
     <div v-if="loginSuccess" class="otp-container"  >
             <hr>
-            <OtpComponent/>
+            <OtpComponent :user_id="user_id" :email="email"/>
         </div>
     </div>
 </template>
-
 <script setup>
-import {ref} from 'vue';
+import { ref } from 'vue';
 import OtpComponent from './OtpComponent.vue';
-import { useUserStore } from '@/stores/userStore'
-import { useToast } from 'vue-toast-notification'
+import { useUserStore } from '@/stores/userStore';
+import { useToast } from 'vue-toast-notification';
+import api_call_methods from '@/assets/api_calls/api_calls';
 
-const toast = useToast()
+const toast = useToast();
 
+const email = ref('');
+const password = ref('');
+const loginSuccess = ref(false);
+const user_id = ref('');
+const isLoading = ref(false); 
 
-const email=''
-const password=''
-const loginSuccess=ref(false)
-function handleSubmit(event){
-    event.preventDefault()
-    const userStore = useUserStore()
+const emit = defineEmits(['']);
+
+async function handleSubmit(event) {
+    event.preventDefault();
+    const userStore = useUserStore();
     const form = event.target;
-    //Form validation check
+
     if (!form.checkValidity()) {
-        event.preventDefault();
         event.stopPropagation();
     } else {
-    loginSuccess.value=true
-    //API CALL
-    toast.success('Login successful!')
+        try {
+            isLoading.value = true; 
+            const result = await api_call_methods.login({
+                username: email.value,
+                password: password.value
+            });
 
-    userStore.login({username:'prajjwal',email:'prajjwal.soni@quantrium.ai',role:'Contributor',userID:'1234',access_token:'esesf323dsfd4434',refresh_token:'dsdhksfdkhfkjdfhkdhfj'})
+            if (result.status == '200') {
+                user_id.value = result.data['user_id'];
+                loginSuccess.value = true;
+                toast.success('Verification code sent!');
+                userStore.login({ email: email.value, role: 'Contributor', userID: user_id.value });
+            } else {
+                toast.error('Login failed!');
+                console.log(result);
+            }
+        } catch (error) {
+            toast.error('Failed to validate credentials');
+            console.error(error);
+        } finally {
+            isLoading.value = false; 
+        }
     }
-    form.classList.add('was-validated');
-
 }
-   
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="w-100 d-flex pb-4 justify-content-center">
       <div class="main-container  d-flex justify-content-between align-items-center">
-        <h2>Editing {{ filingName }}</h2>
+        <h2>Editing Filing</h2>
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ selectedFund }}
@@ -20,8 +20,14 @@
  
 import {ref,onMounted} from 'vue';
 
-const fundDetails=['Private opportunity fund 1, L.P','Private opportunity fund 2, L.P','Private opportunity fund 3, L.P','Private opportunity fund 4, L.P']
+const props = defineProps({
+  fundNames: { 
+    type: String, 
+    required: true 
+  },
+})
 
+const fundDetails=props.fundNames
 const filingName="Financial Year 2024-25"
 const selectedFund=ref('')
 

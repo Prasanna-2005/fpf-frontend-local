@@ -4,28 +4,35 @@
   <div>
     <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" />
   </div>
-  <div class="table-div">
+  <div v-if="isLoading" style="height: 300px" class="d-flex justify-content-center align-items-center">
+    <p>Loading Filings table....</p>
+  </div>
+  <div v-else class="table-div">
     <table class="table">
       <thead class="table-light">
         <tr>
           <th class="tr-padding" scope="col">Filing Name</th>
           <th scope="col">Prepared By</th>
-          <th scope="col">Status</th>
+          <!-- <th scope="col">Status</th> -->
           <th scope="col">Modified By</th>
           <th scope="col">Modified On</th>
-          <th scope="col"></th>
+          <!-- <th scope="col"></th> -->
         </tr>
       </thead>
       <tbody class="table-group-divider">
         <tr v-for="(data, index) in paginatedData" :key="index">
-          <th scope="row"><a href="">{{ data['filing name'] }}</a></th>
-          <td>{{ data['Prepared By'] }}</td>
-          <td>{{ data['Status'] }}</td>
-          <td>{{ data['Modified By'] }}</td>
-          <td>{{ data['Modified On'] }}</td>
           <td>
-            <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
+            <router-link :to="{ name: 'editing', query: { filing_id: data['id']} }">
+              {{ data['filing_name'] }}
+            </router-link>
           </td>
+          <td>{{ data['prepared_by'] }}</td>
+          <!-- <td>{{ data['status'] }}</td> -->
+          <td>{{ data['modified_by'] }}</td>
+          <td>{{ data['modified_on'] }}</td>
+          <!-- <td>
+            <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
+          </td> -->
         </tr>
       </tbody>
     </table>
@@ -49,15 +56,30 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import TopBarComponent from '@/components/Home/TopBarComponent.vue';
 import sample_json from '@/assets/Sample_data/sample'
-
-
-const data = sample_json
+import api_call_methods from '@/assets/api_calls/api_calls';
+import { useUserStore } from '@/stores/userStore';
+const userStore = useUserStore();
+const isLoading=ref(true)
+const data = ref({ data: [] })   
+const user_id=userStore.userID
+onMounted(async () => {
+  try {
+    isLoading.value=true
+    const result=await api_call_methods.filings_list(user_id)
+    data.value=result
+  } catch (error) {
+    console.error("Error fetching data:", error)
+  }
+  finally{
+    isLoading.value=false
+  }
+})
 
 const currentPage = ref(1)
-const itemsPerPage = 5
+const itemsPerPage = 4
 const searchQuery = ref('')
 
 
@@ -68,14 +90,24 @@ function handleSearch(query) {
 
 
 const filteredData = computed(() => {
-  if (!searchQuery.value.trim()) return data['data']
-  const q = searchQuery.value.toLowerCase()
-  return data['data'].filter(item =>
-    Object.values(item).some(value =>
-      String(value).toLowerCase().includes(q)
-    )
-  )
-})
+  let tempData = data.value['data'];
+
+  // Apply search filter
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase();
+    tempData = tempData.filter(item =>
+      Object.values(item).some(value =>
+        String(value).toLowerCase().includes(q)
+      )
+    );
+  }
+
+  // Sort by latest modified_on
+  tempData = [...tempData].sort((a, b) => new Date(b.modified_on) - new Date(a.modified_on));
+
+  return tempData;
+});
+
 
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage))
 const paginatedData = computed(() => {

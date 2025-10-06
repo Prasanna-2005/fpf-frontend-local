@@ -23,6 +23,7 @@ import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import OverlayComponent from '@/components/Home/OverlayComponent.vue';
 import addFundComponent from '@/components/popUps/addFundComponent.vue';
 import {ref} from 'vue';
+
 const showUpload=ref(false)
 const openAddFundPopUp=ref(false)
 function openUpload(){
