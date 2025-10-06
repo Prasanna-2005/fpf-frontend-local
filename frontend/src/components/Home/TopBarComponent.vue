@@ -22,7 +22,7 @@
                 </ul>
             </div>
 
-            <button class="btn btn-primary" @click="$emit('upload-click')">Create new filing </button>
+            <button class="btn btn-primary" @click="$emit('upload-click')">Create New Filing </button>
              
             <div class="input-group " style="width: 150px;">
                 <span class="input-group-text"><font-awesome-icon class="icon me-2" icon="search" /></span>
