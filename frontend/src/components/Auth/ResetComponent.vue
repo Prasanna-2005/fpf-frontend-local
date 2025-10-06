@@ -7,14 +7,14 @@
             </div>
             
             <div class="mb-3">
-                <label for="passwordInput" class="form-label">Password</label>
+                <label for="passwordInput" class="form-label">Enter new password</label>
                 <input type="password" class="form-control" id="passwordInput"  v-model="password" placeholder="********" required>
                 <div  class="invalid-feedback">
                    Please enter a valid password
                 </div>
             </div>
             <div class="mb-3">
-                <label for="confirmpasswordInput" class="form-label">Confirm Password</label>
+                <label for="confirmpasswordInput" class="form-label">Confirm new password</label>
                 <input type="password" class="form-control" id="confirmpasswordInput"  v-model="confirm_password" placeholder="********" required>
                 <div  class="invalid-feedback">
                    Please enter a valid password
