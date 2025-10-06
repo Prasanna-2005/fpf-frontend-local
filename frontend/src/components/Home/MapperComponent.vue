@@ -102,7 +102,6 @@ const props = defineProps({
 });
 
 
-console.log(props.data.unmapped_files)
 const localData = ref({
   ...JSON.parse(JSON.stringify(props.data)),
   unmapped_files: (props.data.unmapped_files || []).map(file =>
@@ -110,7 +109,6 @@ const localData = ref({
   )
 });
 
-console.log(localData.value.unmapped_files)
 
 
 

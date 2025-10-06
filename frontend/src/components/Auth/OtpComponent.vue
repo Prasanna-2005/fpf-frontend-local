@@ -93,7 +93,7 @@ async function submitotp(event) {
                 });
                 location.replace('/home');
             } else {
-                toast.error('Invalid 249030!');
+                toast.error('Invalid !');
             }
         } catch (error) {
             toast.error('Something went wrong!');

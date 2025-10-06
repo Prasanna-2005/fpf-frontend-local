@@ -56,7 +56,6 @@ import { ref } from 'vue'
 const fileStore = useFileStore()
 
 const new_filing=ref(fileStore.getNewFilingField())
-console.log("new filing",new_filing.value)
 const filingName = ref(fileStore.getfilingName() || '')
 const files = ref([])
 const emit = defineEmits(['Upload-done'])
