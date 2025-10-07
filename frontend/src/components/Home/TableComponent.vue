@@ -15,7 +15,11 @@
           <th scope="col" class="w-25">Prepared By</th>
           <!-- <th scope="col">Status</th> -->
           <th scope="col" class="w-25">Modified By</th>
-          <th scope="col" class="w-25">Modified On</th>
+          <th scope="col" class="w-25" @click="toggleSortOrder">
+            Modified On
+            <font-awesome-icon v-if="sortOrder === 'desc'" icon="arrow-down" />
+            <font-awesome-icon v-else icon="arrow-up" />
+          </th>
           <!-- <th scope="col"></th> -->
         </tr>
       </thead>
@@ -88,11 +92,16 @@ function handleSearch(query) {
   currentPage.value = 1
 }
 
+const sortOrder = ref('desc') 
+
+function toggleSortOrder() {
+  sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
+}
 
 const filteredData = computed(() => {
   let tempData = data.value['data'];
 
-  // Apply search filter
+  
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase();
     tempData = tempData.filter(item =>
@@ -101,9 +110,13 @@ const filteredData = computed(() => {
       )
     );
   }
-
-  // Sort by latest modified_on
-  tempData = [...tempData].sort((a, b) => new Date(b.modified_on) - new Date(a.modified_on));
+   tempData = [...tempData].sort((a, b) => {
+    const dateA = new Date(a.modified_on);
+    const dateB = new Date(b.modified_on);
+    return sortOrder.value === 'desc'
+      ? dateB - dateA
+      : dateA - dateB;
+  });
 
   return tempData;
 });
