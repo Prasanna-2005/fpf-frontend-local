@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex" >
+    <div class="d-flex main-div" >
       <div >
         <SideBarComponent @add-fund="openAddFundPopUp=true" />
       </div>
@@ -35,6 +35,10 @@ function closeUpload(){
 </script>
     
 <style scoped>
+.main-div{
+  height: 100vh;
+  overflow: hidden;
+}
 .blurred {
   filter: blur(4px);
   pointer-events: none;
@@ -47,11 +51,9 @@ function closeUpload(){
   left: 0;
   right: 0;
   bottom: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   background-color: rgba(255, 255, 255, 0.9);
   z-index: 10;
   pointer-events: auto;
