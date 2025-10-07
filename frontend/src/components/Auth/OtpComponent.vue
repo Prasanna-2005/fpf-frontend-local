@@ -1,11 +1,14 @@
 <template>
     <form class="needs-validation" novalidate @submit.prevent="submitotp" >
         <div class="mb-3">
-        <label for="OTPInput" class="form-label">Enter verification code</label>
-        <input type="text" class="form-control" id="OTPInput"  v-model="otp" required >
-        <div  class="invalid-feedback">
-                   Please enter a valid verification code
-        </div>
+            <p class="instruction mb-2 text-muted">
+                Check your inbox for the verification code.
+            </p>
+            <label for="OTPInput" class="form-label">Enter verification code</label>
+            <input type="text" class="form-control" id="OTPInput"  v-model="otp" required >
+            <div  class="invalid-feedback">
+                    Please enter a valid verification code
+            </div>
     </div>
     <div class="box">
         <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
@@ -108,14 +111,15 @@ async function submitotp(event) {
 
 async function resendOtp() {
     try {
-        toast.info('Resending OTP...');
+        toast.info('Resending verification code...');
         const result=await api_call_methods.resend_otp({ user_id: props.user_id });
         console.log(result)
-        toast.success('OTP Sent Successfully!');
+        toast.success('Verification code Sent Successfully!');
         startTimer(); 
     } catch (error) {
-        toast.error('Failed to resend OTP!');
+        toast.error('Failed to resend Verification code!');
         console.error(error);
     }
 }
 </script>
+
