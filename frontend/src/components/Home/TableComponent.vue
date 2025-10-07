@@ -11,25 +11,25 @@
     <table class="table">
       <thead class="table-light">
         <tr>
-          <th class="tr-padding" scope="col">Filing Name</th>
-          <th scope="col">Prepared By</th>
+          <th class="tr-padding w-25" scope="col">Filing Name</th>
+          <th scope="col" class="w-25">Prepared By</th>
           <!-- <th scope="col">Status</th> -->
-          <th scope="col">Modified By</th>
-          <th scope="col">Modified On</th>
+          <th scope="col" class="w-25">Modified By</th>
+          <th scope="col" class="w-25">Modified On</th>
           <!-- <th scope="col"></th> -->
         </tr>
       </thead>
       <tbody class="table-group-divider">
         <tr v-for="(data, index) in paginatedData" :key="index">
-          <td>
+          <td class="w-25">
             <router-link :to="{ name: 'editing', query: { filing_id: data['id']} }">
               {{ data['filing_name'] }}
             </router-link>
           </td>
-          <td>{{ data['prepared_by'] }}</td>
+          <td class="w-25">{{ data['prepared_by'] }}</td>
           <!-- <td>{{ data['status'] }}</td> -->
-          <td>{{ data['modified_by'] }}</td>
-          <td>{{ formatDate(data['modified_on'] )}}</td>
+          <td class="w-25">{{ data['modified_by'] }}</td>
+          <td class="w-25">{{ formatDate(data['modified_on'] )}}</td>
           <!-- <td>
             <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
           </td> -->
