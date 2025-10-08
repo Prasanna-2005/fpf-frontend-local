@@ -61,8 +61,8 @@ const files = ref([])
 const emit = defineEmits(['Upload-done'])
 
 function onDrop(acceptedFiles) {
-  files.value = acceptedFiles
-  fileStore.addFiles(filingName.value, acceptedFiles)
+  files.value = [...files.value, ...acceptedFiles];
+  fileStore.addFiles(filingName.value, files.value)
 }
 
 function submitUpload() {
