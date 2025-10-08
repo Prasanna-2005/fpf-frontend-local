@@ -77,19 +77,30 @@ const { getRootProps, getInputProps } = useDropzone({ onDrop })
 <style scoped>
 .upload-container {
   width: 70%;
-  height: 70%;
+  max-width: 800px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
   padding: 20px;
   background-color: white;
   border-radius: 15px;
+  overflow: hidden;
 }
 
+
 .dropzone-container {
+  flex: 1;
+  min-height: 200px;
   height: 70%;
   border: 2px dashed grey;
   border-radius: 10px;
   background-color: #FAF9F6;
   width: 100%;
   transition: border-color 0.3s, background-color 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 }
 .dropzone-container:hover {
   border-color: #4a90e2;
