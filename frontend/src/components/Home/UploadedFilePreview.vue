@@ -149,10 +149,8 @@ async function upload_files(){
   background-color: #f9fcff;
 }
 
-/* File grid */
 .file-list-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
   gap: 16px;
   width: 100%;
   overflow-y: auto;

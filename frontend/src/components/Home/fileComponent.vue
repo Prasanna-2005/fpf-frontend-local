@@ -3,7 +3,7 @@
     <!-- File Icon + Name -->
     <div class="d-flex align-items-center gap-3">
       <font-awesome-icon :icon="fileIcon" :class="['file-icon', fileClass]" />
-      <p class="filename mb-0" :title="filename">{{ filename }}</p>
+      <p class="filename  mb-0" :title="filename">{{ filename }}</p>
     </div>
 
     <!-- Remove Button -->
@@ -77,14 +77,16 @@ const fileClass = computed(() => {
 }
 
 .filename {
-  max-width: 180px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: normal;     
+  word-break: break-word;  
   font-size: 1rem;
   font-weight: 500;
   color: #222;
+  flex: 1;                 
+  min-width: 0;        
 }
+
 
 .remove-btn {
   border: none;
