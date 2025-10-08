@@ -7,36 +7,39 @@
     </div>
 
     <form @submit.prevent="handleSubmit">
-        <div class="col">
+        <div class="col p-2">
           <label for="NameOfReportingFund" class="form-label">Name of reporting fund</label>
           <input type="text" class="form-control" id="NameOfReportingFund"  v-model="firstname" />
         </div>
-        <div class="col">
+        <div class="col p-2">
           <label for="fundID" class="form-label">Private Fund ID of Reporting Fund</label>
           <input type="text" class="form-control" id="fundID"  v-model="fundID" />
         </div>
       
-      <div class="col">
+      <div class="col p-2">
           <label for="NfaID" class="form-label">NFA ID of Reporting Fund</label>
           <input type="text" class="form-control" id="NfaID"  v-model="NfaID" />
       </div>
-      <div class="col">
+      <div class="col p-2">
           <label for="Lei" class="form-label">LEI of Reporting Fund</label>
           <input type="text" class="form-control" id="Lei"  v-model="Lei" />
       </div>
-      <div class="col">
-          <label for="isMasterFund" class="form-label">Is a Master Fund in a Master-Feeder structure?</label>
-          <input type="checkbox"  v-model="isMasterFund" id="isMasterFund" />
+      <div class="col p-2">
+          <label for="isMasterFund" class="form-label">Is a Master Fund in a Master-Feeder structure ?</label>
+          <input type="checkbox" class="mx-2"  v-model="isMasterFund" id="isMasterFund" />
           <span>  {{ isMasterFund ? 'Yes' : 'No' }}</span>
       </div>
-      <div class="col">
-          <label for="isParallelFund" class="form-label">Is a Master Fund in a Master-Feeder structure?</label>
-          <input type="checkbox"  v-model="isParallelFund" id="isParallelFund" />
-          <span>  {{ isParallelFund ? 'Yes' : 'No' }}</span>
+      <div class="col p-2">
+          <label for="isParallelFund" class="form-label">Is a Master Fund in a Master-Feeder structure ?</label>
+          <input type="checkbox" class="mx-2" v-model="isParallelFund" id="isParallelFund" />
+          <span>{{ isParallelFund ? 'Yes' : 'No' }}</span>
       </div>
 
-      <div class="w-100">
+      <div class="w-100 p-2"> 
         <button type="submit" class="btn btn-primary w-100">Submit</button>
+      </div>
+      <div>
+        <p class="p-2 text-muted fs-8">Disclaimer: Our team will reach out to you about fund addition within next 24hrs</p>
       </div>
     </form>
   </div>

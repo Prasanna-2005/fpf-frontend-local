@@ -29,14 +29,15 @@
         <li>
           <a  class="nav-link link-dark" @click="addFund">Add Fund</a>
         </li>
+        <li >
+          <a class="nav-link link-dark" v-on:click="Logout">Logout</a>
+        </li>
         <li class="d-flex justify-content-between align-items-center">
           <a  class="nav-link link-dark">Setting</a>
           <font-awesome-icon class="icon rounded-circle" icon="angle-down" style="color:black" @click="toggleSetting" v-if="isSetting"/>
           <font-awesome-icon class="icon rounded-circle" icon="angle-up" style="color:black" @click="toggleSetting" v-if="!isSetting"/>
         </li>
-        <li v-if="isSetting">
-          <a class="nav-link link-dark" v-on:click="Logout">Logout</a>
-        </li>
+        
         <li v-if="isSetting">
           <a href="/reset" class="nav-link link-dark">Reset Password</a>
         </li>
@@ -55,8 +56,10 @@
 import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
+import { useToast } from 'vue-toast-notification';
 
 const userStore = useUserStore()
+const toast=useToast()
 const email = userStore.email
 const username = userStore.username
 
@@ -74,6 +77,7 @@ async function Logout(){
   const current_time = new Date();
   userStore.logout()
   try {
+      toast.info('Logging out.....')
       await api_call_methods.logout({
         user_id: user_id,
         logout_time: current_time.toISOString()
