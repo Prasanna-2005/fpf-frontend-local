@@ -32,6 +32,7 @@
                 v-if="editingFieldNo !== fields.field_no"
                 class="btn btn-sm  me-2"
                 @click="startEditing(fields.field_no)"
+                
               >
                 <font-awesome-icon class="icon" icon="pen" />
               </button>
@@ -39,6 +40,7 @@
                 v-if="editingFieldNo === fields.field_no"
                 class="btn btn-sm btn-success me-2"
                 @click="saveEdits(fields.field_no, fields.value, fieldIndex)"
+                :disabled="making_api_call"
               >
                 <font-awesome-icon class="icon" icon="floppy-disk" />
               </button>
@@ -46,6 +48,7 @@
                 v-if="editingFieldNo === fields.field_no" 
                 class="btn btn-sm btn-warning me-2"
                 @click="restoreEdits(fields.field_no)"
+                :disabled="making_api_call"
                 >
                 <font-awesome-icon class="icon" icon="rotate-left" />
               </button>
@@ -53,6 +56,7 @@
                 v-if="editingFieldNo === fields.field_no"
                 class="btn btn-sm btn-danger "
                 @click="cancelEditing"
+                :disabled="making_api_call"
               >
                <font-awesome-icon class="icon" icon="xmark" />
               </button>
@@ -265,9 +269,11 @@ function updateValue(fieldNo, itemIndex, newVal) {
   editedData[fieldNo][itemIndex].value= newVal
 }
 
-async function saveEdits(fieldNo,value, fieldIndex) {
 
+const making_api_call=ref(false)
+async function saveEdits(fieldNo,value, fieldIndex) {
   try{
+    making_api_call.value=true
   toast.info(`Saving Question ${fieldNo}`)
   const fund_id=responseStore.getFundId(props.fundName)
   responseStore.updateItem(props.fundName,fieldNo,editedData[fieldNo],fieldIndex)
@@ -287,9 +293,13 @@ catch(error){
   console.log(error)
   toast.error(`Failed to save question  ${fieldNo}`)
 }   
+finally{
+making_api_call.value=false
+}
 }
 async function restoreEdits(fieldNo) {
   try{
+    making_api_call.value=true
     toast.info(`Reverting Question ${fieldNo}`)
   const fund_id=responseStore.getFundId(props.fundName)
   const revertApiData={
@@ -305,6 +315,9 @@ async function restoreEdits(fieldNo) {
   catch(error){
     console.log(error)
     toast.error(`Failed to revert question ${fieldNo}`)
+  }
+  finally{
+    making_api_call.value=false
   }
 
 }
