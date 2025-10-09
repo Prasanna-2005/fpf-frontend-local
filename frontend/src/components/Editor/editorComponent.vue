@@ -45,7 +45,7 @@
               <button
                 v-if="editingFieldNo === fields.field_no" 
                 class="btn btn-sm btn-warning me-2"
-                @click="restoreEdits(fields.field_no, fieldIndex)"
+                @click="restoreEdits(fields.field_no)"
                 >
                 <font-awesome-icon class="icon" icon="rotate-left" />
               </button>
@@ -62,7 +62,7 @@
           
           <div class="d-flex justify-content-between align-items-center">
 
-            <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }">
+            <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }" style="width: 100%;">
               
               <span >
                 <span class="line-value">
@@ -201,13 +201,14 @@ import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
 import TableItemComponent from './subcomponent/TableItemComponent.vue'
 import DateItemComponent from './subcomponent/DateItemComponent.vue'
-import response from '@/assets/Sample_data/responsedata'
+// import response from '@/assets/Sample_data/responsedata'
 import { useEditableStore } from '@/stores/responseStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore';
 import { useRouter } from 'vue-router';
-
+import { useToast } from 'vue-toast-notification'
 const router = useRouter();
+const toast=useToast();
 
 const userStore = useUserStore();
 
@@ -265,6 +266,9 @@ function updateValue(fieldNo, itemIndex, newVal) {
 }
 
 async function saveEdits(fieldNo,value, fieldIndex) {
+
+  try{
+  toast.info(`Saving Question ${fieldNo}`)
   const fund_id=responseStore.getFundId(props.fundName)
   responseStore.updateItem(props.fundName,fieldNo,editedData[fieldNo],fieldIndex)
   const acceptApiData={
@@ -276,12 +280,32 @@ async function saveEdits(fieldNo,value, fieldIndex) {
   }
   const response=await api_call_methods.accept_data(user_id,acceptApiData,fund_id,props.filingId)
   editingFieldNo.value = null
-  delete editedData[fieldNo]    
+  delete editedData[fieldNo] 
+  toast.success(`Saved Question ${fieldNo}`)
 }
-function restoreEdits(fieldNo, fieldIndex) {
-    //API call
-
-    
+catch(error){
+  console.log(error)
+  toast.error(`Failed to save question  ${fieldNo}`)
+}   
+}
+async function restoreEdits(fieldNo) {
+  try{
+    toast.info(`Reverting Question ${fieldNo}`)
+  const fund_id=responseStore.getFundId(props.fundName)
+  const revertApiData={
+    'field_no':fieldNo,
+    'value':'',
+    'field_data':editedData[fieldNo],
+    "confirmed": true,
+    "editing": false
+  }
+  const response=await api_call_methods.revert_data(user_id,revertApiData,fund_id,props.filingId)
+  location.reload();
+  }
+  catch(error){
+    console.log(error)
+    toast.error(`Failed to revert question ${fieldNo}`)
+  }
 
 }
 
