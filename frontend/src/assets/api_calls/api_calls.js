@@ -188,6 +188,19 @@ async function accept_data(user_id,data,fund_id,filing_id) {
 }
 
 
+async function revert_data(user_id,data,fund_id,filing_id) {
+    const response=await api.put(`/api/v1/submissions/revert/${filing_id}/${fund_id}`,data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+}
+
 
 const api_call_methods={
     login,
@@ -204,7 +217,8 @@ const api_call_methods={
     submit_files,
     get_response,
     get_xml_data,
-    accept_data
+    accept_data,
+    revert_data
 
 }
 
