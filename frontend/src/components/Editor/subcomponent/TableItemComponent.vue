@@ -16,7 +16,7 @@
         <div class="table-responsive my-2">
         <table class="table table-bordered table-sm thick-border">
             <thead>
-            <tr class="thick-border">
+            <tr class="thick-border text-wrap"  >
                 <th v-for="(val, key, colIndex) in localData[0]" :key="colIndex" class="thick-border">
                 <b>{{ key.toUpperCase() }}</b>
                 </th>
@@ -26,6 +26,7 @@
             <tr v-for="(row, rowIndex) in localData" :key="rowIndex" class="thick-border">
                 <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
                 <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
+                <span v-else-if="key === 's.text'">{{ val }}</span>
                 <span v-else>
                 <input 
                 type="text" 
