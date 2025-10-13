@@ -71,20 +71,20 @@
               <span >
                 <span class="line-value">
                     <InputItemComponent
-                    v-if="fields.field_item_type === 'text' || fields.field_item_type === 'None'"
+                    v-if="fields.field_item_type === 'text' || fields.field_item_type === 'NULL'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
                     :itemValue="editedData[fields.field_no]?.value ?? fields.value"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"  
-                    :inputNeeded="fields.field_item_type !== 'None'"
+                    :inputNeeded="fields.field_item_type !== 'NULL'"
                     @update="val => updateValue(fields.field_no, itemIndex, val)"
                   />
                   <BooleanItemComponent
                     v-else-if="fields.field_item_type === 'bool'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
-                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value"
+                    :itemValue="editedData[fields.field_no]?.value ?? fields.value"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"  
                     @update="val => updateValue(fields.field_no, itemIndex, val)"
@@ -93,7 +93,7 @@
                     v-else-if="fields.field_item_type === 'dropdown'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
-                    :itemValue="editedData[fields.field_no]?.value?.[0] ?? fields.value"
+                    :itemValue="editedData[fields.field_no]?.value ?? fields.value"
                     :options="fields.options"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"
@@ -121,7 +121,7 @@
                   :indent="getIndent(fields.field_no)" 
                   :itemNumber="getDisplayFieldNo(fields.field_no)" 
                   :isDateInput="fields.field_item_type === 'date'"
-                  :dateValue="editedData[fields.field_no]?.value?.[0] ?? fields.value"
+                  :dateValue="editedData[fields.field_no]?.value ?? fields.value"
                   :itemText="fields.field_text" 
                   :itemData="fields.table_data" 
                   :disabled="editingFieldNo !== fields.field_no"
