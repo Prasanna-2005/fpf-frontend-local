@@ -74,7 +74,7 @@
                       <th
                         v-for="(val, key, colIndex) in fields.table_data?.[0] || {}"
                         :key="colIndex"
-                        class="thick-border fixed-col"
+                        class="thick-border fixed-col text-center align-middle "
                       >
                         <b >{{  get_table_header_name(key).toUpperCase() }}</b>
                       </th>
