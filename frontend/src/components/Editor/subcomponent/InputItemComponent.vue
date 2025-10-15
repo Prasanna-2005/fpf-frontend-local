@@ -6,7 +6,7 @@
             <span>{{ props.itemText }}</span>
         </p>
         <p>
-            <input type="text" v-if="inputNeeded" v-model="inputValue" style="width: 250px;" :disabled="disabled">
+            <input type="text" v-if="inputNeeded" v-model="inputValue" style="width: 250px;" :disabled="disabled" >
         </p>
     </div>
 

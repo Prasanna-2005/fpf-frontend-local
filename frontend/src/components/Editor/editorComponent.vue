@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 p-2">
+  <div class="w-100 p-2" style="height: 90vh;">
     <div class="button-options">
       <button class="btn btn-primary m-2 border-0" @click="goToHome">
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
