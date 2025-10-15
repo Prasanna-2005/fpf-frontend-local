@@ -169,3 +169,11 @@ cursor: not-allowed;
   font-size: 0.9rem;
   color: #6c757d;
 }
+
+.mono{
+    font-family: monospace;
+}
+
+.number{
+    text-align: right;
+}
