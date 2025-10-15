@@ -95,7 +95,7 @@
               <div v-if="fields.field_data?.length" class="field-content">
                 <span v-for="(items, itemIndex) in fields.field_data" :key="itemIndex" class="line-item">
                   <p :style="{ marginLeft: getIndent(items.line_item_no) + 'px' }">
-                    <span class="line-number field-number">{{ getDisplayFieldNo(items.line_item_no) }}).</span>
+                    <span class="line-number field-number">{{ getDisplayFieldNo(items.line_item_no) }})</span>
                     <span class="line-text">{{ items.line_text }}:</span>
 
                     <!-- Normal value -->
@@ -299,7 +299,7 @@ function get_table_header_name(header){
 }
 .pdf-field { margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
 .field-number { font-weight: bold; font-size: 16px; }
-.field-content { margin-left: 20px; }
+.field-content {}
 .line-item p { margin: 4px 0; }
 .line-number { font-weight: bold; margin-right: 5px; }
 .line-text { font-style: italic; margin-right: 5px; }
