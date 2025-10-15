@@ -63,7 +63,7 @@ const toast=useToast()
 const email = userStore.email
 const username = userStore.username
 
-const isCollapsed = ref(false)
+const isCollapsed = ref(true)
 const isSetting= ref(false)
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value

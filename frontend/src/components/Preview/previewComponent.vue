@@ -33,10 +33,10 @@
         >
           <!-- Fund Header -->
           <div class="d-flex w-100 mb-4" style="border: 1px solid;">
-            <div style="border: 1px solid;" class="w-25 p-2">
+            <div style="border: 1px solid;" class="w-50 p-2">
               <h4>{{ fundKey }}</h4>
             </div>
-            <div style="border: 1px solid;" class="w-75 p-2">
+            <div style="border: 1px solid;" class="w-50 p-2">
               <h4>Information about the private funds you advise</h4>
             </div>
           </div>
@@ -51,35 +51,40 @@
               v-for="(fields, fieldIndex) in fieldsGroup"
               :key="fieldIndex"
               class="pdf-field"
+              
               :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
             >
               <p class="field-number">
                 {{ getDisplayFieldNo(fields.field_no) }})
                 <span v-if="fields.has_field_item_text">
-                  <span class="line-text">{{ fields.field_text }}:</span>
+                  
+                  <pre  v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</pre>
+                   <!-- <span v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</span> -->
+                  <span v-else class="line-text">{{ fields.field_text }}:</span>
+                  
                   <span class="line-value"><b>{{ fields.value }}</b></span>
                 </span>
               </p>
 
               <!-- Table Data -->
-              <div v-if="fields.has_table_data && fields.table_data?.length" class="table-responsive my-2">
-                <table class="table table-bordered table-sm thick-border">
+              <div v-if="fields.has_table_data && fields.table_data?.length" class="table-responsive my-2 ">
+                <table class="table table-bordered table-sm thick-border fixed-table">
                   <thead>
                     <tr class="thick-border">
                       <th
                         v-for="(val, key, colIndex) in fields.table_data?.[0] || {}"
                         :key="colIndex"
-                        class="thick-border"
+                        class="thick-border fixed-col"
                       >
-                        <b>{{ key.toUpperCase() }}</b>
+                        <b >{{  get_table_header_name(key).toUpperCase() }}</b>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(row, rowIndex) in fields.table_data || []" :key="rowIndex" class="thick-border">
-                      <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
+                      <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border fixed-col" :class="!isNaN(val[0])?'number':'' ">
                         <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
-                        <span v-else>{{ val }}</span>
+                        <span v-else >{{ val }}</span>
                       </td>
                     </tr>
                   </tbody>
@@ -109,7 +114,7 @@
                             :key="colIndex"
                             class="thick-border"
                           >
-                            <b>{{ key.toUpperCase() }}</b>
+                            <b>{{ get_table_header_name(key).toUpperCase() }}</b>
                           </th>
                         </tr>
                       </thead>
@@ -117,7 +122,7 @@
                         <tr v-for="(row, rowIndex) in items.table_data || []" :key="rowIndex" class="thick-border">
                           <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
                             <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
-                            <span v-else>{{ val }}</span>
+                            <span v-else class="mono">{{ val }}</span>
                           </td>
                         </tr>
                       </tbody>
@@ -139,6 +144,7 @@ import { ref, nextTick } from 'vue';
 // import html2pdf from 'html2pdf.js';
 import { useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
+import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
 const router = useRouter();
 const props = defineProps({
@@ -152,15 +158,17 @@ const props = defineProps({
 })
 const responseStore = useEditableStore();
 const data = responseStore.getAllData();
+console.log(data)
 const pdfContent = ref(null);
 const emit = defineEmits(['create-copy', 'approve']);
 
-// Group fields safely
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
     const heading = item.field_heading || "Other";
+    console.log(item.field_no)
     if (!acc[heading]) acc[heading] = [];
     acc[heading].push(item);
+    console.log("woho",acc)
     return acc;
   }, {});
 }
@@ -244,11 +252,13 @@ async function downloadPDF() {
 
 
 function getDisplayFieldNo(fieldNo) {
+  if (!fieldNo || typeof fieldNo !== 'string') return '';
   const parts = fieldNo.split('_');
   return parts[parts.length - 1];
 }
 
 function getIndent(fieldNo) {
+  if (!fieldNo || typeof fieldNo !== 'string') return 0;
   const depth = (fieldNo.match(/_/g) || []).length;
   return depth * 30;
 }
@@ -266,11 +276,22 @@ function goBackToEdit(){
 function goToHome(){
   window.location='/home'
 }
+
+function get_table_header_name(header){
+  if(header==='s.name'){
+    return ''
+  }
+  else{
+    return header.replaceAll("_", " ");
+
+  }
+
+}
 </script>
 
 <style scoped>
 .thick-border { border: 2px solid black; }
-.pdf-viewer { border: 1px solid #ccc; background: #f2f2f2; padding: 20px; }
+.pdf-viewer { height: 90vh; border: 1px solid #ccc; background: #f2f2f2; padding: 20px; overflow-y: scroll;}
 .pdf-page {
   width: 1122px; max-width: 100%; box-sizing: border-box; padding: 40px;
   background: white; margin: auto; box-shadow: 0 0 8px rgba(0,0,0,0.15);
@@ -283,4 +304,26 @@ function goToHome(){
 .line-number { font-weight: bold; margin-right: 5px; }
 .line-text { font-style: italic; margin-right: 5px; }
 .page-break { page-break-before: always; }
+.formatted-text {
+  white-space: pre-wrap; /* preserves line breaks and wraps text */
+  word-wrap: break-word; /* wraps long words instead of cutting off */
+  font-family: 'Times New Roman', Times, serif !important;
+  line-height: 1.4;
+  font-size: 16px; 
+  font-style: italic;
+
+}
+.fixed-table {
+  table-layout: fixed; /* ensures equal width distribution or fixed widths */
+  width: 100%;
+}
+
+.fixed-col {
+  width: 150px; /* set your preferred width */
+  word-wrap: break-word; /* wraps long text */
+  text-overflow: ellipsis;
+  overflow: break-word;
+  white-space: normal; /* prevents wrapping if you prefer truncation */
+}
+
 </style>
