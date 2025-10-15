@@ -291,7 +291,7 @@ function get_table_header_name(header){
 
 <style scoped>
 .thick-border { border: 2px solid black; }
-.pdf-viewer { border: 1px solid #ccc; background: #f2f2f2; padding: 20px; }
+.pdf-viewer { height: 90vh; border: 1px solid #ccc; background: #f2f2f2; padding: 20px; overflow-y: scroll;}
 .pdf-page {
   width: 1122px; max-width: 100%; box-sizing: border-box; padding: 40px;
   background: white; margin: auto; box-shadow: 0 0 8px rgba(0,0,0,0.15);

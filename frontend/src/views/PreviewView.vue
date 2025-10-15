@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex" >
+    <div class="d-flex main-div" >
             <div >
                 <SideBarComponent  @add-fund="openAddFundPopUp=true"/>
             </div>

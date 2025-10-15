@@ -177,3 +177,7 @@ cursor: not-allowed;
 .number{
     text-align: right;
 }
+.main-div{
+  height: 100vh;
+  overflow: hidden;
+}
