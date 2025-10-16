@@ -71,13 +71,13 @@
               <span >
                 <span class="line-value">
                     <InputItemComponent
-                    v-if="fields.field_item_type === 'text' || fields.field_item_type === 'None'"
+                    v-if="fields.field_item_type === 'text' || fields.field_item_type === 'NULL'"
                     :itemNumber="getDisplayFieldNo(fields.field_no)"
                     :itemText="fields.field_text"
                     :itemValue="editedData[fields.field_no]?.value ?? fields.value"
                     :disabled="editingFieldNo !== fields.field_no"
                     :indent="getIndent(fields.field_no)"  
-                    :inputNeeded="fields.field_item_type !== 'None'"
+                    :inputNeeded="fields.field_item_type !== 'NULL'"
                     @update="val => updateValue(fields.field_no, itemIndex, val)"
                   />
                   <BooleanItemComponent
