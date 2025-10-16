@@ -71,22 +71,32 @@
                 <table class="table table-bordered table-sm thick-border fixed-table">
                   <thead>
                     <tr class="thick-border">
-                      <th
-                        v-for="(val, key, colIndex) in fields.table_data?.[0] || {}"
-                        :key="colIndex"
-                        class="thick-border fixed-col text-center align-middle "
-                      >
-                        <b >{{  get_table_header_name(key).toUpperCase() }}</b>
-                      </th>
-                    </tr>
+        <template v-for="(val, key, colIndex) in fields.table_data?.[0] || {}" :key="colIndex">
+          <th
+            v-if="key !== 's.name'"
+            class="thick-border fixed-col text-center align-middle"
+          >
+            <b>{{ get_table_header_name(key).toUpperCase() }}</b>
+          </th>
+        </template>
+      </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(row, rowIndex) in fields.table_data || []" :key="rowIndex" class="thick-border">
-                      <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border fixed-col" :class="!isNaN(val[0])?'number':'' ">
-                        <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
-                        <span v-else >{{ val }}</span>
-                      </td>
-                    </tr>
+                    <tr
+        v-for="(row, rowIndex) in fields.table_data || []"
+        :key="rowIndex"
+        class="thick-border"
+      >
+        <template v-for="(val, key, colIndex) in row" :key="colIndex">
+          <td
+            v-if="key !== 's.name'"
+            class="thick-border fixed-col"
+            :class="!isNaN(val[0]) ? 'number' : ''"
+          >
+            <span>{{ val }}</span>
+          </td>
+        </template>
+      </tr>
                   </tbody>
                 </table>
               </div>
@@ -121,7 +131,7 @@
                       <tbody>
                         <tr v-for="(row, rowIndex) in items.table_data || []" :key="rowIndex" class="thick-border">
                           <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
-                            <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
+                            <span v-if="key === 's.text'">{{ getDisplayFieldNo(val) }}</span>
                             <span v-else class="mono">{{ val }}</span>
                           </td>
                         </tr>
@@ -279,6 +289,9 @@ function goToHome(){
 
 function get_table_header_name(header){
   if(header==='s.name'){
+    return ''
+  }
+  else if(header==='s.text'){
     return ''
   }
   else{
