@@ -99,14 +99,14 @@
                     :indent="getIndent(fields.field_no)"
                     @update="val => updateValue(fields.field_no, itemIndex, val)"
                   />
-                  <TableItemComponent  
+                  <!-- <TableItemComponent  
                   v-else-if="fields.field_item_type === 'table'" 
                   :indent="getIndent(fields.field_no)" 
                   :itemNumber="getDisplayFieldNo(fields.field_no)" 
                   :itemText="fields.field_text" 
                   :itemData="fields.table_data" 
                   :disabled="editingFieldNo !== fields.field_no"
-                  />
+                  /> -->
                   <!-- <DateItemComponent 
                   v-else-if="fields.field_item_type === 'date'"
                   :itemNumber="getDisplayFieldNo(fields.field_no)"
