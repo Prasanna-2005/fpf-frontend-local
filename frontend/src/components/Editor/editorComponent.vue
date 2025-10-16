@@ -19,7 +19,7 @@
       </button>
     </div>
 
-    <div class="max-dimensions" style="padding: 10px 30px 10px 30px; height: 730px; overflow: scroll;">
+    <div class="max-dimensions" style="padding: 10px 30px 10px 30px; height: 80vh; overflow: scroll;">
       <div class="editor-header">
         <h3>{{ props.fundName }} </h3>
       </div>
