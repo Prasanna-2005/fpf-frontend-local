@@ -129,6 +129,7 @@ watch(
 )
 
 function emitUpdate() {
+    console.log(localData.value)
   emit('update', localData.value)
 }
 
