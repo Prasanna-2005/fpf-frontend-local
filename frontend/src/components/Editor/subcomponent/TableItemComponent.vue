@@ -3,7 +3,8 @@
 
         <p>
             <span>{{ props.itemNumber }}</span>)
-            <span>{{ props.itemText }}</span>: 
+            <span  v-if="props.itemNumber=='14'" class="formatted-text">{{ defaultText }}</span>
+            <span v-else>{{ props.itemText }}</span>: 
         </p>
         <p v-if="isDateInput">
             <input 
@@ -43,6 +44,7 @@
 </template>
 
 <script setup>
+import { defaultText } from '@/assets/text/text'
 import { ref, watch, onMounted } from 'vue'
 
 const props = defineProps({
@@ -107,3 +109,11 @@ function getDisplayFieldNo(fieldNo) {
   return parts[parts.length - 1]
 }
 </script>
+<style scoped>
+.formatted-text {
+  white-space: pre-wrap; /* preserves line breaks and wraps text */
+  word-wrap: break-word; /* wraps long words instead of cutting off */
+  
+
+}
+</style>
