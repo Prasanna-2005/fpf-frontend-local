@@ -18,25 +18,41 @@
         <table class="table table-bordered table-sm thick-border">
             <thead>
             <tr class="thick-border">
-                <th v-for="(val, key, colIndex) in localData[0]" :key="colIndex" class="thick-border">
-                <b>{{ key.toUpperCase() }}</b>
-                </th>
-            </tr>
+                      <template v-for="(val, key, colIndex) in localData[0]" :key="colIndex" class="thick-border">
+                        <th
+                          v-if="key !== 's.name'"
+                          class="thick-border fixed-col text-center align-middle"
+                        >
+                          <b>{{ get_table_header_name(key).toUpperCase() }}</b>
+                        </th>
+                      </template>
+                    </tr>
             </thead>
             <tbody>
-            <tr v-for="(row, rowIndex) in localData" :key="rowIndex" class="thick-border">
-                <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
-                <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
-                <span v-else>
-                <input 
-                type="text" 
-                v-model="localData[rowIndex][key]" 
-                :disabled="disabled"
-                @input="emitUpdate"
-                >
-                </span>
-                </td>
-            </tr>
+            <tr v-for="(row, rowIndex) in localData"
+                      :key="rowIndex"
+                      class="thick-border"
+                    >
+                      <template v-for="(val, key, colIndex) in row" :key="colIndex">
+                        <td
+                          v-if="key !== 's.name'"
+                          class="thick-border fixed-col text-end"
+                          
+                        >
+                          <span v-if="key === 's.text'">{{ getDisplayFieldNo(val) }}</span>
+                            <span v-else>
+                            <input 
+                            type="text" 
+                            v-model="localData[rowIndex][key]" 
+                            :disabled="disabled"
+                            @input="emitUpdate"
+                            style="width: 100%; box-sizing: border-box; padding: 4px;"
+                            class="number"
+                            >
+                             </span>
+                        </td>
+                      </template>
+                    </tr>
             </tbody>
         </table>
         </div>
@@ -83,7 +99,19 @@ const date=ref('')
 const emit = defineEmits(['update'])
 const localData = ref([])
 console.log(props.itemData)
+function get_table_header_name(header){
+  if(header==='s.name'){
+    return ''
+  }
+  else if(header==='s.text'){
+    return ''
+  }
+  else{
+    return header.replaceAll("_", " ");
 
+  }
+
+}
 
 onMounted(() => {
   localData.value = props.itemData
