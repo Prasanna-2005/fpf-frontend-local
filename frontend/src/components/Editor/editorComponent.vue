@@ -320,7 +320,7 @@ async function restoreEdits(fieldNo) {
       field_item_type:editedData[fieldNo].field_item_type
     }
     await api_call_methods.revert_data(user_id, revertApiData, fund_id, props.filingId)
-    // location.reload()
+    location.reload()
   } catch (err) {
     console.log(err)
     toast.error(`Failed to revert question ${fieldNo}`)
