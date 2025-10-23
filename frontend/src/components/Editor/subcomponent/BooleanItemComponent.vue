@@ -39,10 +39,11 @@ const props=defineProps({
         default: 0 
     }
 })
-const checked = ref(props.itemValue === 'Yes')
+const checked = ref(props.itemValue === 'true')
 const emit = defineEmits(['update'])
 watch(checked, () => {
-  emit('update', checked.value)    
+const emit_value=checked.value?'true':'false'
+emit('update', emit_value)    
 })
 
 
