@@ -5,9 +5,9 @@
             </div>
             <div v-if="loading" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative">
                     <div >
-                    <span class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true">
+                    <span v-if="loader" class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true">
                     </span>
-                        Please wait loading editor....
+                        {{message}}
                     </div>
                 </div>
             <div v-else class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
@@ -39,13 +39,17 @@ import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
+import { useToast } from 'vue-toast-notification';
 const route = useRoute()
 
+const message=ref('Please wait loading editor....')
 const openAddFundPopUp=ref(false)
 const openUploadPopUp=ref(false)
 const fundName=ref('')
 const loading=ref('true')
 const fundNames=ref([])
+const toast=useToast()
+const loader=ref('true')
 
 const responseStore = useEditableStore()
 
@@ -67,6 +71,9 @@ onMounted(async () => {
     fundName.value=fundNames.value[0]
     loading.value=false
 } catch (error) {
+    loader.value=false
+    message.value="Failed to load editor page, Contact support"
+    toast.error('Failed to load editor page')
     console.error("Error fetching data:", error)
   }
 })
