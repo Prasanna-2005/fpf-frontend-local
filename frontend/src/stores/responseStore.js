@@ -18,26 +18,24 @@ export const useEditableStore = defineStore('response', () => {
         fund_id: fund.fund_id
       }))
     })
-   
   }
 
   function getFunds() {
-    // return all fund names
     return Object.keys(fund_mapper.value)
   }
 
   function getFundData(fundName) {
     return fund_mapper.value[fundName] 
   }
+
   function getAllData(){
     return fund_mapper.value
   }
-  function getFundId(fundName) {
-    const fundData = fund_mapper.value[fundName];
-    if (!fundData || fundData.length === 0) return null;
 
-    // since each question object has fund_id now, just take it from the first one
-    return fundData[0].fund_id || null;
+  function getFundId(fundName) {
+    const fundData = fund_mapper.value[fundName]
+    if (!fundData || fundData.length === 0) return null
+    return fundData[0].fund_id || null
   }
 
   function updateItem(fundName, field_no, item_obj, fieldIndex) {
@@ -45,33 +43,44 @@ export const useEditableStore = defineStore('response', () => {
     if (!target) return
 
     target[fieldIndex].isRestoreAvailable = true
-    target[fieldIndex].restoreValue = target[fieldIndex].field_data
-    target[fieldIndex].field_data = item_obj
+
+    // Store a copy of the original values for restore
+    target[fieldIndex].restoreValue = {
+      items: JSON.parse(JSON.stringify(target[fieldIndex].field_data)), // old field_data
+      table_data: JSON.parse(JSON.stringify(target[fieldIndex].table_data || [])),
+      field_item_value: JSON.parse(JSON.stringify(target[fieldIndex].value ? [{ value: target[fieldIndex].value }] : []))
+    }
+
+    // Update with new editedData structure
+    target[fieldIndex].field_data = item_obj.items ?? []
+    target[fieldIndex].table_data = item_obj.table_data ?? []
+    target[fieldIndex].value = item_obj.field_item_value?.[0]?.value ?? target[fieldIndex].value
   }
 
   function restoreItem(fundName, field_no, fieldIndex) {
     const target = fund_mapper.value[fundName]
     if (!target) return
     const item = target[fieldIndex]
-    if (!item) return
+    if (!item || !item.restoreValue) return
 
-    const restoreCopy = JSON.parse(JSON.stringify(item.restoreValue))
+    // Restore all parts from restoreValue
+    const restoreCopy = item.restoreValue
     target[fieldIndex] = {
       ...target[fieldIndex],
       isRestoreAvailable: false,
-      field_data: restoreCopy
+      field_data: restoreCopy.items ?? [],
+      table_data: restoreCopy.table_data ?? [],
+      value: restoreCopy.field_item_value?.[0]?.value ?? null
     }
   }
 
-
   return {
     setResponse,
-    getFunds,      
-    getFundData,   
+    getFunds,
+    getFundData,
     updateItem,
     restoreItem,
     getAllData,
     getFundId
   }
-
 })

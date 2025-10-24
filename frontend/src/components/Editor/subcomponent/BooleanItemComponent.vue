@@ -1,12 +1,12 @@
 <template>
     <div class="d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }" >
-        <p> 
+        <p style="max-width: 70%;"> 
             <span>{{ props.itemNumber }}</span>)
             <span>{{ props.itemText }}</span>:
         </p>
         <p>
             <input type="checkbox" v-model="checked" :disabled="disabled" />
-            <span>{{ checked ? 'Yes' : 'No' }}</span>
+            <span>{{ checked ? ' Yes' : ' No' }}</span>
     
         </p>
     </div>
@@ -39,10 +39,11 @@ const props=defineProps({
         default: 0 
     }
 })
-const checked = ref(props.itemValue === 'Yes')
+const checked = ref(props.itemValue === 'true')
 const emit = defineEmits(['update'])
 watch(checked, () => {
-  emit('update', checked.value)    
+const emit_value=checked.value?'true':'false'
+emit('update', emit_value)    
 })
 
 

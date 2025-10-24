@@ -71,21 +71,31 @@
                 <table class="table table-bordered table-sm thick-border fixed-table">
                   <thead>
                     <tr class="thick-border">
-                      <th
-                        v-for="(val, key, colIndex) in fields.table_data?.[0] || {}"
-                        :key="colIndex"
-                        class="thick-border fixed-col"
-                      >
-                        <b >{{  get_table_header_name(key).toUpperCase() }}</b>
-                      </th>
+                      <template v-for="(val, key, colIndex) in fields.table_data?.[0] || {}" :key="colIndex">
+                        <th
+                          v-if="key !== 's.name'"
+                          class="thick-border fixed-col text-center align-middle"
+                        >
+                          <b>{{ get_table_header_name(key).toUpperCase() }}</b>
+                        </th>
+                      </template>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(row, rowIndex) in fields.table_data || []" :key="rowIndex" class="thick-border">
-                      <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border fixed-col" :class="!isNaN(val[0])?'number':'' ">
-                        <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
-                        <span v-else >{{ val }}</span>
-                      </td>
+                    <tr
+                      v-for="(row, rowIndex) in fields.table_data || []"
+                      :key="rowIndex"
+                      class="thick-border"
+                    >
+                      <template v-for="(val, key, colIndex) in row" :key="colIndex">
+                        <td
+                          v-if="key !== 's.name'"
+                          class="thick-border fixed-col"
+                          :class="!isNaN(val[0]) ? 'number' : ''"
+                        >
+                          <span>{{ val }}</span>
+                        </td>
+                      </template>
                     </tr>
                   </tbody>
                 </table>
@@ -95,7 +105,7 @@
               <div v-if="fields.field_data?.length" class="field-content">
                 <span v-for="(items, itemIndex) in fields.field_data" :key="itemIndex" class="line-item">
                   <p :style="{ marginLeft: getIndent(items.line_item_no) + 'px' }">
-                    <span class="line-number field-number">{{ getDisplayFieldNo(items.line_item_no) }}).</span>
+                    <span class="line-number field-number">{{ getDisplayFieldNo(items.line_item_no) }})</span>
                     <span class="line-text">{{ items.line_text }}:</span>
 
                     <!-- Normal value -->
@@ -121,7 +131,7 @@
                       <tbody>
                         <tr v-for="(row, rowIndex) in items.table_data || []" :key="rowIndex" class="thick-border">
                           <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
-                            <span v-if="key === 's.name'">{{ getDisplayFieldNo(val) }}</span>
+                            <span v-if="key === 's.text'">{{ getDisplayFieldNo(val) }}</span>
                             <span v-else class="mono">{{ val }}</span>
                           </td>
                         </tr>
@@ -281,6 +291,9 @@ function get_table_header_name(header){
   if(header==='s.name'){
     return ''
   }
+  else if(header==='s.text'){
+    return ''
+  }
   else{
     return header.replaceAll("_", " ");
 
@@ -299,7 +312,7 @@ function get_table_header_name(header){
 }
 .pdf-field { margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
 .field-number { font-weight: bold; font-size: 16px; }
-.field-content { margin-left: 20px; }
+.field-content {}
 .line-item p { margin: 4px 0; }
 .line-number { font-weight: bold; margin-right: 5px; }
 .line-text { font-style: italic; margin-right: 5px; }

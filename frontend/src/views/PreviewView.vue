@@ -4,7 +4,11 @@
                 <SideBarComponent  @add-fund="openAddFundPopUp=true"/>
             </div>
             <div v-if="loading" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative">
-                  <div >Please wait loading PDF preview....</div>
+                  <div >
+                    <span class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true">
+                    </span>
+                    Please wait loading PDF preview....
+                  </div>
             </div>
             <div v-else class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <!-- <topBarComponent @selected-fund="selectFund"  /> -->
