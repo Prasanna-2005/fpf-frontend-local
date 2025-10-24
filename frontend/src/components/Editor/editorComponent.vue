@@ -211,8 +211,9 @@ function updateTableValue(fieldNo, tableData) {
   if (!editedData[fieldNo]) return
   // Replace the table_data completely
   editedData[fieldNo].table_data = tableData
-  editedData[fieldNo].has_table_data=true
+  // editedData[fieldNo].has_table_data=true
   console.log(editedData[fieldNo])
+
 }
 // Updated startEditing
 function startEditing(fieldNo) {
@@ -220,7 +221,7 @@ function startEditing(fieldNo) {
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:false,field_item_type: field.field_item_type}
+  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type}
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
