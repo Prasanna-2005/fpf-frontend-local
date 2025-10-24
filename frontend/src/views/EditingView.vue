@@ -82,8 +82,6 @@ onMounted(async () => {
     loading.value=false
 } catch (error) {
     loader.value=false
-    message.value="Failed to load editor page, Contact support"
-    // toast.error('Failed to load editor page')
     console.error("Error fetching data:", error)
   }
 })
