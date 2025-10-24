@@ -80,7 +80,7 @@
                   :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
-                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value',true)"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <DropdownItemComponent
                   v-else-if="fields.field_item_type === 'dropdown'"
@@ -220,7 +220,7 @@ function startEditing(fieldNo) {
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:false,field_item_type:''}
+  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:false,field_item_type: field.field_item_type}
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
@@ -234,7 +234,7 @@ function startEditing(fieldNo) {
 }
 
 // Updated updateValue
-function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
+function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
   console.log(newVal)
   if (!editedData[fieldNo]) return
   switch (type) {
@@ -248,12 +248,7 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
       }
       break
     case 'field_item_value':
-      console.log("sajsahsjas",fieldNo, itemIndex, newVal, type)
       editedData[fieldNo].field_item_value[0] = { value: newVal }
-      if(isbool){
-        editedData[fieldNo].field_item_type='bool'
-      }
-      
       break
   }
 }
