@@ -176,6 +176,7 @@ cursor: not-allowed;
 
 .number{
     text-align: right;
+    font-family: monospace;
 }
 .main-div{
   height: 100vh;
