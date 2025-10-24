@@ -71,32 +71,32 @@
                 <table class="table table-bordered table-sm thick-border fixed-table">
                   <thead>
                     <tr class="thick-border">
-        <template v-for="(val, key, colIndex) in fields.table_data?.[0] || {}" :key="colIndex">
-          <th
-            v-if="key !== 's.name'"
-            class="thick-border fixed-col text-center align-middle"
-          >
-            <b>{{ get_table_header_name(key).toUpperCase() }}</b>
-          </th>
-        </template>
-      </tr>
+                      <template v-for="(val, key, colIndex) in fields.table_data?.[0] || {}" :key="colIndex">
+                        <th
+                          v-if="key !== 's.name'"
+                          class="thick-border fixed-col text-center align-middle"
+                        >
+                          <b>{{ get_table_header_name(key).toUpperCase() }}</b>
+                        </th>
+                      </template>
+                    </tr>
                   </thead>
                   <tbody>
                     <tr
-        v-for="(row, rowIndex) in fields.table_data || []"
-        :key="rowIndex"
-        class="thick-border"
-      >
-        <template v-for="(val, key, colIndex) in row" :key="colIndex">
-          <td
-            v-if="key !== 's.name'"
-            class="thick-border fixed-col"
-            :class="!isNaN(val[0]) ? 'number' : ''"
-          >
-            <span>{{ val }}</span>
-          </td>
-        </template>
-      </tr>
+                      v-for="(row, rowIndex) in fields.table_data || []"
+                      :key="rowIndex"
+                      class="thick-border"
+                    >
+                      <template v-for="(val, key, colIndex) in row" :key="colIndex">
+                        <td
+                          v-if="key !== 's.name'"
+                          class="thick-border fixed-col"
+                          :class="!isNaN(val[0]) ? 'number' : ''"
+                        >
+                          <span>{{ val }}</span>
+                        </td>
+                      </template>
+                    </tr>
                   </tbody>
                 </table>
               </div>
