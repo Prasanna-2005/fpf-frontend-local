@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 p-2">
+  <div class="w-100 p-2" style="height: 90vh;">
     <div class="button-options">
       <button class="btn btn-primary m-2 border-0" @click="goToHome">
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
@@ -16,12 +16,27 @@
     </div>
 
     <div class="max-dimensions" style="padding: 10px 30px 10px 30px; height: 80vh; overflow: scroll;">
-      <div class="editor-header">
-        <h3>{{ props.fundName }} </h3>
-      </div>
+      <div class="d-flex w-100 mb-4" style="border: 1px solid;">
+            <div style="border: 1px solid;" class="w-50 p-2">
+              <h4>{{ props.fundName }}</h4>
+            </div>
+            <div style="border: 1px solid;" class="w-50 p-2">
+              <h4>Information about the private funds you advise</h4>
+            </div>
+          </div>
 
       <div :key="props.fundName">
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
+          <div v-if="getDisplayFieldNo(fields.field_no) === '5'">
+            <h4 class=" mb-3 mt-4">Item A. Reporting fund identifying information</h4>
+          </div>
+
+          <!-- Add heading before question 8 (i.e., after 7) -->
+          <div v-if="getDisplayFieldNo(fields.field_no) === '8'">
+            <h4 class=" mb-3 mt-4">Item B. Assets, financing and investor concentration</h4>
+          </div>
+
+          <b><hr /></b>
           <!-- Edit buttons -->
           <div class="d-flex justify-content-end align-items-center">
             <div>
@@ -164,6 +179,13 @@
               </span>
             </div>
           </div>
+          <div class="d-flex justify-content-end">
+            <div style="width: 100%;">
+              <span>
+                <p class="fw-light">{{ fields.disclaimer_text }} </p>
+              </span>
+            </div>
+          </div>
 
           <hr class="question-separator" />
         </div>
@@ -253,6 +275,8 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
       break
   }
 }
+
+
 
 const making_api_call = ref(false)
 async function saveEdits(fieldNo, value, fieldIndex) {
