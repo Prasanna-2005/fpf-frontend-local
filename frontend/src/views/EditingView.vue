@@ -24,7 +24,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" />
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" />
                 
                 
             </div>
@@ -73,23 +73,31 @@ const user_id=userStore.userID
 onMounted(async () => {
   try {
     loading.value=true
-    const result=await api_call_methods.get_response(user_id,filing_id)
-    data=result.data 
-    const funds=data.funds
-    fundNames.value = funds.map(fund => fund.fund_name);
-    responseStore.setResponse(data)
-    fundName.value=fundNames.value[0]
+    await set_response()
     loading.value=false
 } catch (error) {
     loader.value=false
     console.error("Error fetching data:", error)
   }
 })
+
+async function set_response(){
+    const result=await api_call_methods.get_response(user_id,filing_id)
+    data=result.data 
+    console.log(data)
+    const funds=data.funds
+    fundNames.value = funds.map(fund => fund.fund_name);
+    responseStore.setResponse(data)
+    fundName.value=fundNames.value[0]
+}
+
 function selectFund(fund_name){
     fundName.value=fund_name
 }
 
-
+function refreshData(){
+  set_response()
+}
 
 </script>
 

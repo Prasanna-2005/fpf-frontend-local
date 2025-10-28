@@ -217,7 +217,7 @@ const props = defineProps({
   filingId: { type: String, required: true }
 })
 
-const emit = defineEmits(['open-upload'])
+const emit = defineEmits(['open-upload','refresh-data'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const data = ref(responseStore.getFundData(props.fundName))
@@ -270,7 +270,6 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
       }
       break
     case 'field_item_value':
-      console.log("sajsahsjas",fieldNo, itemIndex, newVal, type)
       editedData[fieldNo].field_item_value[0] = { value: newVal }
       if(isbool){
         editedData[fieldNo].field_item_type='bool'
@@ -283,6 +282,7 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
 
 
 const making_api_call = ref(false)
+
 async function saveEdits(fieldNo, value, fieldIndex) {
   try {
     making_api_call.value = true;
@@ -317,9 +317,12 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     // Reset editing
     editingFieldNo.value = null;
     delete editedData[fieldNo];
-
+    
+    emit('refresh-data')
+    data.value=responseStore.getFundData(props.fundName)
+    
     toast.success(`Saved Question ${fieldNo}`);
-    location.reload()
+    // location.reload()
   } catch (error) {
     console.log(error);
     toast.error(`Failed to save question ${fieldNo}`);
