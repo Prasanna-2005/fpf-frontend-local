@@ -95,8 +95,23 @@ function selectFund(fund_name){
     fundName.value=fund_name
 }
 
-function refreshData(){
-  set_response()
+
+async function update_response(){
+    const result=await api_call_methods.get_response(user_id,filing_id)
+    data=result.data 
+    console.log(data)
+    const funds=data.funds
+    fundNames.value = funds.map(fund => fund.fund_name);
+    responseStore.setResponse(data)
+}
+
+async function refreshData(done) {
+  try {
+    await update_response()  
+    console.log('confirmation from parent')
+  } finally {
+    if (done) done()    
+  }
 }
 
 </script>

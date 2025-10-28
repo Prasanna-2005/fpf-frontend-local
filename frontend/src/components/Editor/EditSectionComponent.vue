@@ -2,7 +2,7 @@
     <div class="w-100 d-flex justify-content-center">
         <div class="main-container d-flex" style="max-width: 100%;border: 1px solid grey;">
             <div class="w-100 editor" >
-                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="refreshData"/>
+                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="handleRefreshData"/>
             </div>
             <!-- <div class="series-selector w-10 d-flex justify-content-end" >
                 <div class="w-100 d-flex flex-column align-items-end">
@@ -42,10 +42,10 @@ function select_series(series){
 function openUpload(){
     emit('open-upload')
 }
-function refreshData(){
-    console.log('data refresh')
-    emit('refresh-data')
+async function handleRefreshData(done) {
+  emit('refresh-data', done)
 }
+
 </script>
 
 <style scoped>
