@@ -43,8 +43,8 @@ const checked = ref(props.itemValue === 'true')
 watch(
   () => props.itemValue,
   (newVal) => {
-    console.log('dsjdhsdhshdhhdshdhshdhsh')
-    checked.value = newVal === 'true' || newVal === true
+    
+    checked.value = (newVal === 'true' )
   }
 )
 console.log('bool value:',props.itemValue)
