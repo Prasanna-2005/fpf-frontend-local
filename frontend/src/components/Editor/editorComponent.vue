@@ -95,7 +95,7 @@
                   :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
-                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value',true)"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <DropdownItemComponent
                   v-else-if="fields.field_item_type === 'dropdown'"
@@ -233,8 +233,9 @@ function updateTableValue(fieldNo, tableData) {
   if (!editedData[fieldNo]) return
   // Replace the table_data completely
   editedData[fieldNo].table_data = tableData
-  editedData[fieldNo].has_table_data=true
+  // editedData[fieldNo].has_table_data=true
   console.log(editedData[fieldNo])
+
 }
 // Updated startEditing
 function startEditing(fieldNo) {
@@ -242,7 +243,7 @@ function startEditing(fieldNo) {
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:false,field_item_type:''}
+  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type}
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
@@ -256,7 +257,7 @@ function startEditing(fieldNo) {
 }
 
 // Updated updateValue
-function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
+function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
   console.log(newVal)
   if (!editedData[fieldNo]) return
   switch (type) {
@@ -271,10 +272,6 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
       break
     case 'field_item_value':
       editedData[fieldNo].field_item_value[0] = { value: newVal }
-      if(isbool){
-        editedData[fieldNo].field_item_type='bool'
-      }
-      
       break
   }
 }
