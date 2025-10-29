@@ -25,7 +25,7 @@
 
     <!-- PDF Viewer -->
     <div class="pdf-viewer">
-      <div class="pdf-page" ref="pdfContent">
+      <div class="pdf-page" ref="pdfContent" id="pdf-preview">
         <div
           v-for="(seriesData, fundKey, idx) in data"
           :key="fundKey"
@@ -151,11 +151,11 @@
 <script setup>
 import { useEditableStore } from '@/stores/responseStore';
 import { ref, nextTick } from 'vue';
-// import html2pdf from 'html2pdf.js';
 import { useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
 import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
+import { useToast } from 'vue-toast-notification';
 const router = useRouter();
 const props = defineProps({
   filingId:{
@@ -171,7 +171,7 @@ const data = responseStore.getAllData();
 console.log(data)
 const pdfContent = ref(null);
 const emit = defineEmits(['create-copy', 'approve']);
-
+const toast=useToast()
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
     const heading = item.field_heading || "Other";
@@ -183,81 +183,198 @@ function groupByHeading(seriesData) {
   }, {});
 }
 
-// // PDF download
+
+
+
+
+//image based pdf gen---------------------------------------
+
 // async function downloadPDF() {
-//   await nextTick(); 
+//   await nextTick();
+//   await document.fonts.ready;
+
 //   const element = pdfContent.value;
 //   if (!element) return;
 
-//   const options = {
-//     margin: 10,
-//     filename: 'preview.pdf',
-//     image: { type: 'jpeg', quality: 0.98 },
-//     html2canvas: { scale: 1.5, useCORS: true, scrollY: 0 },
-//     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-//     pagebreak: { mode: ['css', 'legacy'] }
-//   };
+//   // Ensure white backgrounds (avoid black or transparent rendering)
+//   const pdf = new jsPDF('p', 'pt', 'a4');
+//   const pageWidth = pdf.internal.pageSize.getWidth();
+//   const pageHeight = pdf.internal.pageSize.getHeight();
 
-//   html2pdf().set(options).from(element).save();
+//   const seriesBlocks = element.querySelectorAll('.pdf-series');
+
+//   for (let i = 0; i < seriesBlocks.length; i++) {
+//     const block = seriesBlocks[i];
+//     block.style.backgroundColor = '#ffffff';
+
+//     // Slight pause (helps browser not run out of memory)
+//     await new Promise(resolve => setTimeout(resolve, 200));
+
+//     // Capture each series block as separate canvas
+//     const canvas = await html2canvas(block, {
+//       scale: 1.5,
+//       useCORS: true,
+//       backgroundColor: '#ffffff',
+//       scrollY: -window.scrollY,
+//       logging: false,
+//       windowWidth: block.scrollWidth,
+//     });
+
+//     const imgData = canvas.toDataURL('image/jpeg', 0.95);
+//     const imgWidth = pageWidth;
+//     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+//     let remainingHeight = imgHeight;
+//     let position = 0;
+//     const marginX = 30;  // left/right padding in points (~10mm)
+//     const marginY = 40;  // top/bottom padding in points (~14mm)
+//     const contentWidth = pageWidth - 2 * marginX;  // inner width
+//     const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+
+//     // Handle tall series (multi-page slicing)
+//     while (remainingHeight > 0) {
+//       const sliceHeight = Math.min(pageHeight, remainingHeight);
+//       pdf.addImage(imgData, 'JPEG', marginX, marginY - position, contentWidth, contentHeight);
+
+//       remainingHeight -= pageHeight;
+//       position += pageHeight;
+
+//       if (remainingHeight > 0) pdf.addPage();
+//     }
+
+//     // Add new page for next series
+//     if (i < seriesBlocks.length - 1) pdf.addPage();
+//   }
+
+//   pdf.save('preview.pdf');
 // }
 
 
+//------------------------------------------------------
+
+
+
+
 async function downloadPDF() {
+  toast.info("Generating Pdf....")
   await nextTick();
   await document.fonts.ready;
 
-  const element = pdfContent.value;
+  const element = document.getElementById("pdf-preview");
   if (!element) return;
 
-  const scale = 1.2; // slightly reduced for speed
-  const canvas = await html2canvas(element, {
-    scale,
-    useCORS: true,
-    scrollY: -window.scrollY,
-  });
-
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
-
-  const pdf = new jsPDF('p', 'pt', 'a4');
+  const pdf = new jsPDF("p", "pt", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  // scale canvas to PDF width
-  const ratio = pageWidth / imgWidth;
-  const pdfHeight = imgHeight * ratio;
+  const marginX = 30; // left/right padding in pts
+  const marginY = 40; // top/bottom padding in pts
+  const contentWidthPts = pageWidth - marginX * 2; // width in pts available for content
+  const seriesBlocks = element.querySelectorAll(".pdf-series");
 
-  let position = 0;
+  
+  let isFirstPageUsed = false;
 
-  // Add pages one by one, slicing canvas vertically
-  while (position < pdfHeight) {
-    const canvasPage = document.createElement('canvas');
-    const ctx = canvasPage.getContext('2d');
+  const shouldForcePageBefore = (block) => {
+    const fieldNumberEl = block.querySelector(".field-number");
+    const questionText = fieldNumberEl?.innerText?.trim() || "";
+    const questionNumMatch = questionText.match(/^(\d+)/);
+    const questionNum = questionNumMatch ? questionNumMatch[1] : "";
+    return questionNum === "14" || questionNum === "17";
+  };
 
-    canvasPage.width = canvas.width;
-    canvasPage.height = Math.min(canvas.height - position / ratio, pageHeight / ratio);
+  for (let i = 0; i < seriesBlocks.length; i++) {
+    const block = seriesBlocks[i];
+    block.style.backgroundColor = "#ffffff";
 
-    ctx.drawImage(
-      canvas,
-      0,
-      position / ratio,
-      canvas.width,
-      canvasPage.height,
-      0,
-      0,
-      canvasPage.width,
-      canvasPage.height
-    );
 
-    const imgData = canvasPage.toDataURL('image/jpeg', 0.8);
-    pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, (canvasPage.height * ratio));
+    if (shouldForcePageBefore(block) && isFirstPageUsed) {
+      pdf.addPage();
+      isFirstPageUsed = false; // new page is empty until we draw
+    }
 
-    position += pageHeight;
-    if (position < pdfHeight) pdf.addPage();
-  }
+    await new Promise((r) => setTimeout(r, 120));
 
-  pdf.save('preview.pdf');
+
+    const canvas = await html2canvas(block, {
+      scale: 1.5, 
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      scrollY: -window.scrollY,
+      logging: false,
+      windowWidth: block.scrollWidth,
+    });
+
+    const canvasWidthPx = canvas.width;
+    const canvasHeightPx = canvas.height;
+
+    const pxPerPt = canvasWidthPx / contentWidthPts;
+
+    const pageContentHeightPts = pageHeight - marginY * 2; 
+    const sliceHeightPx = Math.floor(pageContentHeightPts * pxPerPt);
+
+    let sliceY = 0;
+    let firstSliceForBlock = true;
+
+    while (sliceY < canvasHeightPx) {
+      const thisSliceHeight = Math.min(sliceHeightPx, canvasHeightPx - sliceY);
+
+      // create temp canvas for the slice
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvasWidthPx;
+      sliceCanvas.height = thisSliceHeight;
+      const ctx = sliceCanvas.getContext("2d");
+
+      // draw slice from original canvas
+      ctx.drawImage(
+        canvas,
+        0,
+        sliceY,
+        canvasWidthPx,
+        thisSliceHeight,
+        0,
+        0,
+        canvasWidthPx,
+        thisSliceHeight
+      );
+
+      const imgData = sliceCanvas.toDataURL("image/jpeg", 0.95);
+
+
+      if (isFirstPageUsed === false && pdf.internal.getNumberOfPages() > 1) {
+        // The page is fresh (we just added it), nothing to do before drawing
+      }
+
+      const dispHeightPts = (thisSliceHeight * contentWidthPts) / canvasWidthPx;
+
+      // draw the slice at marginX, marginY (top)
+      pdf.addImage(imgData, "JPEG", marginX, marginY, contentWidthPts, dispHeightPts);
+
+      // mark that current page now has content
+      isFirstPageUsed = true;
+      firstSliceForBlock = false;
+
+      sliceY += thisSliceHeight;
+
+      
+      if (sliceY < canvasHeightPx) {
+        pdf.addPage();
+        isFirstPageUsed = false; // new page is empty
+      }
+    } 
+    if (i < seriesBlocks.length - 1) {
+      pdf.addPage();
+      isFirstPageUsed = false;
+    }
+  } 
+  toast.success("Pdf generated successfully...")
+  pdf.save("preview.pdf");
 }
+
+
+
+
 
 
 
@@ -317,6 +434,7 @@ function get_table_header_name(header){
 .line-number { font-weight: bold; margin-right: 5px; }
 .line-text { font-style: italic; margin-right: 5px; }
 .page-break { page-break-before: always; }
+
 .formatted-text {
   white-space: pre-wrap; /* preserves line breaks and wraps text */
   word-wrap: break-word; /* wraps long words instead of cutting off */
