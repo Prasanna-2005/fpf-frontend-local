@@ -155,12 +155,14 @@ function downloadXMLFile() {
 
     fundElem.ele('FundID').txt(fundId);
 
-    const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value || '';
+    const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value
     const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || 'N';
     const isMaster = fundTags.find(t => t.xmltags === 'IsMasterFund')?.value || 'false';
     const isParallel = fundTags.find(t => t.xmltags === 'IsParallelFundsAggregated')?.value || 'false';
-
+    
+    if (nfaFundID) {
     fundElem.ele('NFAFundID').txt(nfaFundID);
+    }
     fundElem.ele('NFAFundCFTCComplianceFlag').txt(nfaFlag);
     fundElem.ele('IsMasterFund').txt(isMaster);
     fundElem.ele('IsParallelFundsAggregated').txt(isParallel);
