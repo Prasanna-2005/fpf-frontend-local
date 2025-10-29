@@ -66,7 +66,7 @@
               <button
                 v-if="editingFieldNo === fields.field_no"
                 class="btn btn-sm btn-danger"
-                @click="cancelEditing"
+                @click="cancelEditing(fieldNo)"
                 :disabled="making_api_call"
               >
                <font-awesome-icon class="icon" icon="xmark" />
@@ -92,10 +92,11 @@
                   v-else-if="fields.field_item_type === 'bool'"
                   :itemNumber="getDisplayFieldNo(fields.field_no)"
                   :itemText="fields.field_text"
+                  :key="fields.field_no + '-' + (fields.value ?? '')"
                   :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
-                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value',true)"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <DropdownItemComponent
                   v-else-if="fields.field_item_type === 'dropdown'"
@@ -143,6 +144,7 @@
                   v-else-if="items.line_item_type === 'bool'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
+                  :key="fields.field_no + '-' + (fields.value ?? '')"
                   :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
@@ -217,13 +219,16 @@ const props = defineProps({
   filingId: { type: String, required: true }
 })
 
-const emit = defineEmits(['open-upload'])
+const emit = defineEmits(['open-upload','refresh-data'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
-const data = ref(responseStore.getFundData(props.fundName))
+const fundname=ref(props.fundName)
+const data = ref(responseStore.getFundData(fundname.value))
 const editingFieldNo = ref(null)
 
 watch(() => props.fundName, (newVal) => {
+  fundname.value=newVal
+  console.log(fundname.value)
   data.value = responseStore.getFundData(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
@@ -233,8 +238,9 @@ function updateTableValue(fieldNo, tableData) {
   if (!editedData[fieldNo]) return
   // Replace the table_data completely
   editedData[fieldNo].table_data = tableData
-  editedData[fieldNo].has_table_data=true
+  // editedData[fieldNo].has_table_data=true
   console.log(editedData[fieldNo])
+
 }
 // Updated startEditing
 function startEditing(fieldNo) {
@@ -242,7 +248,7 @@ function startEditing(fieldNo) {
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:false,field_item_type:''}
+  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type}
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
@@ -256,8 +262,7 @@ function startEditing(fieldNo) {
 }
 
 // Updated updateValue
-function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
-  console.log(newVal)
+function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
   if (!editedData[fieldNo]) return
   switch (type) {
     case 'value':
@@ -270,12 +275,7 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
       }
       break
     case 'field_item_value':
-      console.log("sajsahsjas",fieldNo, itemIndex, newVal, type)
       editedData[fieldNo].field_item_value[0] = { value: newVal }
-      if(isbool){
-        editedData[fieldNo].field_item_type='bool'
-      }
-      
       break
   }
 }
@@ -283,12 +283,13 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',isbool=false) {
 
 
 const making_api_call = ref(false)
+
 async function saveEdits(fieldNo, value, fieldIndex) {
   try {
     making_api_call.value = true;
     toast.info(`Saving Question ${fieldNo}`);
 
-    const fund_id = responseStore.getFundId(props.fundName);
+    const fund_id = responseStore.getFundId(fundname.value);
 
     // Update store with edited data
     // responseStore.updateItem(
@@ -312,14 +313,21 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     };
 
     // Call API
-    await api_call_methods.accept_data(user_id, acceptApiData, fund_id, props.filingId);
+    await api_call_methods.accept_data(user_id, acceptApiData, fund_id, props.filingId)
 
-    // Reset editing
-    editingFieldNo.value = null;
-    delete editedData[fieldNo];
+    // Trigger parent refresh and wait until it's done
+    await new Promise(resolve => {
+      emit('refresh-data', resolve)
+    })
 
-    toast.success(`Saved Question ${fieldNo}`);
-    location.reload()
+
+    console.log('inside save',fundname.value)
+
+    data.value = responseStore.getFundData(fundname.value)
+    console.log('data refresh in child')
+    editingFieldNo.value = null
+    delete editedData[fieldNo]
+    toast.success(`Saved Question ${fieldNo}`)
   } catch (error) {
     console.log(error);
     toast.error(`Failed to save question ${fieldNo}`);
@@ -332,7 +340,7 @@ async function restoreEdits(fieldNo) {
   try {
     making_api_call.value = true
     toast.info(`Reverting Question ${fieldNo}`)
-    const fund_id = responseStore.getFundId(props.fundName)
+    const fund_id = responseStore.getFundId(fundname.value)
     const revertApiData = { 
       field_no: fieldNo,
       value: `${ editedData[fieldNo].field_item_value?.[0]?.value ?? value}`, // single-value field
@@ -344,7 +352,18 @@ async function restoreEdits(fieldNo) {
       field_item_type:editedData[fieldNo].field_item_type
     }
     await api_call_methods.revert_data(user_id, revertApiData, fund_id, props.filingId)
-    location.reload()
+    await new Promise(resolve => {
+      emit('refresh-data', resolve)
+    })
+
+
+    //data update
+    data.value = responseStore.getFundData(fundname.value)
+    console.log('data refresh in child')
+    editingFieldNo.value = null
+    delete editedData[fieldNo]
+    toast.success(`Reverted Question ${fieldNo}`)
+
   } catch (err) {
     console.log(err)
     toast.error(`Failed to revert question ${fieldNo}`)
@@ -353,7 +372,8 @@ async function restoreEdits(fieldNo) {
   }
 }
 
-function cancelEditing() {
+function cancelEditing(fieldNo) {
+  delete editedData[fieldNo]
   editingFieldNo.value = null
 }
 
