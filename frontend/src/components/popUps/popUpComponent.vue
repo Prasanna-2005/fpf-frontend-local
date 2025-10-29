@@ -156,7 +156,7 @@ function downloadXMLFile() {
     fundElem.ele('FundID').txt(fundId);
 
     const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value || '';
-    const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || '';
+    const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || 'N';
     const isMaster = fundTags.find(t => t.xmltags === 'IsMasterFund')?.value || 'false';
     const isParallel = fundTags.find(t => t.xmltags === 'IsParallelFundsAggregated')?.value || 'false';
 
@@ -183,7 +183,11 @@ function downloadXMLFile() {
         tagName !== 'FundID' &&
         tagName !== 'FundName' &&
         tagName !== 'NFAFundID' &&
-        tagName !== 'NFAFundCFTCComplianceFlag'
+        tagName !== 'NFAFundCFTCComplianceFlag' &&
+        tagName !== 'IsMasterFund' &&
+        tagName !== 'IsParallelFundsAggregated'
+
+
       ) {
         fundElem.ele(tagName).txt(tag.value ?? '');
       }
