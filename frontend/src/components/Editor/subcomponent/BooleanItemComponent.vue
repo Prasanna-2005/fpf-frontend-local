@@ -40,6 +40,14 @@ const props=defineProps({
     }
 })
 const checked = ref(props.itemValue === 'true')
+watch(
+  () => props.itemValue,
+  (newVal) => {
+    
+    checked.value = (newVal === 'true' )
+  }
+)
+console.log('bool value:',props.itemValue)
 const emit = defineEmits(['update'])
 watch(checked, () => {
 const emit_value=checked.value?'true':'false'
