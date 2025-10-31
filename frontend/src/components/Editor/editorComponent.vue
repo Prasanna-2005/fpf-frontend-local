@@ -66,7 +66,7 @@
               <button
                 v-if="editingFieldNo === fields.field_no"
                 class="btn btn-sm btn-danger"
-                @click="cancelEditing(fieldNo)"
+                @click="cancelEditing(fields.field_no,fields.value, fieldIndex)"
                 :disabled="making_api_call"
               >
                <font-awesome-icon class="icon" icon="xmark" />
@@ -244,11 +244,70 @@ function updateTableValue(fieldNo, tableData) {
 }
 // Updated startEditing
 function startEditing(fieldNo) {
+ if (editingFieldNo.value && editingFieldNo.value !== fieldNo) {
+    const currentField = editedData[editingFieldNo.value]
+
+    // Check if there are unsaved changes
+    if (currentField?.changed) {
+      const oldFieldNo = editingFieldNo.value
+      const oldFieldValue = editedData[oldFieldNo]?.field_item_value?.[0]?.value ?? ''
+      const oldFieldIndex = data.value.findIndex(f => f.field_no === oldFieldNo)
+
+      // Show unsaved changes toast
+      const toastInstance = toast.open({
+        message: `
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <strong>Unsaved Changes</strong>
+            <div>You have unsaved edits in Question ${oldFieldNo}.</div>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button id="saveOldBtn" class="btn btn-success btn-sm">Save</button>
+              <button id="discardOldBtn" class="btn btn-danger btn-sm">Discard</button>
+            </div>
+          </div>
+        `,
+        type: 'warning',
+        duration: 0,
+        dismissible: true,
+      })
+
+      setTimeout(() => {
+        const saveOldBtn = document.getElementById('saveOldBtn')
+        const discardOldBtn = document.getElementById('discardOldBtn')
+
+        if (saveOldBtn) {
+          saveOldBtn.addEventListener('click', async () => {
+            await saveEdits(oldFieldNo, oldFieldValue, oldFieldIndex)
+            toastInstance.dismiss()
+            startEditing(fieldNo) // retry edit after saving
+          })
+        }
+
+        if (discardOldBtn) {
+          discardOldBtn.addEventListener('click', () => {
+            delete editedData[oldFieldNo]
+            editingFieldNo.value = null
+            toastInstance.dismiss()
+            startEditing(fieldNo) // retry edit after discarding
+          })
+        }
+      }, 50)
+
+      return // stop here until user decides
+    }
+
+    // no unsaved changes — discard and continue
+    delete editedData[editingFieldNo.value]
+    editingFieldNo.value = null
+  }
+
+
+
+  // fresh edit
   editingFieldNo.value = fieldNo
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type}
+  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type,changed: false}
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
@@ -266,7 +325,6 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
   if (!editedData[fieldNo]) return
   switch (type) {
     case 'value':
-      
       if (editedData[fieldNo].value[itemIndex]) editedData[fieldNo].value[itemIndex].value = newVal
       break
     case 'table_data':
@@ -278,6 +336,7 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
       editedData[fieldNo].field_item_value[0] = { value: newVal }
       break
   }
+  editedData[fieldNo].changed=true
 }
 
 
@@ -286,6 +345,9 @@ const making_api_call = ref(false)
 
 async function saveEdits(fieldNo, value, fieldIndex) {
   try {
+
+
+
     making_api_call.value = true;
     toast.info(`Saving Question ${fieldNo}`);
 
@@ -372,7 +434,56 @@ async function restoreEdits(fieldNo) {
   }
 }
 
-function cancelEditing(fieldNo) {
+const showUnsavedToast = ref(false)
+const pendingFieldNo = ref(null)
+
+function cancelEditing(fieldNo,value,fieldIndex) {
+  const field = editedData[fieldNo]
+  console.log(editedData[fieldNo])
+  if (field?.changed) {
+    // OR even better, handle logic below:
+    toast.open({
+      message: `
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <strong>Unsaved Changes</strong>
+          <div>You have unsaved edits for this field.</div>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button id="saveBtn" class="btn btn-success btn-sm">Save</button>
+            <button id="discardBtn" class="btn btn-danger btn-sm">Discard</button>
+          </div>
+        </div>
+      `,
+      type: 'warning',
+      duration: 0,
+      dismissible: true,
+    })
+    setTimeout(() => {
+      const saveBtn = document.getElementById('saveBtn')
+      const discardBtn = document.getElementById('discardBtn')
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          saveEdits(fieldNo, value, fieldIndex)
+          toastInstance.dismiss() 
+        })
+      }
+      if (discardBtn) {
+        discardBtn.addEventListener('click', () => {
+          delete editedData[fieldNo]
+          editingFieldNo.value = null
+          toastInstance.dismiss() 
+        })
+      }
+    }, 50)
+
+
+    return
+  }
+
+  // no changes — safe to cancel
+  
+
+
   delete editedData[fieldNo]
   editingFieldNo.value = null
 }
