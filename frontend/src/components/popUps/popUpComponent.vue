@@ -134,24 +134,100 @@ async function deleteUser(){
     }
 }
 function downloadXMLFile() {
-  const data=dataForXML.value
+  const data = dataForXML.value;
   const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
-  const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
+
+  // ---------- Section PFFund--------
+  const section = root.ele('PFFunds');
   data.fund_info.forEach(fund => {
-    const fundElem = sectionA.ele('PFSection1bItemAFundIdentInfo');
-    fundElem.ele('FundID').txt(fund.fund_id);
-    fundElem.ele('FundName').txt(fund.fund_name);
-    fundElem.ele('FundType').txt(fund.fund_type);
+    const fundElem = section.ele('PFFunds');
+    fundElem.ele('FundID').txt(fund.fund_id || '');
+    fundElem.ele('FundName').txt(fund.fund_name || '');
+    fundElem.ele('FundType').txt(fund.fund_type || '');
+    fundElem.ele('CFTCFund').txt('N' || '');
+
   });
+  // ---------- Section A----------
+  const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
+  data.tags_info.forEach(fundTags => {
+    const fundElem = sectionA.ele('PFSection1bItemAFundIdentInfo');
+    const fundId = fundTags.find(t => t.xmltags === 'FundID')?.value || fundTags.find(t => t.fund_id)?.fund_id || '';
+
+    fundElem.ele('FundID').txt(fundId);
+
+    const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value
+    const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || 'N';
+    const isMaster = fundTags.find(t => t.xmltags === 'IsMasterFund')?.value || 'false';
+    const isParallel = fundTags.find(t => t.xmltags === 'IsParallelFundsAggregated')?.value || 'false';
+    
+    if (nfaFundID) {
+    fundElem.ele('NFAFundID').txt(nfaFundID);
+    }
+    fundElem.ele('NFAFundCFTCComplianceFlag').txt(nfaFlag);
+    fundElem.ele('IsMasterFund').txt(isMaster);
+    fundElem.ele('IsParallelFundsAggregated').txt(isParallel);
+  });
+
+
+  // ---------- Section B ----------
   const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
   data.tags_info.forEach(fundTags => {
     const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
+    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
+
+    fundElem.ele('FundID').txt(fundId);
+
+    // Add all tags that are NOT quarterly (i.e., not part of Section C)
     fundTags.forEach(tag => {
-      fundElem.ele(tag.xmltags).txt(tag.value);
+      const tagName = tag.xmltags;
+      if (
+        !/Quarter\d+/.test(tagName) && // exclude Quarter fields
+        tagName !== 'FundID' &&
+        tagName !== 'FundName' &&
+        tagName !== 'NFAFundID' &&
+        tagName !== 'NFAFundCFTCComplianceFlag' &&
+        tagName !== 'IsMasterFund' &&
+        tagName !== 'IsParallelFundsAggregated'
+
+
+      ) {
+        fundElem.ele(tagName).txt(tag.value ?? '');
+      }
     });
   });
+
+  // ---------- Section C: Fund Performance ----------
+  const sectionC = root.ele('PFSection1bItemCFundsPerformance');
+  data.tags_info.forEach(fundTags => {
+    const perfElem = sectionC.ele('PFSection1bItemCFundPerformance');
+    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
+    if (fundId) perfElem.ele('FundID').txt(fundId);
+
+    // Group by quarter
+    const quarters = [1, 2, 3, 4];
+    quarters.forEach(q => {
+      const lastDate = fundTags.find(t => t.xmltags === `LastFiscalDateQuarter${q}`);
+      const gross = fundTags.find(t => t.xmltags === `GrossValueQuarter${q}`);
+      const net = fundTags.find(t => t.xmltags === `NetValueQuarter${q}`);
+
+      if (lastDate) {
+        const el = perfElem.ele(`LastFiscalDateQuarter${q}`);
+        el.ele('Value').txt(lastDate.value || '');
+      }
+      if (gross) {
+        const el = perfElem.ele(`GrossValueQuarter${q}`);
+        el.ele('Value').txt(gross.value || '');
+      }
+      if (net) {
+        const el = perfElem.ele(`NetValueQuarter${q}`);
+        el.ele('Value').txt(net.value || '');
+      }
+    });
+  });
+
+  // ---------- Finalize and Download ----------
   const xmlString = root.end({ prettyPrint: true });
-  const blob = new Blob([xmlString], { type: "application/xml" });
+  const blob = new Blob([xmlString], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -159,6 +235,8 @@ function downloadXMLFile() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+
 
 
 </script>
