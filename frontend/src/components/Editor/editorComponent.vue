@@ -92,7 +92,7 @@
                   v-else-if="fields.field_item_type === 'bool'"
                   :itemNumber="getDisplayFieldNo(fields.field_no)"
                   :itemText="fields.field_text"
-                  :key="fields.field_no + '-' + (editedData[fields.field_no]?.field_item_value?.[0]?.value ?? fields.value ?? '')"
+                  :key="getFieldKey(fields.field_no)"
                   :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
@@ -144,7 +144,7 @@
                   v-else-if="items.line_item_type === 'bool'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
-                  :key="fields.field_no + '-' + (editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value ?? '')"
+                  :key="getFieldKey(fields.field_no)"
                   :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
@@ -242,6 +242,15 @@ function updateTableValue(fieldNo, tableData) {
   console.log(editedData[fieldNo])
 
 }
+
+// safe guard for re render
+const keyVersions = ref({})
+
+function getFieldKey(fieldNo) {
+  return `${fieldNo}-${keyVersions.value[fieldNo] || 0}`
+}
+
+
 // Updated startEditing
 function startEditing(fieldNo) {
  if (editingFieldNo.value && editingFieldNo.value !== fieldNo) {
@@ -285,6 +294,7 @@ function startEditing(fieldNo) {
         if (discardOldBtn) {
           discardOldBtn.addEventListener('click', () => {
             delete editedData[oldFieldNo]
+            keyVersions.value[fieldNo] = (keyVersions.value[fieldNo] || 0) + 1 //key change for re render
             editingFieldNo.value = null
             toastInstance.dismiss()
             startEditing(fieldNo) // retry edit after discarding
@@ -470,6 +480,7 @@ function cancelEditing(fieldNo,value,fieldIndex) {
       if (discardBtn) {
         discardBtn.addEventListener('click', () => {
           delete editedData[fieldNo]
+          keyVersions.value[fieldNo] = (keyVersions.value[fieldNo] || 0) + 1
           editingFieldNo.value = null
           toastInstance.dismiss() 
         })
