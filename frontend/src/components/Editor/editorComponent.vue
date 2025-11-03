@@ -294,7 +294,7 @@ function startEditing(fieldNo) {
         if (discardOldBtn) {
           discardOldBtn.addEventListener('click', () => {
             delete editedData[oldFieldNo]
-            keyVersions.value[fieldNo] = (keyVersions.value[fieldNo] || 0) + 1 //key change for re render
+            keyVersions.value[oldFieldNo] = (keyVersions.value[oldFieldNo] || 0) + 1 //key change for re render
             editingFieldNo.value = null
             toastInstance.dismiss()
             startEditing(fieldNo) // retry edit after discarding
