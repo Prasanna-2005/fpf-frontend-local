@@ -240,6 +240,7 @@ function updateTableValue(fieldNo, tableData) {
   editedData[fieldNo].table_data = tableData
   // editedData[fieldNo].has_table_data=true
   console.log(editedData[fieldNo])
+  editedData[fieldNo].changed=true
 
 }
 
