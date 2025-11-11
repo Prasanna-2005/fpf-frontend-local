@@ -9,12 +9,18 @@
       :class="isCollapsed ? 'collapsed' : 'expanded'"
     >
     <div class="d-flex align-items-center gap-2 ">
-      <font-awesome-icon class="icon rounded-circle" icon="user" style=" border:2px solid blue; background-color: blue; color: white;  height:2.6em; overflow: hidden;"/>
+      <!-- <font-awesome-icon class="icon rounded-circle" icon="user" style=" border:2px solid blue; background-color: blue; color: white;  height:2.6em; overflow: hidden;"/> -->
+       <div
+          class="avatar-circle d-flex align-items-center justify-content-center text-white fw-bold"
+        >
+          {{ username?.charAt(0)?.toUpperCase() }}
+        </div>
       <div>
         <div  v-if="!isCollapsed">
-            <p class="mb-0 text-uppercase" style="color: black;">{{ username }}</p>
-            <p class="mb-0 fst-italic text-muted">{{ email }}</p>
-          </div>
+          <p class="mb-0  text-dark text-capitalize fw-bold">{{ username }}</p>
+          <p class="mb-0 fst-italic text-muted">{{ email }}</p>
+          <p class="mb-0 fst-italic text-secondary fs-6 text-capitalize small">Role: {{ role }}</p>
+        </div>
       </div>
     </div>
 
@@ -62,6 +68,7 @@ const userStore = useUserStore()
 const toast=useToast()
 const email = userStore.email
 const username = userStore.username
+const role=userStore.role
 
 const isCollapsed = ref(true)
 const isSetting= ref(false)
@@ -109,4 +116,3 @@ function addFund(){
 }
 </script>
 
-  
