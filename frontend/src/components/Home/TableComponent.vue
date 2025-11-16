@@ -14,13 +14,14 @@
       <th style="width: 15%">Filing Name</th>
       <th style="width: 15%">Prepared By</th>
       <th style="width: 15%">Status</th>
-      <th style="width: 15%;">XML</th>
+      <th style="width: 15%">XML</th>
       <th style="width: 15%">Modified By</th>
       <th style="width: 15%; cursor:pointer" @click="toggleSortOrder">
         Modified On
         <font-awesome-icon v-if="sortOrder === 'desc'" icon="arrow-down" />
         <font-awesome-icon v-else icon="arrow-up" />
       </th>
+      <th style="width: 10%"></th>
     </tr>
   </thead>
 
@@ -50,6 +51,21 @@
 
       <td class="text-capitalize">{{ data['modified_by'] }}</td>
       <td>{{ formatDate(data['modified_on']) }}</td>
+      <td class="text-center">
+        <button
+          class="bg-transparent border-0 p-0"
+          style="cursor: pointer;"
+          :disabled="data['filingStatus'] == 'Archived'"
+          @click="deleteFiling(data['id'])"
+        >
+          <font-awesome-icon icon="trash" 
+          :class="{
+              'text-danger': data['filingStatus'] !== 'Archived',
+              'text-secondary': data['filingStatus'] === 'Archived'
+          }" />
+        </button>
+</td>
+
     </tr>
   </tbody>
 </table>
@@ -109,6 +125,13 @@ async function downloadXML(filingId){
     toast.success("XML file downloaded")
 }
 
+async function deleteFiling(filingId) {
+  toast.info("Deleting filing.....")
+  const status="Archived"
+  await api_call_methods.update_status(user_id,filingId,status)
+  toast.success("filing deleted successfully")
+  location.reload();
+}
 
 
 onMounted(async () => {
