@@ -182,3 +182,15 @@ cursor: not-allowed;
   height: 100vh;
   overflow: hidden;
 }
+
+.password-toggle-icon {
+  position: absolute;
+  right: 1rem;            /* distance from right edge */
+  top: 60%;               /* visually centers icon */
+  cursor: pointer;
+  font-size: 1rem;        /* adjust size if needed */
+}
+
+.password-toggle-icon:hover {
+  color: #0d6efd;         /* optional: blue hover for clarity */
+}

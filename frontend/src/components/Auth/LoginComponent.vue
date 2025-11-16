@@ -13,13 +13,26 @@
                 </div>
 
             </div>
-            <div class="mb-3">
+            <div class="mb-3 position-relative">
                 <label for="passwordInput" class="form-label">Password</label>
-                <input type="password" class="form-control" id="passwordInput" autocomplete="current-password"  v-model="password" required>
-                <div  class="invalid-feedback">
-                   Please enter a valid password
+                <input
+                    :type="showPassword ? 'text' : 'password'"
+                    class="form-control pe-5"
+                    id="passwordInput"
+                    v-model="password"
+                    required
+                />
+                <font-awesome-icon
+                    :icon="showPassword ? 'eye-slash' : 'eye'"
+                    class="text-secondary password-toggle-icon"
+                    @click="togglePassword"
+                />
+                <div class="invalid-feedback">
+                    Please enter a valid password
                 </div>
             </div>
+
+
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="rememberMe">
                 <label class="form-check-label" for="rememberMe">Remember Me</label>
@@ -56,7 +69,11 @@ const password = ref('');
 const loginSuccess = ref(false);
 const user_id = ref('');
 const isLoading = ref(false); 
+const showPassword = ref(false)
 
+function togglePassword() {
+  showPassword.value = !showPassword.value
+}
 const emit = defineEmits(['']);
 
 async function handleSubmit(event) {
