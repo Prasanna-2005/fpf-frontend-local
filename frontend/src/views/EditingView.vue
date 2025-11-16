@@ -73,6 +73,7 @@ const user_id=userStore.userID
 onMounted(async () => {
   try {
     loading.value=true
+    await update_status_to_draft()
     await set_response()
     loading.value=false
 } catch (error) {
@@ -80,6 +81,9 @@ onMounted(async () => {
     console.error("Error fetching data:", error)
   }
 })
+async function update_status_to_draft(){
+  const result=await api_call_methods.update_status(user_id,filing_id,'Draft')
+}
 
 async function set_response(){
     const result=await api_call_methods.get_response(user_id,filing_id)
