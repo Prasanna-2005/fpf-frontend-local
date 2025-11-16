@@ -50,7 +50,7 @@
                     <span v-if="!approving ">Approve filing</span>
                     <span v-else>Approving...</span>
                 </button>
-                <button v-else  class="btn btn-primary" @click="downloadXMLFile">
+                <button v-else  class="btn btn-primary" @click="downloadXMLFile(dataForXML)">
                     <span>Download XML</span>
                 </button>
             </div>
@@ -94,8 +94,9 @@
 import {ref} from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
-import { create } from 'xmlbuilder2';
+// import { create } from 'xmlbuilder2';
 import { useEditableStore } from '@/stores/responseStore'
+import downloadXMLFile from '@/assets/utils/utils'
 const responseStore = useEditableStore()
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
@@ -160,8 +161,7 @@ async function approveFiling(status){
 async function downloadXmlFileForApprovedFiling(){
     downloading.value=true
     const result=await api_call_methods.get_xml_data(user_id,props.filingId)
-    dataForXML.value=result.data
-    downloadXMLFile()
+    downloadXMLFile(result.data)
     downloading.value=false
 }
 async function sendForApproval(status){
@@ -189,108 +189,108 @@ async function deleteUser(){
         console.log(error)
     }
 }
-function downloadXMLFile() {
-  const data = dataForXML.value;
-  const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
+// function downloadXMLFile() {
+//   const data = dataForXML.value;
+//   const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
 
-  // ---------- Section PFFund--------
-  const section = root.ele('PFFunds');
-  data.fund_info.forEach(fund => {
-    const fundElem = section.ele('PFFunds');
-    fundElem.ele('FundID').txt(fund.fund_id || '');
-    fundElem.ele('FundName').txt(fund.fund_name || '');
-    fundElem.ele('FundType').txt(fund.fund_type || '');
-    fundElem.ele('CFTCFund').txt('N' || '');
+//   // ---------- Section PFFund--------
+//   const section = root.ele('PFFunds');
+//   data.fund_info.forEach(fund => {
+//     const fundElem = section.ele('PFFunds');
+//     fundElem.ele('FundID').txt(fund.fund_id || '');
+//     fundElem.ele('FundName').txt(fund.fund_name || '');
+//     fundElem.ele('FundType').txt(fund.fund_type || '');
+//     fundElem.ele('CFTCFund').txt('N' || '');
 
-  });
-  // ---------- Section A----------
-  const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
-  data.tags_info.forEach(fundTags => {
-    const fundElem = sectionA.ele('PFSection1bItemAFundIdentInfo');
-    const fundId = fundTags.find(t => t.xmltags === 'FundID')?.value || fundTags.find(t => t.fund_id)?.fund_id || '';
+//   });
+//   // ---------- Section A----------
+//   const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
+//   data.tags_info.forEach(fundTags => {
+//     const fundElem = sectionA.ele('PFSection1bItemAFundIdentInfo');
+//     const fundId = fundTags.find(t => t.xmltags === 'FundID')?.value || fundTags.find(t => t.fund_id)?.fund_id || '';
 
-    fundElem.ele('FundID').txt(fundId);
+//     fundElem.ele('FundID').txt(fundId);
 
-    const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value
-    const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || 'N';
-    const isMaster = fundTags.find(t => t.xmltags === 'IsMasterFund')?.value || 'false';
-    const isParallel = fundTags.find(t => t.xmltags === 'IsParallelFundsAggregated')?.value || 'false';
+//     const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value
+//     const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || 'N';
+//     const isMaster = fundTags.find(t => t.xmltags === 'IsMasterFund')?.value || 'false';
+//     const isParallel = fundTags.find(t => t.xmltags === 'IsParallelFundsAggregated')?.value || 'false';
     
-    if (nfaFundID) {
-    fundElem.ele('NFAFundID').txt(nfaFundID);
-    }
-    fundElem.ele('NFAFundCFTCComplianceFlag').txt(nfaFlag);
-    fundElem.ele('IsMasterFund').txt(isMaster);
-    fundElem.ele('IsParallelFundsAggregated').txt(isParallel);
-  });
+//     if (nfaFundID) {
+//     fundElem.ele('NFAFundID').txt(nfaFundID);
+//     }
+//     fundElem.ele('NFAFundCFTCComplianceFlag').txt(nfaFlag);
+//     fundElem.ele('IsMasterFund').txt(isMaster);
+//     fundElem.ele('IsParallelFundsAggregated').txt(isParallel);
+//   });
 
 
-  // ---------- Section B ----------
-  const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
-  data.tags_info.forEach(fundTags => {
-    const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
-    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
+//   // ---------- Section B ----------
+//   const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
+//   data.tags_info.forEach(fundTags => {
+//     const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
+//     const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
 
-    fundElem.ele('FundID').txt(fundId);
+//     fundElem.ele('FundID').txt(fundId);
 
-    // Add all tags that are NOT quarterly (i.e., not part of Section C)
-    fundTags.forEach(tag => {
-      const tagName = tag.xmltags;
-      if (
-        !/Quarter\d+/.test(tagName) && // exclude Quarter fields
-        tagName !== 'FundID' &&
-        tagName !== 'FundName' &&
-        tagName !== 'NFAFundID' &&
-        tagName !== 'NFAFundCFTCComplianceFlag' &&
-        tagName !== 'IsMasterFund' &&
-        tagName !== 'IsParallelFundsAggregated'
+//     // Add all tags that are NOT quarterly (i.e., not part of Section C)
+//     fundTags.forEach(tag => {
+//       const tagName = tag.xmltags;
+//       if (
+//         !/Quarter\d+/.test(tagName) && // exclude Quarter fields
+//         tagName !== 'FundID' &&
+//         tagName !== 'FundName' &&
+//         tagName !== 'NFAFundID' &&
+//         tagName !== 'NFAFundCFTCComplianceFlag' &&
+//         tagName !== 'IsMasterFund' &&
+//         tagName !== 'IsParallelFundsAggregated'
 
 
-      ) {
-        fundElem.ele(tagName).txt(tag.value ?? '');
-      }
-    });
-  });
+//       ) {
+//         fundElem.ele(tagName).txt(tag.value ?? '');
+//       }
+//     });
+//   });
 
-  // ---------- Section C: Fund Performance ----------
-  const sectionC = root.ele('PFSection1bItemCFundsPerformance');
-  data.tags_info.forEach(fundTags => {
-    const perfElem = sectionC.ele('PFSection1bItemCFundPerformance');
-    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
-    if (fundId) perfElem.ele('FundID').txt(fundId);
+//   // ---------- Section C: Fund Performance ----------
+//   const sectionC = root.ele('PFSection1bItemCFundsPerformance');
+//   data.tags_info.forEach(fundTags => {
+//     const perfElem = sectionC.ele('PFSection1bItemCFundPerformance');
+//     const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
+//     if (fundId) perfElem.ele('FundID').txt(fundId);
 
-    // Group by quarter
-    const quarters = [1, 2, 3, 4];
-    quarters.forEach(q => {
-      const lastDate = fundTags.find(t => t.xmltags === `LastFiscalDateQuarter${q}`);
-      const gross = fundTags.find(t => t.xmltags === `GrossValueQuarter${q}`);
-      const net = fundTags.find(t => t.xmltags === `NetValueQuarter${q}`);
+//     // Group by quarter
+//     const quarters = [1, 2, 3, 4];
+//     quarters.forEach(q => {
+//       const lastDate = fundTags.find(t => t.xmltags === `LastFiscalDateQuarter${q}`);
+//       const gross = fundTags.find(t => t.xmltags === `GrossValueQuarter${q}`);
+//       const net = fundTags.find(t => t.xmltags === `NetValueQuarter${q}`);
 
-      if (lastDate) {
-        const el = perfElem.ele(`LastFiscalDateQuarter${q}`);
-        el.ele('Value').txt(lastDate.value || '');
-      }
-      if (gross) {
-        const el = perfElem.ele(`GrossValueQuarter${q}`);
-        el.ele('Value').txt(gross.value || '');
-      }
-      if (net) {
-        const el = perfElem.ele(`NetValueQuarter${q}`);
-        el.ele('Value').txt(net.value || '');
-      }
-    });
-  });
+//       if (lastDate) {
+//         const el = perfElem.ele(`LastFiscalDateQuarter${q}`);
+//         el.ele('Value').txt(lastDate.value || '');
+//       }
+//       if (gross) {
+//         const el = perfElem.ele(`GrossValueQuarter${q}`);
+//         el.ele('Value').txt(gross.value || '');
+//       }
+//       if (net) {
+//         const el = perfElem.ele(`NetValueQuarter${q}`);
+//         el.ele('Value').txt(net.value || '');
+//       }
+//     });
+//   });
 
-  // ---------- Finalize and Download ----------
-  const xmlString = root.end({ prettyPrint: true });
-  const blob = new Blob([xmlString], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'fund_data.xml';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+//   // ---------- Finalize and Download ----------
+//   const xmlString = root.end({ prettyPrint: true });
+//   const blob = new Blob([xmlString], { type: 'application/xml' });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = 'fund_data.xml';
+//   a.click();
+//   URL.revokeObjectURL(url);
+// }
 
 
 
