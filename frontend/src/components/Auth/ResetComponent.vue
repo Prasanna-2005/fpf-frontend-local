@@ -6,20 +6,44 @@
                 <h3>Reset Password</h3>
             </div>
             
-            <div class="mb-3">
-                <label for="passwordInput" class="form-label">Enter new password</label>
-                <input type="password" class="form-control" id="passwordInput"  v-model="password" placeholder="********" required>
-                <div  class="invalid-feedback">
-                   Please enter a valid password
+            <div class="mb-3 position-relative">
+                <label for="passwordInput" class="form-label">Password</label>
+                <input
+                    :type="showPassword ? 'text' : 'password'"
+                    class="form-control pe-5"
+                    id="passwordInput"
+                    v-model="password"
+                    required
+                />
+                <font-awesome-icon
+                    :icon="showPassword ? 'eye-slash' : 'eye'"
+                    class="text-secondary password-toggle-icon"
+                    @click="togglePassword"
+                />
+                <div class="invalid-feedback">
+                    Please enter a valid password
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="confirmpasswordInput" class="form-label">Confirm new password</label>
-                <input type="password" class="form-control" id="confirmpasswordInput"  v-model="confirm_password" placeholder="********" required>
-                <div  class="invalid-feedback">
-                   Please enter a valid password
+
+            <div class="mb-3 position-relative">
+                <label for="passwordInput" class="form-label"> Confirm Password</label>
+                <input
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    class="form-control pe-5"
+                    id="passwordInput"
+                    v-model="confirm_password"
+                    required
+                />
+                <font-awesome-icon
+                    :icon="showConfirmPassword ? 'eye-slash' : 'eye'"
+                    class="text-secondary password-toggle-icon"
+                    @click="toggleConfirmPassword"
+                />
+                <div class="invalid-feedback">
+                    Please enter a valid password
                 </div>
             </div>
+
             
             <div class="box">
                 <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
@@ -47,6 +71,15 @@ const confirm_password=ref('')
 const userStore = useUserStore()
 const isLoading = ref(false); 
 
+const showPassword = ref(false)
+const showConfirmPassword=ref(false)
+
+function togglePassword() {
+  showPassword.value = !showPassword.value
+}
+function toggleConfirmPassword() {
+  showConfirmPassword.value = !showConfirmPassword.value
+}
 
 
 
