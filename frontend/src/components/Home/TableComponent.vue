@@ -14,6 +14,7 @@
           <th class="tr-padding w-25" scope="col">Filing Name</th>
           <th scope="col" class="w-25">Prepared By</th>
           <th scope="col">Status</th>
+          <th scope="col">XML</th>
           <th scope="col" class="w-25">Modified By</th>
           <th scope="col" class="w-25" @click="toggleSortOrder">
             Modified On
@@ -32,7 +33,17 @@
           </td>
           <td class="w-25">{{ data['prepared_by'] }}</td>
           <td>{{ data['filingStatus'] }}</td>
+          <td>
+            <button 
+                class="bg-transparent border-0 p-0"
+                style="cursor: pointer;"
+                :disabled="data['filingStatus'] !== 'Approved'"
+                @click="downloadXML(data['id'])"
+              >
+            <font-awesome-icon icon="download" :class="{ 'text-secondary': data['filingStatus'] !== 'Approved' }" />
+          </button></td>
           <td class="w-25">{{ data['modified_by'] }}</td>
+
           <td class="w-25">{{ formatDate(data['modified_on'] )}}</td>
           <!-- <td>
             <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
@@ -63,10 +74,11 @@
 import { ref, computed,onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TopBarComponent from '@/components/Home/TopBarComponent.vue';
-import sample_json from '@/assets/Sample_data/sample'
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useUserStore } from '@/stores/userStore';
 import { useEditableStore } from '@/stores/responseStore'
+import { useToast } from 'vue-toast-notification';
+import downloadXMLFile from '@/assets/utils/utils';
 const responseStore = useEditableStore()
 const userStore = useUserStore();
 
@@ -75,7 +87,7 @@ const data = ref({ data: [] })
 const user_id=userStore.userID
 const router = useRouter()
 const role=userStore.role
-
+const toast=useToast()
 
 function goToEditing(filingId, filingStatus) {
   responseStore.setStatus(filingStatus)
@@ -87,6 +99,12 @@ function goToEditing(filingId, filingStatus) {
   }
 }
 
+async function downloadXML(filingId){
+    toast.info("Downloading XML.....")
+    const result=await api_call_methods.get_xml_data(user_id,filingId)
+    downloadXMLFile(result.data)
+    toast.success("XML file downloaded")
+}
 
 
 
