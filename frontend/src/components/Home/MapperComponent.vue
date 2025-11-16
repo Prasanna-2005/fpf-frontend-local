@@ -187,7 +187,8 @@ async function proceed() {
         "filing_name": filingName,
         "file_mappings":localData.value.file_mappings,
         "new_filing":true,
-        "timestamp": current_time
+        "timestamp": current_time,
+        "series":localData.value.series
         }
 
     await api_call_methods.submit_files(data,user_id)

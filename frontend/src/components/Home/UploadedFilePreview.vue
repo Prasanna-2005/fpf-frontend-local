@@ -80,6 +80,7 @@ async function upload_files(){
       const result=await api_call_methods.map_files(data,user_id)
 
       mapped_data.value=result
+      console.log(mapped_data.value)
       if(mapped_data===''){
         mapped_data.value={}
       }
