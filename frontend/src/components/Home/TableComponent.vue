@@ -13,7 +13,7 @@
         <tr>
           <th class="tr-padding w-25" scope="col">Filing Name</th>
           <th scope="col" class="w-25">Prepared By</th>
-          <!-- <th scope="col">Status</th> -->
+          <th scope="col">Status</th>
           <th scope="col" class="w-25">Modified By</th>
           <th scope="col" class="w-25" @click="toggleSortOrder">
             Modified On
@@ -26,12 +26,12 @@
       <tbody class="table-group-divider">
         <tr v-for="(data, index) in paginatedData" :key="index">
           <td class="w-25">
-            <router-link :to="{ name: 'editing', query: { filing_id: data['id']} }">
-              {{ data['filing_name'] }}
-            </router-link>
+              <a href="#" @click="goToEditing(data['id'],data['filingStatus'])">
+                  {{ data['filing_name'] }}
+                </a>
           </td>
           <td class="w-25">{{ data['prepared_by'] }}</td>
-          <!-- <td>{{ data['status'] }}</td> -->
+          <td>{{ data['filingStatus'] }}</td>
           <td class="w-25">{{ data['modified_by'] }}</td>
           <td class="w-25">{{ formatDate(data['modified_on'] )}}</td>
           <!-- <td>
@@ -61,14 +61,35 @@
 
 <script setup>
 import { ref, computed,onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import TopBarComponent from '@/components/Home/TopBarComponent.vue';
 import sample_json from '@/assets/Sample_data/sample'
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useUserStore } from '@/stores/userStore';
+import { useEditableStore } from '@/stores/responseStore'
+const responseStore = useEditableStore()
 const userStore = useUserStore();
+
 const isLoading=ref(true)
 const data = ref({ data: [] })   
 const user_id=userStore.userID
+const router = useRouter()
+const role=userStore.role
+
+
+function goToEditing(filingId, filingStatus) {
+  responseStore.setStatus(filingStatus)
+  if(filingStatus=="Approved" || (filingStatus=="Review")){
+    router.push({ name: 'preview', query: { filing_id: filingId } })
+  }
+  else{
+  router.push({ name: 'editing', query: { filing_id: filingId } })
+  }
+}
+
+
+
+
 onMounted(async () => {
   try {
     isLoading.value=true
