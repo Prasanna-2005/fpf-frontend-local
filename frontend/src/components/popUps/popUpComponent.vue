@@ -45,17 +45,48 @@
                     <b v-else>Your Filing Has Been Approved. Download XML Below:</b>
                 </h4>
                 </div>
-                 <button v-if="!downloadXMl" class="btn btn-primary " @click="approveFiling" :disabled="approving">
+                 <button v-if="!downloadXMl" class="btn btn-primary " @click="approveFiling('Approved')" :disabled="approving">
                     <span v-if="approving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     <span v-if="!approving ">Approve filing</span>
                     <span v-else>Approving...</span>
-                    
                 </button>
                 <button v-else  class="btn btn-primary" @click="downloadXMLFile">
                     <span>Download XML</span>
                 </button>
             </div>
         </div>
+        
+
+        <!-- send for appproval -->
+        <div v-if="type=='sendForApproval'" class="max-dimensions">
+            <div class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
+                <div class="mb-4">
+                <h4>
+                    <b v-if="sentForApproval">Your Filing Has Been Sent for Review.</b>
+                    <b v-else>Are you sure you want to send this filing for approval?</b>
+                </h4>
+                </div>
+                <button v-if="!sentForApproval" class="btn btn-primary" @click="sendForApproval('Review')">Send for approval</button>
+                <button v-else class="btn btn-primary" @click="goHome" >
+                        <font-awesome-icon class="icon me-2" icon="file-lines" /> Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- download xml for approved filing -->
+         <div v-if="type=='downloadXmlFileForApprovedFiling'" class="max-dimensions">
+            <div class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
+                <div class="mb-4">
+                <h4><b>Please download the XML file</b></h4>
+                </div>
+                <button  class="btn btn-primary " @click="downloadXmlFileForApprovedFiling" :disabled="downloading">
+                    <span v-if="downloading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!downloading ">Download XML</span>
+                    <span v-else>Downloading XML...</span>
+                </button>
+            </div>
+        </div>
+
         
     </div>
 </template>
@@ -64,7 +95,8 @@ import {ref} from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 import { create } from 'xmlbuilder2';
-
+import { useEditableStore } from '@/stores/responseStore'
+const responseStore = useEditableStore()
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
 const userStore=useUserStore()
@@ -96,6 +128,8 @@ const approving=ref(false)
 const downloadXMl=ref(false)
 const dataForXML=ref({})
 const nameOfCopyfiling=ref(props.defaultCopyName)
+const downloading=ref(false)
+const sentForApproval=ref(false)
 function deletePopUp(){
     emit('removePopUp')
 }
@@ -105,23 +139,45 @@ function createCopy(){
 function downloadPdf(){
     emit('downloadPdf')
 }
-async function approveFiling(){
+function goHome(){
+    window.location='/home'
+}
+async function approveFiling(status){
     try{
         approving.value=true
+        const data=await api_call_methods.update_status(user_id,props.filingId,status)
+        responseStore.setStatus(status)
         const result=await api_call_methods.get_xml_data(user_id,props.filingId) 
         approving.value=false
         downloadXMl.value=true
         dataForXML.value=result.data
-        // downloadXMLFile(result.data)    
     }
     catch(error){
         console.log(error)
         
     }
-    
-
 }
- 
+async function downloadXmlFileForApprovedFiling(){
+    downloading.value=true
+    const result=await api_call_methods.get_xml_data(user_id,props.filingId)
+    dataForXML.value=result.data
+    downloadXMLFile()
+    downloading.value=false
+}
+async function sendForApproval(status){
+    try{
+        responseStore.setStatus(status)
+        const result=await api_call_methods.update_status(user_id,props.filingId,status)  
+    }
+    catch(error){
+        console.log(error)
+        
+    }
+    finally{
+        sentForApproval.value=true
+    }
+}
+
 async function deleteUser(){
     console.log(props.userIdToBeDeleted)
     try{
