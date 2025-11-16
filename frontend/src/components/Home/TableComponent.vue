@@ -8,49 +8,52 @@
     <p>Loading Filings table....</p>
   </div>
   <div v-else class="table-div">
-    <table class="table">
-      <thead class="table-light">
-        <tr>
-          <th class="tr-padding w-25" scope="col">Filing Name</th>
-          <th scope="col" class="w-25">Prepared By</th>
-          <th scope="col">Status</th>
-          <th scope="col">XML</th>
-          <th scope="col" class="w-25">Modified By</th>
-          <th scope="col" class="w-25" @click="toggleSortOrder">
-            Modified On
-            <font-awesome-icon v-if="sortOrder === 'desc'" icon="arrow-down" />
-            <font-awesome-icon v-else icon="arrow-up" />
-          </th>
-          <!-- <th scope="col"></th> -->
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        <tr v-for="(data, index) in paginatedData" :key="index">
-          <td class="w-25">
-              <a href="#" @click="goToEditing(data['id'],data['filingStatus'])">
-                  {{ data['filing_name'] }}
-                </a>
-          </td>
-          <td class="w-25">{{ data['prepared_by'] }}</td>
-          <td>{{ data['filingStatus'] }}</td>
-          <td>
-            <button 
-                class="bg-transparent border-0 p-0"
-                style="cursor: pointer;"
-                :disabled="data['filingStatus'] !== 'Approved'"
-                @click="downloadXML(data['id'])"
-              >
-            <font-awesome-icon icon="download" :class="{ 'text-secondary': data['filingStatus'] !== 'Approved' }" />
-          </button></td>
-          <td class="w-25">{{ data['modified_by'] }}</td>
+    <table class="table ">
+  <thead class="table-light">
+    <tr>
+      <th style="width: 15%">Filing Name</th>
+      <th style="width: 15%">Prepared By</th>
+      <th style="width: 15%">Status</th>
+      <th style="width: 15%;">XML</th>
+      <th style="width: 15%">Modified By</th>
+      <th style="width: 15%; cursor:pointer" @click="toggleSortOrder">
+        Modified On
+        <font-awesome-icon v-if="sortOrder === 'desc'" icon="arrow-down" />
+        <font-awesome-icon v-else icon="arrow-up" />
+      </th>
+    </tr>
+  </thead>
 
-          <td class="w-25">{{ formatDate(data['modified_on'] )}}</td>
-          <!-- <td>
-            <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
-          </td> -->
-        </tr>
-      </tbody>
-    </table>
+  <tbody>
+    <tr v-for="(data, index) in paginatedData" :key="index">
+      <td><a href="#" @click="goToEditing(data['id'],data['filingStatus'])"> {{ data['filing_name'] }} </a></td>
+      <td class="text-capitalize">{{ data['prepared_by'] }}</td>
+      <td>{{ data['filingStatus'] }}</td>
+
+      <!-- XML Column -->
+      <td >
+        <button
+          class="bg-transparent border-0 p-0"
+          style="cursor: pointer;"
+          :disabled="data['filingStatus'] !== 'Approved'"
+          @click="downloadXML(data['id'])"
+        >
+          <font-awesome-icon 
+            icon="download"
+            :class="{
+              'text-secondary': data['filingStatus'] !== 'Approved',
+              'text-primary': data['filingStatus'] === 'Approved'
+            }"
+          />
+        </button>
+      </td>
+
+      <td class="text-capitalize">{{ data['modified_by'] }}</td>
+      <td>{{ formatDate(data['modified_on']) }}</td>
+    </tr>
+  </tbody>
+</table>
+
 
     <div class="d-flex justify-content-end pagination">
       <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="btn" ><</button>
