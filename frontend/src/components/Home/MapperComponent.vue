@@ -16,7 +16,8 @@
         <thead class="table-light">
           <tr>
             <th scope="col">Fund Name</th>
-            <th scope="col">Quarter</th>
+            <th scope="col" v-if="series=='Private Investors'">Quarter</th>
+            <th scope="col" v-else>Filetype</th>
             <th scope="col">Mapped File</th>
           </tr>
         </thead>
@@ -109,6 +110,7 @@ const localData = ref({
   )
 });
 
+const series=localData.value.series
 
 
 
