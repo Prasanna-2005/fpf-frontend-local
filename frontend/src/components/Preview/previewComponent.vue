@@ -168,8 +168,7 @@ import { useUserStore } from '@/stores/userStore';
 const userStore=useUserStore()
 const role=userStore.role
 import api_call_methods from '@/assets/api_calls/api_calls';
-// import useFileStore from '@/stores/fileStore';
-
+import utils from '@/assets/utils/utils'
 
 const router = useRouter();
 const props = defineProps({
@@ -190,7 +189,7 @@ watch(() => responseStore.status, (v) =>{
 }
 )
 
-const filing_name='FEG Investment Services 2024'
+const filing_name=localStorage.getItem('filingName')
 const user_id=userStore.userID
 const data = responseStore.getAllData();
 console.log(data)
@@ -398,19 +397,7 @@ async function downloadPDF() {
 async function downloadInputPDF(){
 
   const response=await api_call_methods.download_input(user_id,filing_name)
-  const blob = new Blob([response.data], { type: "application/zip" });
-  const url = window.URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${filing_name}.zip`;
-  document.body.appendChild(link);
-  link.click();
-
-  // Cleanup
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-
+  utils.downloadInputZip(response, filing_name)
   return response;
 
 
