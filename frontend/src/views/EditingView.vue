@@ -83,6 +83,7 @@ onMounted(async () => {
 })
 async function update_status_to_draft(){
   const result=await api_call_methods.update_status(user_id,filing_id,'Draft')
+  responseStore.setStatus('Draft')
 }
 
 async function set_response(){
