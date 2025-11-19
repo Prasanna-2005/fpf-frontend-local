@@ -200,7 +200,9 @@ async function revert_data(user_id,data,fund_id,filing_id) {
     console.log(response)
     return response
 }
-
+async function download_input(user_id,filing_name) {
+    
+}
 
 const api_call_methods={
     login,
@@ -218,7 +220,8 @@ const api_call_methods={
     get_response,
     get_xml_data,
     accept_data,
-    revert_data
+    revert_data,
+    download_input
 
 }
 

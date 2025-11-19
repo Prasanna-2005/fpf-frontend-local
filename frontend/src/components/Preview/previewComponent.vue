@@ -8,7 +8,7 @@
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
         <font-awesome-icon class="icon" icon="download" /> Pdf Preview
       </button>
-      <button class="btn btn-secondary m-2 border-0" disabled>
+      <button class="btn btn-secondary m-2 border-0" @click="downloadInputPDF">
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
@@ -156,6 +156,7 @@ import jsPDF from 'jspdf';
 import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
+import api_call_methods from '@/assets/api_calls/api_calls';
 const router = useRouter();
 const props = defineProps({
   filingId:{
@@ -372,7 +373,11 @@ async function downloadPDF() {
   pdf.save("preview.pdf");
 }
 
+async function downloadInputPDF(){
 
+  const result=await api_call_methods.download_input(userId)
+
+}
 
 
 
