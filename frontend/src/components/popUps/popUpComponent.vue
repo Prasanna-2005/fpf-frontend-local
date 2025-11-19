@@ -96,7 +96,7 @@ import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 // import { create } from 'xmlbuilder2';
 import { useEditableStore } from '@/stores/responseStore'
-import downloadXMLFile from '@/assets/utils/utils'
+import utils from '@/assets/utils/utils'
 const responseStore = useEditableStore()
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
@@ -161,7 +161,7 @@ async function approveFiling(status){
 async function downloadXmlFileForApprovedFiling(){
     downloading.value=true
     const result=await api_call_methods.get_xml_data(user_id,props.filingId)
-    downloadXMLFile(result.data)
+    utils.downloadXMLFile(result.data)
     downloading.value=false
 }
 async function sendForApproval(status){
