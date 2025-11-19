@@ -189,7 +189,7 @@ watch(() => responseStore.status, (v) =>{
 }
 )
 
-const filing_name=localStorage.getItem('filingName')
+
 const user_id=userStore.userID
 const data = responseStore.getAllData();
 console.log(data)
@@ -395,11 +395,10 @@ async function downloadPDF() {
 }
 
 async function downloadInputPDF(){
-
+  const filing_name=localStorage.getItem('filingName')
   const response=await api_call_methods.download_input(user_id,filing_name)
   utils.downloadInputZip(response, filing_name)
   return response;
-
 
 }
 
