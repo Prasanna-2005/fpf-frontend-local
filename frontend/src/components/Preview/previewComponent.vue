@@ -8,7 +8,7 @@
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
         <font-awesome-icon class="icon" icon="download" /> Pdf Preview
       </button>
-      <button class="btn btn-secondary m-2 border-0" @click="downloadInputPDF">
+      <button class="btn btn-primary m-2 border-0" @click="downloadInputPDF">
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
@@ -157,6 +157,9 @@ import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
 import api_call_methods from '@/assets/api_calls/api_calls';
+// import useFileStore from '@/stores/fileStore';
+import { useUserStore } from '@/stores/userStore';
+
 const router = useRouter();
 const props = defineProps({
   filingId:{
@@ -167,7 +170,10 @@ const props = defineProps({
   
 
 })
+const userStore=useUserStore()
 const responseStore = useEditableStore();
+const filing_name='FEG Investment Services 2024'
+const user_id=userStore.userID
 const data = responseStore.getAllData();
 console.log(data)
 const pdfContent = ref(null);
@@ -176,10 +182,10 @@ const toast=useToast()
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
     const heading = item.field_heading || "Other";
-    console.log(item.field_no)
+    // console.log(item.field_no)
     if (!acc[heading]) acc[heading] = [];
     acc[heading].push(item);
-    console.log("woho",acc)
+    // console.log("woho",acc)
     return acc;
   }, {});
 }
@@ -375,7 +381,22 @@ async function downloadPDF() {
 
 async function downloadInputPDF(){
 
-  const result=await api_call_methods.download_input(userId)
+  const response=await api_call_methods.download_input(user_id,filing_name)
+  const blob = new Blob([response.data], { type: "application/zip" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${filing_name}.zip`;
+  document.body.appendChild(link);
+  link.click();
+
+  // Cleanup
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+
+  return response;
+
 
 }
 
