@@ -14,10 +14,18 @@
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Duplicate
       </button> -->
-      <button class="btn btn-primary m-2 border-0" @click="approvePopUp">
+      <button class="btn btn-primary m-2 border-0" v-if="role=='approver' && status!='Approved'" @click="approvePopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Approve
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="goBackToEdit">
+      <button class="btn btn-primary m-2 border-0" v-if="status==='Approved'" @click="downloadXML">
+        <font-awesome-icon class="icon" icon="download" /> XML
+      </button>
+
+      <button class="btn btn-primary m-2 border-0" v-if="role=='contributor' && status!='Approved' && status!='Review'"  @click="sendForApprovalPopUp">
+        <font-awesome-icon class="icon" icon="check-double" /> Send For Approval
+      </button>
+
+      <button class="btn btn-primary m-2 border-0" v-if="status!='Approved'" @click="goBackToEdit">
         <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
       
@@ -150,15 +158,18 @@
 
 <script setup>
 import { useEditableStore } from '@/stores/responseStore';
-import { ref, nextTick } from 'vue';
+import { ref, nextTick ,watch} from 'vue';
 import { useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
 import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
+import { useUserStore } from '@/stores/userStore';
+const userStore=useUserStore()
+const role=userStore.role
 import api_call_methods from '@/assets/api_calls/api_calls';
 // import useFileStore from '@/stores/fileStore';
-import { useUserStore } from '@/stores/userStore';
+
 
 const router = useRouter();
 const props = defineProps({
@@ -170,22 +181,27 @@ const props = defineProps({
   
 
 })
-const userStore=useUserStore()
 const responseStore = useEditableStore();
+const status=ref(responseStore.getStatus())
+console.log('status',status.value)
+watch(() => responseStore.status, (v) =>{
+ console.log('store.status changed ->', v)
+ status.value=responseStore.getStatus()
+}
+)
+
 const filing_name='FEG Investment Services 2024'
 const user_id=userStore.userID
 const data = responseStore.getAllData();
 console.log(data)
 const pdfContent = ref(null);
-const emit = defineEmits(['create-copy', 'approve']);
+const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml']);
 const toast=useToast()
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
     const heading = item.field_heading || "Other";
-    // console.log(item.field_no)
     if (!acc[heading]) acc[heading] = [];
     acc[heading].push(item);
-    // console.log("woho",acc)
     return acc;
   }, {});
 }
@@ -422,6 +438,13 @@ function createCopyPopUp() {
 
 function approvePopUp() {
   emit('approve');
+}
+function sendForApprovalPopUp(){
+  emit('send-for-approval')
+}
+
+function downloadXML(){
+  emit('download-xml')
 }
 function goBackToEdit(){
   router.push({ name: 'editing', query: { filing_id: props.filingId } });

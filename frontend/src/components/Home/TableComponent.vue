@@ -8,38 +8,68 @@
     <p>Loading Filings table....</p>
   </div>
   <div v-else class="table-div">
-    <table class="table">
-      <thead class="table-light">
-        <tr>
-          <th class="tr-padding w-25" scope="col">Filing Name</th>
-          <th scope="col" class="w-25">Prepared By</th>
-          <!-- <th scope="col">Status</th> -->
-          <th scope="col" class="w-25">Modified By</th>
-          <th scope="col" class="w-25" @click="toggleSortOrder">
-            Modified On
-            <font-awesome-icon v-if="sortOrder === 'desc'" icon="arrow-down" />
-            <font-awesome-icon v-else icon="arrow-up" />
-          </th>
-          <!-- <th scope="col"></th> -->
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        <tr v-for="(data, index) in paginatedData" :key="index">
-          <td class="w-25">
-            <router-link :to="{ name: 'editing', query: { filing_id: data['id']} }">
-              {{ data['filing_name'] }}
-            </router-link>
-          </td>
-          <td class="w-25">{{ data['prepared_by'] }}</td>
-          <!-- <td>{{ data['status'] }}</td> -->
-          <td class="w-25">{{ data['modified_by'] }}</td>
-          <td class="w-25">{{ formatDate(data['modified_on'] )}}</td>
-          <!-- <td>
-            <a href="#"><font-awesome-icon class="icon" icon="trash" /></a>
-          </td> -->
-        </tr>
-      </tbody>
-    </table>
+    <table class="table ">
+  <thead class="table-light">
+    <tr>
+      <th style="width: 15%">Filing Name</th>
+      <th style="width: 15%">Prepared By</th>
+      <th style="width: 15%">Status</th>
+      <th style="width: 15%">XML</th>
+      <th style="width: 15%">Modified By</th>
+      <th style="width: 15%; cursor:pointer" @click="toggleSortOrder">
+        Modified On
+        <font-awesome-icon v-if="sortOrder === 'desc'" icon="arrow-down" />
+        <font-awesome-icon v-else icon="arrow-up" />
+      </th>
+      <th style="width: 10%"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr v-for="(data, index) in paginatedData" :key="index">
+      <td><a href="#" @click="goToEditing(data['id'],data['filingStatus'])"> {{ data['filing_name'] }} </a></td>
+      <td class="text-capitalize">{{ data['prepared_by'] }}</td>
+      <td>{{ data['filingStatus'] }}</td>
+
+      <!-- XML Column -->
+      <td >
+        <button
+          class="bg-transparent border-0 p-0"
+          style="cursor: pointer;"
+          :disabled="data['filingStatus'] !== 'Approved'"
+          @click="downloadXML(data['id'])"
+        >
+          <font-awesome-icon 
+            icon="download"
+            :class="{
+              'text-secondary': data['filingStatus'] !== 'Approved',
+              'text-primary': data['filingStatus'] === 'Approved'
+            }"
+          />
+        </button>
+      </td>
+
+      <td class="text-capitalize">{{ data['modified_by'] }}</td>
+      <td>{{ formatDate(data['modified_on']) }}</td>
+      <td class="text-center">
+        <button
+          class="bg-transparent border-0 p-0"
+          style="cursor: pointer;"
+          :disabled="data['filingStatus'] == 'Archived'"
+          @click="deleteFiling(data['id'])"
+        >
+          <font-awesome-icon icon="trash" 
+          :class="{
+              'text-danger': data['filingStatus'] !== 'Archived',
+              'text-secondary': data['filingStatus'] === 'Archived'
+          }" />
+        </button>
+</td>
+
+    </tr>
+  </tbody>
+</table>
+
 
     <div class="d-flex justify-content-end pagination">
       <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="btn" ><</button>
@@ -61,14 +91,49 @@
 
 <script setup>
 import { ref, computed,onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import TopBarComponent from '@/components/Home/TopBarComponent.vue';
-import sample_json from '@/assets/Sample_data/sample'
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useUserStore } from '@/stores/userStore';
+import { useEditableStore } from '@/stores/responseStore'
+import { useToast } from 'vue-toast-notification';
+import downloadXMLFile from '@/assets/utils/utils';
+const responseStore = useEditableStore()
 const userStore = useUserStore();
+
 const isLoading=ref(true)
 const data = ref({ data: [] })   
 const user_id=userStore.userID
+const router = useRouter()
+const role=userStore.role
+const toast=useToast()
+
+function goToEditing(filingId, filingStatus) {
+  responseStore.setStatus(filingStatus)
+  if(filingStatus=="Approved" || (filingStatus=="Review")){
+    router.push({ name: 'preview', query: { filing_id: filingId } })
+  }
+  else{
+  router.push({ name: 'editing', query: { filing_id: filingId } })
+  }
+}
+
+async function downloadXML(filingId){
+    toast.info("Downloading XML.....")
+    const result=await api_call_methods.get_xml_data(user_id,filingId)
+    downloadXMLFile(result.data)
+    toast.success("XML file downloaded")
+}
+
+async function deleteFiling(filingId) {
+  toast.info("Deleting filing.....")
+  const status="Archived"
+  await api_call_methods.update_status(user_id,filingId,status)
+  toast.success("filing deleted successfully")
+  location.reload();
+}
+
+
 onMounted(async () => {
   try {
     isLoading.value=true
