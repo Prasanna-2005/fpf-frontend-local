@@ -8,7 +8,7 @@
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
         <font-awesome-icon class="icon" icon="download" /> Pdf Preview
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadInputPDF">
+      <button class="btn btn-primary m-2 border-0" @click="downloadInput">
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
@@ -322,11 +322,13 @@ async function downloadPDF() {
   pdf.save("preview.pdf");
 }
 
-async function downloadInputPDF(){
+async function downloadInput(){
+  toast.info("Downloading Input files....")
   const filing_name=localStorage.getItem('filingName')
   const response=await api_call_methods.download_input(user_id,filing_name)
   utils.downloadInputZip(response, filing_name)
-  return response;
+  toast.success("Input files downloaded successfully")
+  return ;
 
 }
 
