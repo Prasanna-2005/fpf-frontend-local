@@ -328,7 +328,7 @@ async function downloadInput(){
   const response=await api_call_methods.download_input(user_id,filing_name)
   utils.downloadInputZip(response, filing_name)
   toast.success("Input files downloaded successfully")
-  return ;
+  
 
 }
 
