@@ -50,7 +50,7 @@
                     <span v-if="!approving ">Approve filing</span>
                     <span v-else>Approving...</span>
                 </button>
-                <button v-else  class="btn btn-primary" @click="downloadXMLFile(dataForXML)">
+                <button v-else  class="btn btn-primary" @click="downloadXmlFileForApprovedFiling(dataForXML)">
                     <span>Download XML</span>
                 </button>
             </div>
