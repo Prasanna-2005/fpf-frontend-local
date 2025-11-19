@@ -16,7 +16,8 @@
         <thead class="table-light">
           <tr>
             <th scope="col">Fund Name</th>
-            <th scope="col">Quarter</th>
+            <th scope="col" v-if="series=='Private Investors'">Quarter</th>
+            <th scope="col" v-else>Filetype</th>
             <th scope="col">Mapped File</th>
           </tr>
         </thead>
@@ -110,6 +111,7 @@ const localData = ref({
 });
 
 
+const series=localData.value.series
 
 
 const uploaderFlag = ref(false);
@@ -187,7 +189,8 @@ async function proceed() {
         "filing_name": filingName,
         "file_mappings":localData.value.file_mappings,
         "new_filing":true,
-        "timestamp": current_time
+        "timestamp": current_time,
+        "series":localData.value.series
         }
 
     await api_call_methods.submit_files(data,user_id)
