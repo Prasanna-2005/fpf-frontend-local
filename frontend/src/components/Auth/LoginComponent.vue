@@ -101,8 +101,13 @@ async function handleSubmit(event) {
                 console.log(result);
             }
         } catch (error) {
-            toast.error('Failed to validate credentials');
-            console.error(error);
+            if (error.status==404){
+                toast.error('Wrong username or password')
+            }
+            else{
+                toast.error('We’re having trouble processing your request. Please try again later')
+            }
+            
         } finally {
             isLoading.value = false; 
         }
