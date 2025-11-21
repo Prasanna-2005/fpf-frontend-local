@@ -38,14 +38,19 @@
     </div>
 
     <!-- Footer -->
-    <div class="d-flex justify-content-end gap-2 mt-3">
-      <button class="btn btn-outline-secondary" @click="$emit('close-click')">
-        Cancel
-      </button>
-      <button class="btn btn-primary" @click="submitUpload" :disabled="files.length === 0 || !filingName">
-        Next
-      </button>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="upload-text">
+        <font-awesome-icon icon="info-circle" class="text-primary small mt-1" />
+        Please upload the investment liquidity Excel file along with the fund’s quarterly data.
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" @click="$emit('close-click')">Cancel</button>
+        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName">Next</button>
+      </div>
     </div>
+
+
   </div>
 </template>
 
