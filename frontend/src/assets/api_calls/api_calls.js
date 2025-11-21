@@ -220,7 +220,19 @@ async function revert_data(user_id,data,fund_id,filing_id) {
     console.log(response)
     return response
 }
-
+async function download_input(user_id,filing_name) {
+    const response=await api.get('/api/v1/files/download_input_files',
+        {
+                params: { filing_name },
+                responseType: "blob",    
+                withCredentials: true,
+                headers: {
+                    'X-User-ID': user_id
+                }
+            }
+    )
+    return response
+}
 
 const api_call_methods={
     login,
@@ -239,7 +251,8 @@ const api_call_methods={
     get_xml_data,
     accept_data,
     revert_data,
-    update_status
+    update_status,
+    download_input
 
 }
 

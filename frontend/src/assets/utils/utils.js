@@ -107,4 +107,22 @@ function downloadXMLFile(xmlData) {
 }
 
 
-export default downloadXMLFile
+function downloadInputZip(zip_data,filing_name){
+  const blob = new Blob([zip_data.data], { type: "application/zip" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${filing_name}.zip`;
+  document.body.appendChild(link);
+  link.click();
+
+  // Cleanup
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+export default {
+  downloadXMLFile,
+  downloadInputZip
+}

@@ -7,7 +7,7 @@
       <button class="btn btn-primary m-2 border-0" @click="goToPreview">
         <font-awesome-icon class="icon" icon="eye" /> Pdf Preview
       </button>
-      <button class="btn btn-secondary m-2 border-0" disabled>
+      <button class="btn btn-primary m-2 border-0" @click="downloadInput">
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
       <button class="btn btn-secondary m-2 border-0" @click="openUpload" disabled>
@@ -208,6 +208,7 @@ import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
+import utils from '@/assets/utils/utils'
 
 const router = useRouter()
 const toast = useToast()
@@ -519,6 +520,15 @@ function goToPreview() {
 
 function goToHome() {
   window.location = '/home'
+}
+
+async function downloadInput(){
+  toast.info("Downloading Input files....")
+  const filing_name=localStorage.getItem('filingName')
+  const response=await api_call_methods.download_input(user_id,filing_name)
+  utils.downloadInputZip(response, filing_name)
+  toast.success("Input files downloaded successfully")
+
 }
 </script>
 

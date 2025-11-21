@@ -27,7 +27,7 @@
 
   <tbody>
     <tr v-for="(data, index) in paginatedData" :key="index">
-      <td><a href="#" @click="goToEditing(data['id'],data['filingStatus'])"> {{ data['filing_name'] }} </a></td>
+      <td><a href="#" @click="goToEditing(data['id'],data['filingStatus'],data['filing_name'])"> {{ data['filing_name'] }} </a></td>
       <td class="text-capitalize">{{ data['prepared_by'] }}</td>
       <td>{{ data['filingStatus'] }}</td>
 
@@ -97,7 +97,7 @@ import api_call_methods from '@/assets/api_calls/api_calls';
 import { useUserStore } from '@/stores/userStore';
 import { useEditableStore } from '@/stores/responseStore'
 import { useToast } from 'vue-toast-notification';
-import downloadXMLFile from '@/assets/utils/utils';
+import utils from '@/assets/utils/utils'
 const responseStore = useEditableStore()
 const userStore = useUserStore();
 
@@ -108,8 +108,9 @@ const router = useRouter()
 const role=userStore.role
 const toast=useToast()
 
-function goToEditing(filingId, filingStatus) {
+function goToEditing(filingId, filingStatus,filingName) {
   responseStore.setStatus(filingStatus)
+  localStorage.setItem('filingName',filingName)
   if(filingStatus=="Approved" || (filingStatus=="Review")){
     router.push({ name: 'preview', query: { filing_id: filingId } })
   }
@@ -121,7 +122,7 @@ function goToEditing(filingId, filingStatus) {
 async function downloadXML(filingId){
     toast.info("Downloading XML.....")
     const result=await api_call_methods.get_xml_data(user_id,filingId)
-    downloadXMLFile(result.data)
+    utils.downloadXMLFile(result.data)
     toast.success("XML file downloaded")
 }
 
