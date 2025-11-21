@@ -22,7 +22,7 @@
               </div>
             <div v-else class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <!-- <topBarComponent @selected-fund="selectFund"  /> -->
-                <previewComponent  @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id"/>
+                <previewComponent  @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id" @send-for-approval="sendForApproval=true" @download-xml="downloadXMl=true" />
             </div> 
             <div v-if="createCopyPopUp" class="backdrop">
                     <popUpComponent  type="createCopy"  @remove-pop-up="createCopyPopUp = false" defaultCopyName="FinancialPaper24-25: Copy"/>
@@ -30,6 +30,14 @@
             <div v-if="approvePopUp" class="backdrop">
                     <popUpComponent  type="approveFiling"  @remove-pop-up="approvePopUp = false" :filingId="filing_id"/>
             </div>
+            <div v-if="sendForApproval" class="backdrop" >
+                  <popUpComponent  type="sendForApproval"  @remove-pop-up="sendForApproval = false" :filingId="filing_id"/>
+            </div>
+            <div v-if="downloadXMl" class="backdrop" >
+                  <popUpComponent  type="downloadXmlFileForApprovedFiling"  @remove-pop-up="downloadXMl = false" :filingId="filing_id"/>
+            </div>
+
+            
             <div v-if="openAddFundPopUp" class="backdrop">
                     <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
             </div>
@@ -57,13 +65,15 @@ const filing_id=route.query.filing_id
 const openAddFundPopUp=ref(false)
 const createCopyPopUp=ref(false)
 const approvePopUp=ref(false)
-
+const sendForApproval=ref(false)
+const downloadXMl=ref(false)
 const loading=ref(true)
 const loader=ref('true')
 const userStore = useUserStore();
 
+
 let data = ''
-const user_id=userStore.userID
+const user_id=userStore.userID  
 onMounted(async () => {
   try {
     loading.value=true

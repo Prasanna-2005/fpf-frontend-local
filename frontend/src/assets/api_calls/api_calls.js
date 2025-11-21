@@ -159,8 +159,28 @@ async function get_response(user_id,filing_id) {
 
 
 async function get_xml_data(user_id,filing_id) {
-    const id=45
+    
     const response=await api.get(`/api/v1/edit/approved/${filing_id}`,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+
+}
+
+async function update_status(user_id,filing_id,status) {
+    const current_time = new Date();
+    console.log(status)
+    const data={
+        "Timestamp":current_time.toISOString(),
+        "FilingStatus":status,
+    }
+    const response=await api.post(`/api/v1/edit/update_status/${filing_id}`,data,
         {
             withCredentials: true ,
             headers:{
@@ -200,7 +220,19 @@ async function revert_data(user_id,data,fund_id,filing_id) {
     console.log(response)
     return response
 }
-
+async function download_input(user_id,filing_name) {
+    const response=await api.get('/api/v1/files/download_input_files',
+        {
+                params: { filing_name },
+                responseType: "blob",    
+                withCredentials: true,
+                headers: {
+                    'X-User-ID': user_id
+                }
+            }
+    )
+    return response
+}
 
 const api_call_methods={
     login,
@@ -218,7 +250,9 @@ const api_call_methods={
     get_response,
     get_xml_data,
     accept_data,
-    revert_data
+    revert_data,
+    update_status,
+    download_input
 
 }
 

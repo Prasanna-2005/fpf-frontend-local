@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export const useEditableStore = defineStore('response', () => {
   const response = ref([])
   const fund_mapper = ref({})
+  const status=ref(localStorage.getItem('filingStatus') || '')
 
   function setResponse(rawResponse) {
     response.value = rawResponse
@@ -20,6 +21,13 @@ export const useEditableStore = defineStore('response', () => {
     })
   }
 
+  function setStatus(filingStatus){
+    status.value=filingStatus
+    localStorage.setItem('filingStatus', filingStatus)
+  }
+  function getStatus(){
+    return status.value
+  }
   function getFunds() {
     return Object.keys(fund_mapper.value)
   }
@@ -81,6 +89,9 @@ export const useEditableStore = defineStore('response', () => {
     updateItem,
     restoreItem,
     getAllData,
-    getFundId
+    getFundId,
+    setStatus,
+    getStatus,
+    status
   }
 })

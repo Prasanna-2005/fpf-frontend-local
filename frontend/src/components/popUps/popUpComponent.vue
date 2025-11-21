@@ -45,17 +45,48 @@
                     <b v-else>Your Filing Has Been Approved. Download XML Below:</b>
                 </h4>
                 </div>
-                 <button v-if="!downloadXMl" class="btn btn-primary " @click="approveFiling" :disabled="approving">
+                 <button v-if="!downloadXMl" class="btn btn-primary " @click="approveFiling('Approved')" :disabled="approving">
                     <span v-if="approving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     <span v-if="!approving ">Approve filing</span>
                     <span v-else>Approving...</span>
-                    
                 </button>
-                <button v-else  class="btn btn-primary" @click="downloadXMLFile">
+                <button v-else  class="btn btn-primary" @click="downloadXmlFileForApprovedFiling(dataForXML)">
                     <span>Download XML</span>
                 </button>
             </div>
         </div>
+        
+
+        <!-- send for appproval -->
+        <div v-if="type=='sendForApproval'" class="max-dimensions">
+            <div class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
+                <div class="mb-4">
+                <h4>
+                    <b v-if="sentForApproval">Your Filing Has Been Sent for Review.</b>
+                    <b v-else>Are you sure you want to send this filing for approval?</b>
+                </h4>
+                </div>
+                <button v-if="!sentForApproval" class="btn btn-primary" @click="sendForApproval('Review')">Send for approval</button>
+                <button v-else class="btn btn-primary" @click="goHome" >
+                        <font-awesome-icon class="icon me-2" icon="file-lines" /> Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- download xml for approved filing -->
+         <div v-if="type=='downloadXmlFileForApprovedFiling'" class="max-dimensions">
+            <div class="d-flex justify-content-center  align-item-center max-dimensions flex-column">
+                <div class="mb-4">
+                <h4><b>Please download the XML file</b></h4>
+                </div>
+                <button  class="btn btn-primary " @click="downloadXmlFileForApprovedFiling" :disabled="downloading">
+                    <span v-if="downloading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!downloading ">Download XML</span>
+                    <span v-else>Downloading XML...</span>
+                </button>
+            </div>
+        </div>
+
         
     </div>
 </template>
@@ -63,8 +94,10 @@
 import {ref} from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
-import { create } from 'xmlbuilder2';
-
+// import { create } from 'xmlbuilder2';
+import { useEditableStore } from '@/stores/responseStore'
+import utils from '@/assets/utils/utils'
+const responseStore = useEditableStore()
 const emit=defineEmits(['removePopUp','filingName','downloadPdf','createCopy'])
 
 const userStore=useUserStore()
@@ -96,6 +129,8 @@ const approving=ref(false)
 const downloadXMl=ref(false)
 const dataForXML=ref({})
 const nameOfCopyfiling=ref(props.defaultCopyName)
+const downloading=ref(false)
+const sentForApproval=ref(false)
 function deletePopUp(){
     emit('removePopUp')
 }
@@ -105,23 +140,44 @@ function createCopy(){
 function downloadPdf(){
     emit('downloadPdf')
 }
-async function approveFiling(){
+function goHome(){
+    window.location='/home'
+}
+async function approveFiling(status){
     try{
         approving.value=true
+        const data=await api_call_methods.update_status(user_id,props.filingId,status)
+        responseStore.setStatus(status)
         const result=await api_call_methods.get_xml_data(user_id,props.filingId) 
         approving.value=false
         downloadXMl.value=true
         dataForXML.value=result.data
-        // downloadXMLFile(result.data)    
     }
     catch(error){
         console.log(error)
         
     }
-    
-
 }
- 
+async function downloadXmlFileForApprovedFiling(){
+    downloading.value=true
+    const result=await api_call_methods.get_xml_data(user_id,props.filingId)
+    utils.downloadXMLFile(result.data)
+    downloading.value=false
+}
+async function sendForApproval(status){
+    try{
+        responseStore.setStatus(status)
+        const result=await api_call_methods.update_status(user_id,props.filingId,status)  
+    }
+    catch(error){
+        console.log(error)
+        
+    }
+    finally{
+        sentForApproval.value=true
+    }
+}
+
 async function deleteUser(){
     console.log(props.userIdToBeDeleted)
     try{
@@ -133,109 +189,6 @@ async function deleteUser(){
         console.log(error)
     }
 }
-function downloadXMLFile() {
-  const data = dataForXML.value;
-  const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
-
-  // ---------- Section PFFund--------
-  const section = root.ele('PFFunds');
-  data.fund_info.forEach(fund => {
-    const fundElem = section.ele('PFFunds');
-    fundElem.ele('FundID').txt(fund.fund_id || '');
-    fundElem.ele('FundName').txt(fund.fund_name || '');
-    fundElem.ele('FundType').txt(fund.fund_type || '');
-    fundElem.ele('CFTCFund').txt('N' || '');
-
-  });
-  // ---------- Section A----------
-  const sectionA = root.ele('PFSection1bItemAFundsIdentInfo');
-  data.tags_info.forEach(fundTags => {
-    const fundElem = sectionA.ele('PFSection1bItemAFundIdentInfo');
-    const fundId = fundTags.find(t => t.xmltags === 'FundID')?.value || fundTags.find(t => t.fund_id)?.fund_id || '';
-
-    fundElem.ele('FundID').txt(fundId);
-
-    const nfaFundID = fundTags.find(t => t.xmltags === 'NFAFundID')?.value
-    const nfaFlag = fundTags.find(t => t.xmltags === 'NFAFundCFTCComplianceFlag')?.value || 'N';
-    const isMaster = fundTags.find(t => t.xmltags === 'IsMasterFund')?.value || 'false';
-    const isParallel = fundTags.find(t => t.xmltags === 'IsParallelFundsAggregated')?.value || 'false';
-    
-    if (nfaFundID) {
-    fundElem.ele('NFAFundID').txt(nfaFundID);
-    }
-    fundElem.ele('NFAFundCFTCComplianceFlag').txt(nfaFlag);
-    fundElem.ele('IsMasterFund').txt(isMaster);
-    fundElem.ele('IsParallelFundsAggregated').txt(isParallel);
-  });
-
-
-  // ---------- Section B ----------
-  const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
-  data.tags_info.forEach(fundTags => {
-    const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
-    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
-
-    fundElem.ele('FundID').txt(fundId);
-
-    // Add all tags that are NOT quarterly (i.e., not part of Section C)
-    fundTags.forEach(tag => {
-      const tagName = tag.xmltags;
-      if (
-        !/Quarter\d+/.test(tagName) && // exclude Quarter fields
-        tagName !== 'FundID' &&
-        tagName !== 'FundName' &&
-        tagName !== 'NFAFundID' &&
-        tagName !== 'NFAFundCFTCComplianceFlag' &&
-        tagName !== 'IsMasterFund' &&
-        tagName !== 'IsParallelFundsAggregated'
-
-
-      ) {
-        fundElem.ele(tagName).txt(tag.value ?? '');
-      }
-    });
-  });
-
-  // ---------- Section C: Fund Performance ----------
-  const sectionC = root.ele('PFSection1bItemCFundsPerformance');
-  data.tags_info.forEach(fundTags => {
-    const perfElem = sectionC.ele('PFSection1bItemCFundPerformance');
-    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
-    if (fundId) perfElem.ele('FundID').txt(fundId);
-
-    // Group by quarter
-    const quarters = [1, 2, 3, 4];
-    quarters.forEach(q => {
-      const lastDate = fundTags.find(t => t.xmltags === `LastFiscalDateQuarter${q}`);
-      const gross = fundTags.find(t => t.xmltags === `GrossValueQuarter${q}`);
-      const net = fundTags.find(t => t.xmltags === `NetValueQuarter${q}`);
-
-      if (lastDate) {
-        const el = perfElem.ele(`LastFiscalDateQuarter${q}`);
-        el.ele('Value').txt(lastDate.value || '');
-      }
-      if (gross) {
-        const el = perfElem.ele(`GrossValueQuarter${q}`);
-        el.ele('Value').txt(gross.value || '');
-      }
-      if (net) {
-        const el = perfElem.ele(`NetValueQuarter${q}`);
-        el.ele('Value').txt(net.value || '');
-      }
-    });
-  });
-
-  // ---------- Finalize and Download ----------
-  const xmlString = root.end({ prettyPrint: true });
-  const blob = new Blob([xmlString], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'fund_data.xml';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 
 
 

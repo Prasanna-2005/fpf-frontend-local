@@ -8,16 +8,24 @@
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
         <font-awesome-icon class="icon" icon="download" /> Pdf Preview
       </button>
-      <button class="btn btn-secondary m-2 border-0" disabled>
+      <button class="btn btn-primary m-2 border-0" @click="downloadInput">
         <font-awesome-icon class="icon" icon="download" /> Input File
       </button>
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Duplicate
       </button> -->
-      <button class="btn btn-primary m-2 border-0" @click="approvePopUp">
+      <button class="btn btn-primary m-2 border-0" v-if="role=='approver' && status!='Approved'" @click="approvePopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Approve
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="goBackToEdit">
+      <button class="btn btn-primary m-2 border-0" v-if="status==='Approved'" @click="downloadXML">
+        <font-awesome-icon class="icon" icon="download" /> XML
+      </button>
+
+      <button class="btn btn-primary m-2 border-0" v-if="role=='contributor' && status!='Approved' && status!='Review'"  @click="sendForApprovalPopUp">
+        <font-awesome-icon class="icon" icon="check-double" /> Send For Approval
+      </button>
+
+      <button class="btn btn-primary m-2 border-0" v-if="status!='Approved'" @click="goBackToEdit">
         <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
       
@@ -150,12 +158,18 @@
 
 <script setup>
 import { useEditableStore } from '@/stores/responseStore';
-import { ref, nextTick } from 'vue';
+import { ref, nextTick ,watch} from 'vue';
 import { useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
 import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
+import { useUserStore } from '@/stores/userStore';
+const userStore=useUserStore()
+const role=userStore.role
+import api_call_methods from '@/assets/api_calls/api_calls';
+import utils from '@/assets/utils/utils'
+
 const router = useRouter();
 const props = defineProps({
   filingId:{
@@ -167,93 +181,29 @@ const props = defineProps({
 
 })
 const responseStore = useEditableStore();
+const status=ref(responseStore.getStatus())
+console.log('status',status.value)
+watch(() => responseStore.status, (v) =>{
+ console.log('store.status changed ->', v)
+ status.value=responseStore.getStatus()
+}
+)
+
+
+const user_id=userStore.userID
 const data = responseStore.getAllData();
 console.log(data)
 const pdfContent = ref(null);
-const emit = defineEmits(['create-copy', 'approve']);
+const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml']);
 const toast=useToast()
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
     const heading = item.field_heading || "Other";
-    console.log(item.field_no)
     if (!acc[heading]) acc[heading] = [];
     acc[heading].push(item);
-    console.log("woho",acc)
     return acc;
   }, {});
 }
-
-
-
-
-
-//image based pdf gen---------------------------------------
-
-// async function downloadPDF() {
-//   await nextTick();
-//   await document.fonts.ready;
-
-//   const element = pdfContent.value;
-//   if (!element) return;
-
-//   // Ensure white backgrounds (avoid black or transparent rendering)
-//   const pdf = new jsPDF('p', 'pt', 'a4');
-//   const pageWidth = pdf.internal.pageSize.getWidth();
-//   const pageHeight = pdf.internal.pageSize.getHeight();
-
-//   const seriesBlocks = element.querySelectorAll('.pdf-series');
-
-//   for (let i = 0; i < seriesBlocks.length; i++) {
-//     const block = seriesBlocks[i];
-//     block.style.backgroundColor = '#ffffff';
-
-//     // Slight pause (helps browser not run out of memory)
-//     await new Promise(resolve => setTimeout(resolve, 200));
-
-//     // Capture each series block as separate canvas
-//     const canvas = await html2canvas(block, {
-//       scale: 1.5,
-//       useCORS: true,
-//       backgroundColor: '#ffffff',
-//       scrollY: -window.scrollY,
-//       logging: false,
-//       windowWidth: block.scrollWidth,
-//     });
-
-//     const imgData = canvas.toDataURL('image/jpeg', 0.95);
-//     const imgWidth = pageWidth;
-//     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-//     let remainingHeight = imgHeight;
-//     let position = 0;
-//     const marginX = 30;  // left/right padding in points (~10mm)
-//     const marginY = 40;  // top/bottom padding in points (~14mm)
-//     const contentWidth = pageWidth - 2 * marginX;  // inner width
-//     const contentHeight = (canvas.height * contentWidth) / canvas.width;
-
-
-//     // Handle tall series (multi-page slicing)
-//     while (remainingHeight > 0) {
-//       const sliceHeight = Math.min(pageHeight, remainingHeight);
-//       pdf.addImage(imgData, 'JPEG', marginX, marginY - position, contentWidth, contentHeight);
-
-//       remainingHeight -= pageHeight;
-//       position += pageHeight;
-
-//       if (remainingHeight > 0) pdf.addPage();
-//     }
-
-//     // Add new page for next series
-//     if (i < seriesBlocks.length - 1) pdf.addPage();
-//   }
-
-//   pdf.save('preview.pdf');
-// }
-
-
-//------------------------------------------------------
-
-
 
 
 async function downloadPDF() {
@@ -372,7 +322,15 @@ async function downloadPDF() {
   pdf.save("preview.pdf");
 }
 
+async function downloadInput(){
+  toast.info("Downloading Input files....")
+  const filing_name=localStorage.getItem('filingName')
+  const response=await api_call_methods.download_input(user_id,filing_name)
+  utils.downloadInputZip(response, filing_name)
+  toast.success("Input files downloaded successfully")
+  
 
+}
 
 
 
@@ -396,6 +354,13 @@ function createCopyPopUp() {
 
 function approvePopUp() {
   emit('approve');
+}
+function sendForApprovalPopUp(){
+  emit('send-for-approval')
+}
+
+function downloadXML(){
+  emit('download-xml')
 }
 function goBackToEdit(){
   router.push({ name: 'editing', query: { filing_id: props.filingId } });
