@@ -6,7 +6,7 @@
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
-        <font-awesome-icon class="icon" icon="download" /> Pdf Preview
+        <font-awesome-icon class="icon" icon="download" /> Pdf Download
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadInput">
         <font-awesome-icon class="icon" icon="download" /> Input File
