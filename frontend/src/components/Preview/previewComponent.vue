@@ -70,7 +70,8 @@
                    <!-- <span v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</span> -->
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
                   
-                  <span class="line-value"><b>{{ fields.value }}</b></span>
+                  <!-- <span class="line-value"><b>{{ fields.value }}</b></span> -->
+                   <span class="line-value"><b>{{ formatValue(fields.value) }}</b></span>
                 </span>
               </p>
 
@@ -101,7 +102,7 @@
                           class="thick-border fixed-col"
                           :class="!isNaN(val[0]) ? 'number' : ''"
                         >
-                          <span>{{ val }}</span>
+                          <span>{{  formatValue(val) }}</span>
                         </td>
                       </template>
                     </tr>
@@ -382,6 +383,29 @@ function get_table_header_name(header){
   }
 
 }
+
+function formatValue(value) {
+  const num = Number(value);
+
+  // Not a number → return raw
+  if (isNaN(num)) return value;
+  if (num === 0) return num;
+
+
+  // Less than 100 → percentage
+  if (Math.abs(num) < 100) {
+    return `${num}%`;
+  }
+
+  // 100 or more → formatted currency
+  const formatted = num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  return `$ ${formatted}`;
+}
+
 </script>
 
 <style scoped>
