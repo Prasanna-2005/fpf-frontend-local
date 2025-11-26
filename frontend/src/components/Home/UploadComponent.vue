@@ -48,7 +48,7 @@
 
       <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary btn-sm" @click="$emit('close-click')">Cancel</button>
-        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName || errorMessage">Next</button>
+        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName ||  !isNameValid">Next</button>
       </div>
     </div>
 
@@ -78,6 +78,7 @@ function submitUpload() {
   }
 }
 const errorMessage = ref("")
+const isNameValid = ref(false)
 
 function validateName() {
   let value = filingName.value
@@ -86,6 +87,7 @@ function validateName() {
   const allowedPattern = /^[A-Za-z0-9 _-]*$/
 
   if (!allowedPattern.test(value)) {
+    isNameValid.value = false
     errorMessage.value = "Allow only A–Z, 0–9, spaces, _ and -"
     filingName.value = value.replace(/[^A-Za-z0-9 _-]/g, "")
     return
@@ -100,10 +102,11 @@ function validateName() {
 
   // 4. Duplicate check
   if (fileStore.isNameTaken(value.trim())) {
+    isNameValid.value = false
     errorMessage.value = "Filing name already exists."
     return
   }
-
+  isNameValid.value = true
   errorMessage.value = ""
 }
 
