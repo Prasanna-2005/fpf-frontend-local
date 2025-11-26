@@ -1,5 +1,5 @@
 <template>
-  <div class="upload-container d-flex flex-column gap-3 custom-view">
+  <div class="upload-container d-flex flex-column gap-2 custom-view">
     <h3>Upload Files</h3>
 
     <!-- Filing Name -->
@@ -13,8 +13,10 @@
         id="filing_name"
         placeholder="Unique Name"
         v-model="filingName"
+        @input="validateName"
       />
     </div>
+    <p v-if="errorMessage" class="text-danger small mb-0 mt-0">{{ errorMessage }}</p>
 
     <!-- Dropzone -->
     <div class="dropzone-container d-flex justify-content-center align-items-center">
@@ -75,6 +77,37 @@ function submitUpload() {
     emit('Upload-done')
   }
 }
+const errorMessage = ref("")
+
+function validateName() {
+  let value = filingName.value
+
+  // 1. Allow A–Z, 0–9, space, _, -
+  const allowedPattern = /^[A-Za-z0-9 _-]*$/
+
+  if (!allowedPattern.test(value)) {
+    errorMessage.value = "Allow only A–Z, 0–9, spaces, _ and -"
+    filingName.value = value.replace(/[^A-Za-z0-9 _-]/g, "")
+    return
+  }
+
+  value = value.replace(/\s{2,}/g, " ")
+
+
+  value = value.replace(/^\s+/, "")
+
+  filingName.value = value
+
+  // 4. Duplicate check
+  if (fileStore.isNameTaken(value.trim())) {
+    errorMessage.value = "Filing name already exists."
+    return
+  }
+
+  errorMessage.value = ""
+}
+
+
 
 const { getRootProps, getInputProps } = useDropzone({ onDrop })
 </script>
