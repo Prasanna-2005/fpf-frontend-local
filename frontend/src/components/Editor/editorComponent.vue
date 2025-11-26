@@ -526,13 +526,21 @@ function goToHome() {
 
 const downloadInputFiles=ref(false)
 async function downloadInput(){
-  downloadInputFiles.value=true
-  toast.info("Downloading Input files....")
-  const filing_name=localStorage.getItem('filingName')
-  const response=await api_call_methods.download_input(user_id,filing_name)
-  utils.downloadInputZip(response, filing_name)
-  downloadInputFiles.value=false
-  toast.success("Input files downloaded successfully")
+  try{
+      downloadInputFiles.value=true
+      toast.info("Downloading Input files....")
+      const filing_name=localStorage.getItem('filingName')
+      const response=await api_call_methods.download_input(user_id,filing_name)
+      utils.downloadInputZip(response, filing_name)
+      
+      toast.success("Input files downloaded successfully")
+    }
+  catch{
+    toast.error("Failed to download input files")
+  }
+  finally{
+    downloadInputFiles.value=false
+  }
 
 }
 </script>
