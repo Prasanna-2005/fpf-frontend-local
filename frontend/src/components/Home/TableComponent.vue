@@ -98,6 +98,7 @@ import { useUserStore } from '@/stores/userStore';
 import { useEditableStore } from '@/stores/responseStore'
 import { useToast } from 'vue-toast-notification';
 import utils from '@/assets/utils/utils'
+import { useFileStore } from '@/stores/fileStore';
 const responseStore = useEditableStore()
 const userStore = useUserStore();
 
@@ -107,6 +108,7 @@ const user_id=userStore.userID
 const router = useRouter()
 const role=userStore.role
 const toast=useToast()
+const fileStore=useFileStore()
 
 function goToEditing(filingId, filingStatus,filingName) {
   responseStore.setStatus(filingStatus)
@@ -140,6 +142,9 @@ onMounted(async () => {
     isLoading.value=true
     const result=await api_call_methods.filings_list(user_id)
     data.value=result
+    const names = result.data.map(item => item.filing_name.toLowerCase())
+    fileStore.setExistingNames(names)
+
   } catch (error) {
     console.error("Error fetching data:", error)
   }
