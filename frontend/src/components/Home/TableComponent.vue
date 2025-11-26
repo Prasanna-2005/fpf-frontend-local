@@ -172,7 +172,7 @@ function toggleSortOrder() {
 const filteredData = computed(() => {
   let tempData = data.value['data'];
 
-  
+  // Search filter
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase();
     tempData = tempData.filter(item =>
@@ -181,9 +181,20 @@ const filteredData = computed(() => {
       )
     );
   }
-   tempData = [...tempData].sort((a, b) => {
+
+  // Sort so that archived always goes last
+  tempData = [...tempData].sort((a, b) => {
+    
+    const isAArchived = a.filingStatus?.toLowerCase() === 'archived';
+    const isBArchived = b.filingStatus?.toLowerCase() === 'archived';
+
+    if (isAArchived && !isBArchived) return 1;   // A goes after B
+    if (!isAArchived && isBArchived) return -1;  // A goes before B
+
+    // If both are same status group → sort by date
     const dateA = new Date(a.modified_on);
     const dateB = new Date(b.modified_on);
+
     return sortOrder.value === 'desc'
       ? dateB - dateA
       : dateA - dateB;
@@ -191,6 +202,7 @@ const filteredData = computed(() => {
 
   return tempData;
 });
+
 
 
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage))
