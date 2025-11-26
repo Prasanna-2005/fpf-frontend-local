@@ -215,131 +215,145 @@ function groupByHeading(seriesData) {
 
 
 async function downloadPDF() {
-  toast.info("Generating Pdf....")
-  downloadPDFPreview.value=true
-  await nextTick();
-  await document.fonts.ready;
+  try{
+      toast.info("Generating Pdf....")
+      downloadPDFPreview.value=true
+      await nextTick();
+      await document.fonts.ready;
 
-  const element = document.getElementById("pdf-preview");
-  if (!element) return;
+      const element = document.getElementById("pdf-preview");
+      if (!element) return;
 
-  const pdf = new jsPDF("p", "pt", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+      const pdf = new jsPDF("p", "pt", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const marginX = 30; // left/right padding in pts
-  const marginY = 40; // top/bottom padding in pts
-  const contentWidthPts = pageWidth - marginX * 2; // width in pts available for content
-  const seriesBlocks = element.querySelectorAll(".pdf-series");
-
-  
-  let isFirstPageUsed = false;
-
-  const shouldForcePageBefore = (block) => {
-    const fieldNumberEl = block.querySelector(".field-number");
-    const questionText = fieldNumberEl?.innerText?.trim() || "";
-    const questionNumMatch = questionText.match(/^(\d+)/);
-    const questionNum = questionNumMatch ? questionNumMatch[1] : "";
-    return questionNum === "14" || questionNum === "17";
-  };
-
-  for (let i = 0; i < seriesBlocks.length; i++) {
-    const block = seriesBlocks[i];
-    block.style.backgroundColor = "#ffffff";
-
-
-    if (shouldForcePageBefore(block) && isFirstPageUsed) {
-      pdf.addPage();
-      isFirstPageUsed = false; // new page is empty until we draw
-    }
-
-    await new Promise((r) => setTimeout(r, 120));
-
-
-    const canvas = await html2canvas(block, {
-      scale: 1.5, 
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      scrollY: -window.scrollY,
-      logging: false,
-      windowWidth: block.scrollWidth,
-    });
-
-    const canvasWidthPx = canvas.width;
-    const canvasHeightPx = canvas.height;
-
-    const pxPerPt = canvasWidthPx / contentWidthPts;
-
-    const pageContentHeightPts = pageHeight - marginY * 2; 
-    const sliceHeightPx = Math.floor(pageContentHeightPts * pxPerPt);
-
-    let sliceY = 0;
-    let firstSliceForBlock = true;
-
-    while (sliceY < canvasHeightPx) {
-      const thisSliceHeight = Math.min(sliceHeightPx, canvasHeightPx - sliceY);
-
-      // create temp canvas for the slice
-      const sliceCanvas = document.createElement("canvas");
-      sliceCanvas.width = canvasWidthPx;
-      sliceCanvas.height = thisSliceHeight;
-      const ctx = sliceCanvas.getContext("2d");
-
-      // draw slice from original canvas
-      ctx.drawImage(
-        canvas,
-        0,
-        sliceY,
-        canvasWidthPx,
-        thisSliceHeight,
-        0,
-        0,
-        canvasWidthPx,
-        thisSliceHeight
-      );
-
-      const imgData = sliceCanvas.toDataURL("image/jpeg", 0.95);
-
-
-      if (isFirstPageUsed === false && pdf.internal.getNumberOfPages() > 1) {
-        // The page is fresh (we just added it), nothing to do before drawing
-      }
-
-      const dispHeightPts = (thisSliceHeight * contentWidthPts) / canvasWidthPx;
-
-      // draw the slice at marginX, marginY (top)
-      pdf.addImage(imgData, "JPEG", marginX, marginY, contentWidthPts, dispHeightPts);
-
-      // mark that current page now has content
-      isFirstPageUsed = true;
-      firstSliceForBlock = false;
-
-      sliceY += thisSliceHeight;
+      const marginX = 30; // left/right padding in pts
+      const marginY = 40; // top/bottom padding in pts
+      const contentWidthPts = pageWidth - marginX * 2; // width in pts available for content
+      const seriesBlocks = element.querySelectorAll(".pdf-series");
 
       
-      if (sliceY < canvasHeightPx) {
-        pdf.addPage();
-        isFirstPageUsed = false; // new page is empty
-      }
-    } 
-    if (i < seriesBlocks.length - 1) {
-      pdf.addPage();
-      isFirstPageUsed = false;
+      let isFirstPageUsed = false;
+
+      const shouldForcePageBefore = (block) => {
+        const fieldNumberEl = block.querySelector(".field-number");
+        const questionText = fieldNumberEl?.innerText?.trim() || "";
+        const questionNumMatch = questionText.match(/^(\d+)/);
+        const questionNum = questionNumMatch ? questionNumMatch[1] : "";
+        return questionNum === "14" || questionNum === "17";
+      };
+
+      for (let i = 0; i < seriesBlocks.length; i++) {
+        const block = seriesBlocks[i];
+        block.style.backgroundColor = "#ffffff";
+
+
+        if (shouldForcePageBefore(block) && isFirstPageUsed) {
+          pdf.addPage();
+          isFirstPageUsed = false; // new page is empty until we draw
+        }
+
+        await new Promise((r) => setTimeout(r, 120));
+
+
+        const canvas = await html2canvas(block, {
+          scale: 1.5, 
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          scrollY: -window.scrollY,
+          logging: false,
+          windowWidth: block.scrollWidth,
+        });
+
+        const canvasWidthPx = canvas.width;
+        const canvasHeightPx = canvas.height;
+
+        const pxPerPt = canvasWidthPx / contentWidthPts;
+
+        const pageContentHeightPts = pageHeight - marginY * 2; 
+        const sliceHeightPx = Math.floor(pageContentHeightPts * pxPerPt);
+
+        let sliceY = 0;
+        let firstSliceForBlock = true;
+
+        while (sliceY < canvasHeightPx) {
+          const thisSliceHeight = Math.min(sliceHeightPx, canvasHeightPx - sliceY);
+
+          // create temp canvas for the slice
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvasWidthPx;
+          sliceCanvas.height = thisSliceHeight;
+          const ctx = sliceCanvas.getContext("2d");
+
+          // draw slice from original canvas
+          ctx.drawImage(
+            canvas,
+            0,
+            sliceY,
+            canvasWidthPx,
+            thisSliceHeight,
+            0,
+            0,
+            canvasWidthPx,
+            thisSliceHeight
+          );
+
+          const imgData = sliceCanvas.toDataURL("image/jpeg", 0.95);
+
+
+          if (isFirstPageUsed === false && pdf.internal.getNumberOfPages() > 1) {
+            // The page is fresh (we just added it), nothing to do before drawing
+          }
+
+          const dispHeightPts = (thisSliceHeight * contentWidthPts) / canvasWidthPx;
+
+          // draw the slice at marginX, marginY (top)
+          pdf.addImage(imgData, "JPEG", marginX, marginY, contentWidthPts, dispHeightPts);
+
+          // mark that current page now has content
+          isFirstPageUsed = true;
+          firstSliceForBlock = false;
+
+          sliceY += thisSliceHeight;
+
+          
+          if (sliceY < canvasHeightPx) {
+            pdf.addPage();
+            isFirstPageUsed = false; // new page is empty
+          }
+        } 
+        if (i < seriesBlocks.length - 1) {
+          pdf.addPage();
+          isFirstPageUsed = false;
+        }
+      } 
+      toast.success("Pdf generated successfully...")
+      pdf.save("preview.pdf");
     }
-  } 
-  toast.success("Pdf generated successfully...")
-  pdf.save("preview.pdf");
-  downloadPDFPreview.value=false
+    catch{
+    toast.error("Failed to download pdf preview")
+  }
+  finally{
+    downloadPDFPreview.value=false
+  }
 }
 
 async function downloadInput(){
-  downloadInputFiles.value=true 
-  toast.info("Downloading Input files....")
-  const filing_name=localStorage.getItem('filingName')
-  const response=await api_call_methods.download_input(user_id,filing_name)
-  utils.downloadInputZip(response, filing_name)
-  downloadInputFiles.value=false
-  toast.success("Input files downloaded successfully")
+  try{
+      downloadInputFiles.value=true 
+      toast.info("Downloading Input files....")
+      const filing_name=localStorage.getItem('filingName')
+      const response=await api_call_methods.download_input(user_id,filing_name)
+      utils.downloadInputZip(response, filing_name)
+      toast.success("Input files downloaded successfully")
+    }
+  catch{
+      toast.error("Failed to download input files")
+    }
+  finally{
+      downloadInputFiles.value=false
+    }
   
 
 }
