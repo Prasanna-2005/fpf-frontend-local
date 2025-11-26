@@ -5,11 +5,16 @@
       <button class="btn btn-primary m-2 border-0" @click="goToHome">
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
-        <font-awesome-icon class="icon" icon="download" /> Pdf Download
+      <button class="btn btn-primary m-2 border-0" @click="downloadPDF" :disabled="downloadPDFPreview">
+        <span v-if="downloadPDFPreview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span v-if="!downloadPDFPreview"><font-awesome-icon class="icon" icon="download" /> Pdf Preview Download</span>
+        <span v-else>Downloading Pdf Preview...</span>
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadInput">
-        <font-awesome-icon class="icon" icon="download" /> Input File
+      <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
+        <!-- <font-awesome-icon class="icon" icon="download" /> Input File -->
+        <span v-if="downloadInputFiles" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span v-if="!downloadInputFiles"><font-awesome-icon class="icon" icon="download" /> Input Files</span>
+        <span v-else>Downloading Input Files...</span>
       </button>
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Duplicate
@@ -183,6 +188,8 @@ const props = defineProps({
 })
 const responseStore = useEditableStore();
 const status=ref(responseStore.getStatus())
+const downloadPDFPreview=ref(false)
+const downloadInputFiles=ref(false)
 console.log('status',status.value)
 watch(() => responseStore.status, (v) =>{
  console.log('store.status changed ->', v)
@@ -209,6 +216,7 @@ function groupByHeading(seriesData) {
 
 async function downloadPDF() {
   toast.info("Generating Pdf....")
+  downloadPDFPreview.value=true
   await nextTick();
   await document.fonts.ready;
 
@@ -321,13 +329,16 @@ async function downloadPDF() {
   } 
   toast.success("Pdf generated successfully...")
   pdf.save("preview.pdf");
+  downloadPDFPreview.value=false
 }
 
 async function downloadInput(){
+  downloadInputFiles.value=true 
   toast.info("Downloading Input files....")
   const filing_name=localStorage.getItem('filingName')
   const response=await api_call_methods.download_input(user_id,filing_name)
   utils.downloadInputZip(response, filing_name)
+  downloadInputFiles.value=false
   toast.success("Input files downloaded successfully")
   
 
