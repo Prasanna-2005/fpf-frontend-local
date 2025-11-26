@@ -48,7 +48,7 @@
 
       <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary btn-sm" @click="$emit('close-click')">Cancel</button>
-        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName">Next</button>
+        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName || errorMessage">Next</button>
       </div>
     </div>
 
