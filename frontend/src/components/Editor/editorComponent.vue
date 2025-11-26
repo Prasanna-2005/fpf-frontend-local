@@ -7,8 +7,10 @@
       <button class="btn btn-primary m-2 border-0" @click="goToPreview">
         <font-awesome-icon class="icon" icon="eye" /> Pdf Preview
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadInput">
-        <font-awesome-icon class="icon" icon="download" /> Input File
+      <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
+        <span v-if="downloadInputFiles" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span v-if="!downloadInputFiles"><font-awesome-icon class="icon" icon="download" /> Input Files</span>
+        <span v-else>Downloading Input Files...</span>
       </button>
       <button class="btn btn-secondary m-2 border-0" @click="openUpload" disabled>
         <font-awesome-icon class="icon" icon="upload" /> Upload More Files
@@ -522,11 +524,14 @@ function goToHome() {
   window.location = '/home'
 }
 
+const downloadInputFiles=ref(false)
 async function downloadInput(){
+  downloadInputFiles.value=true
   toast.info("Downloading Input files....")
   const filing_name=localStorage.getItem('filingName')
   const response=await api_call_methods.download_input(user_id,filing_name)
   utils.downloadInputZip(response, filing_name)
+  downloadInputFiles.value=false
   toast.success("Input files downloaded successfully")
 
 }
