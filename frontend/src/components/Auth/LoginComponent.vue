@@ -33,10 +33,10 @@
             </div>
 
 
-            <div class="mb-3 form-check">
+            <!-- <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="rememberMe">
                 <label class="form-check-label" for="rememberMe">Remember Me</label>
-            </div>
+            </div> -->
             <div class="box">
                 <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
                     <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
