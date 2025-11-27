@@ -5,11 +5,16 @@
       <button class="btn btn-primary m-2 border-0" @click="goToHome">
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadPDF">
-        <font-awesome-icon class="icon" icon="download" /> Pdf Preview
+      <button class="btn btn-primary m-2 border-0" @click="downloadPDF" :disabled="downloadPDFPreview">
+        <span v-if="downloadPDFPreview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span v-if="!downloadPDFPreview"><font-awesome-icon class="icon" icon="download" /> Pdf Preview Download</span>
+        <span v-else>Downloading Pdf Preview...</span>
       </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadInput">
-        <font-awesome-icon class="icon" icon="download" /> Input File
+      <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
+        <!-- <font-awesome-icon class="icon" icon="download" /> Input File -->
+        <span v-if="downloadInputFiles" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span v-if="!downloadInputFiles"><font-awesome-icon class="icon" icon="download" /> Input Files</span>
+        <span v-else>Downloading Input Files...</span>
       </button>
       <!-- <button class="btn btn-primary m-2 border-0" @click="createCopyPopUp">
         <font-awesome-icon class="icon" icon="check-double" /> Duplicate
@@ -70,7 +75,8 @@
                    <!-- <span v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</span> -->
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
                   
-                  <span class="line-value"><b>{{ fields.value }}</b></span>
+                  <!-- <span class="line-value"><b>{{ fields.value }}</b></span> -->
+                   <span class="line-value"><b>{{ formatValue(fields.value) }}</b></span>
                 </span>
               </p>
 
@@ -101,7 +107,7 @@
                           class="thick-border fixed-col"
                           :class="!isNaN(val[0]) ? 'number' : ''"
                         >
-                          <span>{{ val }}</span>
+                          <span>{{  formatValue(val) }}</span>
                         </td>
                       </template>
                     </tr>
@@ -118,7 +124,7 @@
 
                     <!-- Normal value -->
                     <span v-if="items.line_item_type !== 'table'" class="line-value">
-                      <b>{{ items.value }}</b>
+                      <b>{{ formatValue(items.value) }}</b>
                     </span>
                   </p>
 
@@ -182,6 +188,8 @@ const props = defineProps({
 })
 const responseStore = useEditableStore();
 const status=ref(responseStore.getStatus())
+const downloadPDFPreview=ref(false)
+const downloadInputFiles=ref(false)
 console.log('status',status.value)
 watch(() => responseStore.status, (v) =>{
  console.log('store.status changed ->', v)
@@ -207,127 +215,145 @@ function groupByHeading(seriesData) {
 
 
 async function downloadPDF() {
-  toast.info("Generating Pdf....")
-  await nextTick();
-  await document.fonts.ready;
+  try{
+      toast.info("Generating Pdf....")
+      downloadPDFPreview.value=true
+      await nextTick();
+      await document.fonts.ready;
 
-  const element = document.getElementById("pdf-preview");
-  if (!element) return;
+      const element = document.getElementById("pdf-preview");
+      if (!element) return;
 
-  const pdf = new jsPDF("p", "pt", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+      const pdf = new jsPDF("p", "pt", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const marginX = 30; // left/right padding in pts
-  const marginY = 40; // top/bottom padding in pts
-  const contentWidthPts = pageWidth - marginX * 2; // width in pts available for content
-  const seriesBlocks = element.querySelectorAll(".pdf-series");
-
-  
-  let isFirstPageUsed = false;
-
-  const shouldForcePageBefore = (block) => {
-    const fieldNumberEl = block.querySelector(".field-number");
-    const questionText = fieldNumberEl?.innerText?.trim() || "";
-    const questionNumMatch = questionText.match(/^(\d+)/);
-    const questionNum = questionNumMatch ? questionNumMatch[1] : "";
-    return questionNum === "14" || questionNum === "17";
-  };
-
-  for (let i = 0; i < seriesBlocks.length; i++) {
-    const block = seriesBlocks[i];
-    block.style.backgroundColor = "#ffffff";
-
-
-    if (shouldForcePageBefore(block) && isFirstPageUsed) {
-      pdf.addPage();
-      isFirstPageUsed = false; // new page is empty until we draw
-    }
-
-    await new Promise((r) => setTimeout(r, 120));
-
-
-    const canvas = await html2canvas(block, {
-      scale: 1.5, 
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      scrollY: -window.scrollY,
-      logging: false,
-      windowWidth: block.scrollWidth,
-    });
-
-    const canvasWidthPx = canvas.width;
-    const canvasHeightPx = canvas.height;
-
-    const pxPerPt = canvasWidthPx / contentWidthPts;
-
-    const pageContentHeightPts = pageHeight - marginY * 2; 
-    const sliceHeightPx = Math.floor(pageContentHeightPts * pxPerPt);
-
-    let sliceY = 0;
-    let firstSliceForBlock = true;
-
-    while (sliceY < canvasHeightPx) {
-      const thisSliceHeight = Math.min(sliceHeightPx, canvasHeightPx - sliceY);
-
-      // create temp canvas for the slice
-      const sliceCanvas = document.createElement("canvas");
-      sliceCanvas.width = canvasWidthPx;
-      sliceCanvas.height = thisSliceHeight;
-      const ctx = sliceCanvas.getContext("2d");
-
-      // draw slice from original canvas
-      ctx.drawImage(
-        canvas,
-        0,
-        sliceY,
-        canvasWidthPx,
-        thisSliceHeight,
-        0,
-        0,
-        canvasWidthPx,
-        thisSliceHeight
-      );
-
-      const imgData = sliceCanvas.toDataURL("image/jpeg", 0.95);
-
-
-      if (isFirstPageUsed === false && pdf.internal.getNumberOfPages() > 1) {
-        // The page is fresh (we just added it), nothing to do before drawing
-      }
-
-      const dispHeightPts = (thisSliceHeight * contentWidthPts) / canvasWidthPx;
-
-      // draw the slice at marginX, marginY (top)
-      pdf.addImage(imgData, "JPEG", marginX, marginY, contentWidthPts, dispHeightPts);
-
-      // mark that current page now has content
-      isFirstPageUsed = true;
-      firstSliceForBlock = false;
-
-      sliceY += thisSliceHeight;
+      const marginX = 30; // left/right padding in pts
+      const marginY = 40; // top/bottom padding in pts
+      const contentWidthPts = pageWidth - marginX * 2; // width in pts available for content
+      const seriesBlocks = element.querySelectorAll(".pdf-series");
 
       
-      if (sliceY < canvasHeightPx) {
-        pdf.addPage();
-        isFirstPageUsed = false; // new page is empty
-      }
-    } 
-    if (i < seriesBlocks.length - 1) {
-      pdf.addPage();
-      isFirstPageUsed = false;
+      let isFirstPageUsed = false;
+
+      const shouldForcePageBefore = (block) => {
+        const fieldNumberEl = block.querySelector(".field-number");
+        const questionText = fieldNumberEl?.innerText?.trim() || "";
+        const questionNumMatch = questionText.match(/^(\d+)/);
+        const questionNum = questionNumMatch ? questionNumMatch[1] : "";
+        return questionNum === "14" || questionNum === "17";
+      };
+
+      for (let i = 0; i < seriesBlocks.length; i++) {
+        const block = seriesBlocks[i];
+        block.style.backgroundColor = "#ffffff";
+
+
+        if (shouldForcePageBefore(block) && isFirstPageUsed) {
+          pdf.addPage();
+          isFirstPageUsed = false; // new page is empty until we draw
+        }
+
+        await new Promise((r) => setTimeout(r, 120));
+
+
+        const canvas = await html2canvas(block, {
+          scale: 1.5, 
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          scrollY: -window.scrollY,
+          logging: false,
+          windowWidth: block.scrollWidth,
+        });
+
+        const canvasWidthPx = canvas.width;
+        const canvasHeightPx = canvas.height;
+
+        const pxPerPt = canvasWidthPx / contentWidthPts;
+
+        const pageContentHeightPts = pageHeight - marginY * 2; 
+        const sliceHeightPx = Math.floor(pageContentHeightPts * pxPerPt);
+
+        let sliceY = 0;
+        let firstSliceForBlock = true;
+
+        while (sliceY < canvasHeightPx) {
+          const thisSliceHeight = Math.min(sliceHeightPx, canvasHeightPx - sliceY);
+
+          // create temp canvas for the slice
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvasWidthPx;
+          sliceCanvas.height = thisSliceHeight;
+          const ctx = sliceCanvas.getContext("2d");
+
+          // draw slice from original canvas
+          ctx.drawImage(
+            canvas,
+            0,
+            sliceY,
+            canvasWidthPx,
+            thisSliceHeight,
+            0,
+            0,
+            canvasWidthPx,
+            thisSliceHeight
+          );
+
+          const imgData = sliceCanvas.toDataURL("image/jpeg", 0.95);
+
+
+          if (isFirstPageUsed === false && pdf.internal.getNumberOfPages() > 1) {
+            // The page is fresh (we just added it), nothing to do before drawing
+          }
+
+          const dispHeightPts = (thisSliceHeight * contentWidthPts) / canvasWidthPx;
+
+          // draw the slice at marginX, marginY (top)
+          pdf.addImage(imgData, "JPEG", marginX, marginY, contentWidthPts, dispHeightPts);
+
+          // mark that current page now has content
+          isFirstPageUsed = true;
+          firstSliceForBlock = false;
+
+          sliceY += thisSliceHeight;
+
+          
+          if (sliceY < canvasHeightPx) {
+            pdf.addPage();
+            isFirstPageUsed = false; // new page is empty
+          }
+        } 
+        if (i < seriesBlocks.length - 1) {
+          pdf.addPage();
+          isFirstPageUsed = false;
+        }
+      } 
+      toast.success("Pdf generated successfully...")
+      pdf.save("preview.pdf");
     }
-  } 
-  toast.success("Pdf generated successfully...")
-  pdf.save("preview.pdf");
+    catch{
+    toast.error("Failed to download pdf preview")
+  }
+  finally{
+    downloadPDFPreview.value=false
+  }
 }
 
 async function downloadInput(){
-  toast.info("Downloading Input files....")
-  const filing_name=localStorage.getItem('filingName')
-  const response=await api_call_methods.download_input(user_id,filing_name)
-  utils.downloadInputZip(response, filing_name)
-  toast.success("Input files downloaded successfully")
+  try{
+      downloadInputFiles.value=true 
+      toast.info("Downloading Input files....")
+      const filing_name=localStorage.getItem('filingName')
+      const response=await api_call_methods.download_input(user_id,filing_name)
+      utils.downloadInputZip(response, filing_name)
+      toast.success("Input files downloaded successfully")
+    }
+  catch{
+      toast.error("Failed to download input files")
+    }
+  finally{
+      downloadInputFiles.value=false
+    }
   
 
 }
@@ -381,6 +407,28 @@ function get_table_header_name(header){
 
   }
 
+}
+
+function formatValue(value) {
+  const num = Number(value);
+
+  // Not a number → return raw
+  if (isNaN(num)) return value;
+  if (num == 0) return value;
+
+
+  // Less than 100 → percentage
+  if (Math.abs(num) <= 100) {
+    return `${num}%`;
+  }
+
+  // 100 or more → formatted currency
+  const formatted = num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  return `$ ${formatted}`;
 }
 </script>
 

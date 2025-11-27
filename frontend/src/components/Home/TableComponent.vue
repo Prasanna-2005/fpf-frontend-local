@@ -98,6 +98,7 @@ import { useUserStore } from '@/stores/userStore';
 import { useEditableStore } from '@/stores/responseStore'
 import { useToast } from 'vue-toast-notification';
 import utils from '@/assets/utils/utils'
+import { useFileStore } from '@/stores/fileStore';
 const responseStore = useEditableStore()
 const userStore = useUserStore();
 
@@ -107,6 +108,7 @@ const user_id=userStore.userID
 const router = useRouter()
 const role=userStore.role
 const toast=useToast()
+const fileStore=useFileStore()
 
 function goToEditing(filingId, filingStatus,filingName) {
   responseStore.setStatus(filingStatus)
@@ -140,6 +142,9 @@ onMounted(async () => {
     isLoading.value=true
     const result=await api_call_methods.filings_list(user_id)
     data.value=result
+    const names = result.data.map(item => item.filing_name.toLowerCase())
+    fileStore.setExistingNames(names)
+
   } catch (error) {
     console.error("Error fetching data:", error)
   }
@@ -167,7 +172,7 @@ function toggleSortOrder() {
 const filteredData = computed(() => {
   let tempData = data.value['data'];
 
-  
+  // Search filter
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase();
     tempData = tempData.filter(item =>
@@ -176,9 +181,20 @@ const filteredData = computed(() => {
       )
     );
   }
-   tempData = [...tempData].sort((a, b) => {
+
+  // Sort so that archived always goes last
+  tempData = [...tempData].sort((a, b) => {
+    
+    const isAArchived = a.filingStatus?.toLowerCase() === 'archived';
+    const isBArchived = b.filingStatus?.toLowerCase() === 'archived';
+
+    if (isAArchived && !isBArchived) return 1;   // A goes after B
+    if (!isAArchived && isBArchived) return -1;  // A goes before B
+
+    // If both are same status group → sort by date
     const dateA = new Date(a.modified_on);
     const dateB = new Date(b.modified_on);
+
     return sortOrder.value === 'desc'
       ? dateB - dateA
       : dateA - dateB;
@@ -186,6 +202,7 @@ const filteredData = computed(() => {
 
   return tempData;
 });
+
 
 
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage))

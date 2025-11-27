@@ -7,6 +7,7 @@ export const useFileStore = defineStore('file', () => {
   const filing = ref('');
   const filing_name=ref('')
   const new_filing=ref(true)
+  const existingNames = ref([])
   function addFiles(filingName, newFiles) {
     filing.value = filingName;
     filing_name.value=filingName
@@ -53,6 +54,15 @@ export const useFileStore = defineStore('file', () => {
     new_filing.value=true
   } 
 
+
+  function setExistingNames(names) {
+    existingNames.value = names
+  }
+
+  function isNameTaken(name) {
+    return existingNames.value.includes(name.toLowerCase())
+  }
+
   return {
     files,
     getNewFilingField,
@@ -63,6 +73,9 @@ export const useFileStore = defineStore('file', () => {
     getfilingName,
     getFormData,
     updateNewFiling,
-    clearAllData
+    clearAllData,
+    existingNames,
+    setExistingNames,
+    isNameTaken
   };
 });
