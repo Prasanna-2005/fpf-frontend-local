@@ -124,7 +124,7 @@
 
                     <!-- Normal value -->
                     <span v-if="items.line_item_type !== 'table'" class="line-value">
-                      <b>{{ items.value }}</b>
+                      <b>{{ formatValue(items.value) }}</b>
                     </span>
                   </p>
 
@@ -414,11 +414,11 @@ function formatValue(value) {
 
   // Not a number → return raw
   if (isNaN(num)) return value;
-  if (num === 0) return num;
+  if (num == 0) return value;
 
 
   // Less than 100 → percentage
-  if (Math.abs(num) < 100) {
+  if (Math.abs(num) <= 100) {
     return `${num}%`;
   }
 
@@ -430,7 +430,6 @@ function formatValue(value) {
 
   return `$ ${formatted}`;
 }
-
 </script>
 
 <style scoped>
