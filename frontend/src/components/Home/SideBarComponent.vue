@@ -60,7 +60,7 @@
   
 <script setup>
 import { useUserStore } from '@/stores/userStore'
-import { ref , onMounted} from 'vue'
+import { ref } from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useToast } from 'vue-toast-notification';
 
@@ -73,18 +73,18 @@ const role=userStore.role
 const isCollapsed = ref(true)
 const isSetting= ref(false)
 
-onMounted(async () => {
-  try {
-    const user_id=userStore.userID
-    const result=await api_call_methods.filings_list(user_id)
-    console.log(result)
-  } catch (error) {
-    toast.info('User Session Expired. Please Login Again...')
-    console.error("Error fetching data:", error) 
-    window.location.replace('/')
+// onMounted(async () => {
+//   try {
+//     const user_id=userStore.userID
+//     const result=await api_call_methods.verify_user(user_id)
+//     console.log(result)
+//   } catch (error) {
+//     toast.info('User Session Expired. Please Login Again...')
+//     console.error("Error fetching data:", error) 
+//     window.location.replace('/')
     
-  }
-})
+//   }
+// })
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value 
