@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
-
-let autoLogoutTimer = null   
+import { useToast } from 'vue-toast-notification'
+import api_call_methods from '@/assets/api_calls/api_calls'
+const toast=useToast()
+let sessionInterval=null   
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    isAuthenticated: false,
+    isAuthenticated: false, 
   }),
 
   actions: {
@@ -12,39 +14,35 @@ export const useUserStore = defineStore('user', {
       this.user = userData
       this.isAuthenticated = true
     },
-    startAutoLogoutTimer() {
-      if (!this.user?.expiry) return
-
-      // Clear existing timer
-      if (autoLogoutTimer) clearTimeout(autoLogoutTimer)
-
-      const remaining = this.user.expiry - Date.now()
-
-      if (remaining <= 0) {
-        this.logout()
+    startSessionPolling() {
+      if (sessionInterval) {
         return
       }
 
-      autoLogoutTimer = setTimeout(() => {
-        this.logout()
-      }, remaining)
+      sessionInterval = setInterval(async () => {
+        try {
+          if (!this.userID) return
+          await api_call_methods.verify_user(this.userID)
+        } 
+        catch{
+          toast.info('Session expired. Please login again.')
+          this.logout()
+          window.location.replace('/')
+        }
+      }, 5 * 60 * 1000) // every 5 min
     },
-
-    // --- RESTORE USER AFTER REFRESH ---
-    restoreSession() {
-      if (this.user?.expiry) {
-        this.startAutoLogoutTimer()
-      }
-    },
-
 
     logout() {
       this.user = null
       this.isAuthenticated = false
+      clearInterval(sessionInterval)
+      sessionInterval = null
     },
 
     setUser(data) {
       this.user = data
+      this.isAuthenticated = true
+
     }
   },
 
@@ -54,6 +52,7 @@ export const useUserStore = defineStore('user', {
     role: (state) => state.user?.role || '',
     userID: (state) => state.user?.userID || '',
     expiry:(state)=>state.user?.expiry || '',
+    
   },
 
   persist: true
