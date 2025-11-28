@@ -49,39 +49,15 @@ const router = createRouter({
 })
 
 
-// router.beforeEach((to, from, next) => {
-//     const userStore = useUserStore()
-//     if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-//         next('/') 
-//     } else {
-//         next()
-//     }
-// })
-
 router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
-
-  // Route requires login
-  if (to.meta.requiresAuth) {
-
-    // Not logged in at all
-    if (!userStore.isAuthenticated || !userStore.user?.expiry) {
-      userStore.logout()
-      return next("/")
+    const userStore = useUserStore()
+    if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+        next('/') 
+    } else {
+        next()
     }
-
-    // Session expired
-    if (Date.now() > userStore.user.expiry) {
-      userStore.logout()
-      return next("/")
-    }
-
-    // Session OK → allow
-    return next()
-  }
-
-  // Public route → allow
-  next()
 })
+
+
 
 export default router
