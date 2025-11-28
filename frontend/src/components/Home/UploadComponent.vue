@@ -1,5 +1,5 @@
 <template>
-  <div class="upload-container d-flex flex-column gap-3 custom-view">
+  <div class="upload-container d-flex flex-column gap-2 custom-view">
     <h3>Upload Files</h3>
 
     <!-- Filing Name -->
@@ -13,8 +13,10 @@
         id="filing_name"
         placeholder="Unique Name"
         v-model="filingName"
+        @input="validateName"
       />
     </div>
+    <p v-if="errorMessage" class="text-danger small mb-0 mt-0">{{ errorMessage }}</p>
 
     <!-- Dropzone -->
     <div class="dropzone-container d-flex justify-content-center align-items-center">
@@ -38,14 +40,19 @@
     </div>
 
     <!-- Footer -->
-    <div class="d-flex justify-content-end gap-2 mt-3">
-      <button class="btn btn-outline-secondary" @click="$emit('close-click')">
-        Cancel
-      </button>
-      <button class="btn btn-primary" @click="submitUpload" :disabled="files.length === 0 || !filingName">
-        Next
-      </button>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="upload-text">
+        <font-awesome-icon icon="info-circle" class="text-primary small mt-1" />
+        Please upload the investment liquidity Excel file along with the fund’s quarterly data.
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" @click="$emit('close-click')">Cancel</button>
+        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName ||  !isNameValid">Next</button>
+      </div>
     </div>
+
+
   </div>
 </template>
 
@@ -70,6 +77,40 @@ function submitUpload() {
     emit('Upload-done')
   }
 }
+const errorMessage = ref("")
+const isNameValid = ref(false)
+
+function validateName() {
+  let value = filingName.value
+
+  // 1. Allow A–Z, 0–9, space, _, -
+  const allowedPattern = /^[A-Za-z0-9 _-]*$/
+
+  if (!allowedPattern.test(value)) {
+    isNameValid.value = false
+    errorMessage.value = "Allow only A–Z, 0–9, spaces, _ and -"
+    filingName.value = value.replace(/[^A-Za-z0-9 _-]/g, "")
+    return
+  }
+
+  value = value.replace(/\s{2,}/g, " ")
+
+
+  value = value.replace(/^\s+/, "")
+
+  filingName.value = value
+
+  // 4. Duplicate check
+  if (fileStore.isNameTaken(value.trim())) {
+    isNameValid.value = false
+    errorMessage.value = "Filing name already exists."
+    return
+  }
+  isNameValid.value = true
+  errorMessage.value = ""
+}
+
+
 
 const { getRootProps, getInputProps } = useDropzone({ onDrop })
 </script>

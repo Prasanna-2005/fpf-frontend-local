@@ -94,19 +94,51 @@ const toggleSetting=()=>{
 }
 
 async function Logout(){
-  const user_id=userStore.userID
-  const current_time = new Date();
-  userStore.logout()
-  try {
-      toast.info('Logging out.....')
-      await api_call_methods.logout({
-        user_id: user_id,
-        logout_time: current_time.toISOString()
-      });
-  } catch (error) {
-      console.error(error);
-  } 
-  window.location.replace('/')
+  toast.open({
+      message: `
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <strong>Logout</strong>
+          <div>Are you sure you want to log out ?</div>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button id="cancel" class="btn btn-danger btn-sm">Cancel</button>
+            <button id="logout" class="btn btn-success btn-sm">Logout </button>
+          </div>
+        </div>
+      `,
+      type: 'warning',
+      duration: 0,
+      dismissible: true,
+    })
+    
+    setTimeout(() => {
+      const logout = document.getElementById('logout')
+      const cancel = document.getElementById('cancel')
+
+      if (logout) {
+        logout.addEventListener('click',async () => {
+            const user_id=userStore.userID
+            const current_time = new Date();
+            userStore.logout()
+            try {
+                toast.info('Logging out.....')
+                await api_call_methods.logout({
+                  user_id: user_id,
+                  logout_time: current_time.toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+            } 
+            window.location.replace('/')
+          toastInstance.dismiss() 
+        })
+      }
+      if (cancel) {
+        cancel.addEventListener('click', () => {
+          toastInstance.dismiss() 
+        })
+      }
+    }, 50)
+
 
 }
 
