@@ -88,11 +88,14 @@ async function submitotp(event) {
 
             if (result.status == '200') {
                 toast.success('Code Verified Successfully!');
+                const expiry_time=parseInt(result.data.response.expiry_time[0])* 60 * 60 * 1000
+                const expiry_timestamp = Date.now() +expiry_time
                 userStore.login({
                     username: result.data.response.username,
                     email: props.email,
                     role: result.data.response.role,
-                    userID: props.user_id
+                    userID: props.user_id,
+                    expiry:expiry_timestamp
                 });
                 location.replace('/home');
             } else {

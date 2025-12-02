@@ -183,6 +183,16 @@ cursor: not-allowed;
   overflow: hidden;
 }
 
+.avatar-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff, #00a6ff);
+  font-size: 1.7rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.25);
+}
+
 .password-toggle-icon {
   position: absolute;
   right: 1rem;            /* distance from right edge */
