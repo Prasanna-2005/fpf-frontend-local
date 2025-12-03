@@ -35,16 +35,24 @@
             <template v-for="(val, key, colIndex) in row" :key="colIndex">
               <td v-if="key !== 's.name'" class="thick-border fixed-col">
                 <span v-if="key === 's.text'">{{ getDisplayFieldNo(val) }}</span>
-                <span v-else>
-                  <input
-                    type="text"
-                    :value="displayValue(localData[rowIndex][key])"
-                    @input="onInput($event, rowIndex, key)"
-                    :disabled="disabled"
-                    style="width: 100%; box-sizing: border-box; padding: 4px;"
-                    class="number text-end"
-                  />
-                </span>
+                <template v-else-if="getFieldType(key) === 'bool'">
+                    <input
+                      type="checkbox"
+                      :checked="localData[rowIndex][key] == true"
+                      @change="onCheckbox($event, rowIndex, key)"
+                      :disabled="disabled"
+                    />
+                  </template>
+                <template v-else>
+    <input
+      type="text"
+      :value="displayValue(localData[rowIndex][key])"
+      @input="onInput($event, rowIndex, key)"
+      :disabled="disabled"
+      style="width: 100%; box-sizing: border-box; padding: 4px;"
+      class="number text-end"
+    />
+  </template>
               </td>
             </template>
           </tr>
@@ -65,16 +73,21 @@ const props = defineProps({
   disabled: { type: Boolean, required: true },
   indent: { type: Number, default: 0 },
   isDateInput: { type: Boolean, default: false },
-  dateValue: { type: String, default: '' }
+  dateValue: { type: String, default: '' },
+  metadata:{ type: String, required: true },
 })
 
 const date = ref('')
 const localData = ref([])
+const meta = ref({})
 const emit = defineEmits(['update'])
+
+// console.log(props.metadata)
 
 onMounted(() => {
   localData.value = JSON.parse(JSON.stringify(props.itemData))
   date.value = props.dateValue
+  meta.value = props.metadata
 })
 
 watch(
@@ -83,6 +96,19 @@ watch(
     localData.value = JSON.parse(JSON.stringify(newVal))
   }
 )
+
+function getFieldType(key) {
+  return meta.value[key] || 'text'
+}
+
+
+function onCheckbox(event, rowIndex, key) {
+  const val = event.target.checked
+  localData.value[rowIndex][key] = val
+  emit('update', localData.value)
+}
+
+
 
 function get_table_header_name(header) {
   if (header === 's.name' || header === 's.text') return ''
