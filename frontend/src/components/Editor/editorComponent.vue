@@ -119,7 +119,19 @@
                   :itemText="fields.field_text"
                   :itemData="editedData[fields.field_no]?.table_data ?? fields.table_data"
                   :disabled="editingFieldNo !== fields.field_no"
+                  :metadata="fields.table_metadata"
                   @update="table  => updateTableValue(fields.field_no, table)"
+                />
+                <McqItemComponent
+                  v-else-if="fields.field_item_type === 'mcq'"
+                  :itemNumber="getDisplayFieldNo(fields.field_no)"
+                  :itemText="fields.field_text"
+                  :key="getFieldKey(fields.field_no)"
+                  :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(fields.field_no)"
+                  :options="fields.options"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
               </span>
             </p>
@@ -134,12 +146,13 @@
                 :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
               >
                 <InputItemComponent
-                  v-if="items.line_item_type === 'text'"
+                  v-if="items.line_item_type === 'text' || items.line_item_type === 'NULL'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
+                  :inputNeeded=" items.line_item_type !== 'NULL'"
                   @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
                 />
                 <BooleanItemComponent
@@ -211,6 +224,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import utils from '@/assets/utils/utils'
+import McqItemComponent from './subcomponent/McqItemComponent.vue'
 
 const router = useRouter()
 const toast = useToast()
