@@ -1,5 +1,15 @@
 <script setup>
 import {  RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { useUserStore } from './stores/userStore'
+
+onMounted(() => {
+  const userStore = useUserStore()
+  if (userStore.isAuthenticated) {
+    userStore.startSessionPolling()
+  }
+})
+
 
 </script>
 

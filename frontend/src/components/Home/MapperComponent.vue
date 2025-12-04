@@ -110,9 +110,7 @@ const localData = ref({
   )
 });
 
-
 const series=localData.value.series
-
 
 const uploaderFlag = ref(false);
 
