@@ -37,6 +37,10 @@
           <div v-if="getDisplayFieldNo(fields.field_no) === '8'">
             <h4 class=" mb-3 mt-4">Item B. Assets, financing and investor concentration</h4>
           </div>
+          <!-- Add heading before question 18 (i.e., after 17) -->
+          <div v-if="getDisplayFieldNo(fields.field_no) === '18'">
+            <h4 class=" mb-3 mt-4">Item C. Information about the hedge funds you advise</h4>
+          </div>
 
           <b><hr /></b>
           <!-- Edit buttons -->
