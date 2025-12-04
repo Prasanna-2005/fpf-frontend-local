@@ -234,6 +234,19 @@ async function download_input(user_id,filing_name) {
     return response
 }
 
+async function verify_user(user_id){
+    const response=await api.get('/api/v1/verify_user',
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
+
 const api_call_methods={
     login,
     verify_otp,
@@ -252,7 +265,8 @@ const api_call_methods={
     accept_data,
     revert_data,
     update_status,
-    download_input
+    download_input,
+    verify_user
 
 }
 
