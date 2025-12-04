@@ -35,24 +35,28 @@
             <template v-for="(val, key, colIndex) in row" :key="colIndex">
               <td v-if="key !== 's.name'" class="thick-border fixed-col">
                 <span v-if="key === 's.text'">{{ getDisplayFieldNo(val) }}</span>
-                <template v-else-if="getFieldType(key) === 'bool'">
+                  <template v-else-if="getFieldType(key) === 'bool'">
                     <input
                       type="checkbox"
-                      :checked="localData[rowIndex][key] == true"
+                      :checked="isChecked(localData[rowIndex][key])"
                       @change="onCheckbox($event, rowIndex, key)"
                       :disabled="disabled"
                     />
+                    <span>
+                      {{ isChecked(localData[rowIndex][key]) ? 'Yes' : 'No' }}
+                    </span>
                   </template>
+
                 <template v-else>
-    <input
-      type="text"
-      :value="displayValue(localData[rowIndex][key])"
-      @input="onInput($event, rowIndex, key)"
-      :disabled="disabled"
-      style="width: 100%; box-sizing: border-box; padding: 4px;"
-      class="number text-end"
-    />
-  </template>
+                    <input
+                      type="text"
+                      :value="displayValue(localData[rowIndex][key])"
+                      @input="onInput($event, rowIndex, key)"
+                      :disabled="disabled"
+                      style="width: 100%; box-sizing: border-box; padding: 4px;"
+                      class="number text-end"
+                    />
+                  </template>
               </td>
             </template>
           </tr>
@@ -82,6 +86,7 @@ const localData = ref([])
 const meta = ref({})
 const emit = defineEmits(['update'])
 
+
 // console.log(props.metadata)
 
 onMounted(() => {
@@ -90,6 +95,7 @@ onMounted(() => {
   meta.value = props.metadata
 })
 
+const checked = ref(props.itemValue === 'true')
 watch(
   () => props.itemData,
   (newVal) => {
@@ -101,12 +107,16 @@ function getFieldType(key) {
   return meta.value[key] || 'text'
 }
 
+function isChecked(val) {
+  return val === 'true' 
+}
 
 function onCheckbox(event, rowIndex, key) {
-  const val = event.target.checked
-  localData.value[rowIndex][key] = val
+  const newVal = event.target.checked
+  localData.value[rowIndex][key] = newVal ? 'true' : 'false'
   emit('update', localData.value)
 }
+
 
 
 
