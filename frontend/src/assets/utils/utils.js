@@ -90,7 +90,7 @@ function downloadXMLFile(xmlData) {
     // Basic fields
     fundElem.ele("FundID").txt(get("FundID"));
     fundElem.ele("StrategyTypeSM").txt(get("StrategyTypeSM"));
-    fundElem.ele("StrategyHighFrequencyTradingPercent").txt(get("StrategyHighFrequencyTradingPercent") || "0");
+    fundElem.ele("StrategyHighFrequencyTradingPercent").txt(get("StrategyHighFrequencyTradingPercent") || "");
 
     // Percent wrapper fields
     const percentFields = [
@@ -107,11 +107,11 @@ function downloadXMLFile(xmlData) {
 
     percentFields.forEach(field => {
       const wrapper = fundElem.ele(field);
-      wrapper.ele("Value").txt(get(field) || "0");
+      wrapper.ele("Value").txt(get(field) || '');
     });
 
     // OtherTransactionPercent
-    fundElem.ele("OtherTransactionPercent").txt(get("OtherTransactionPercent") || "0");
+    fundElem.ele("OtherTransactionPercent").txt(get("OtherTransactionPercent") || '');
 
     // ------------------- Strategies -------------------
     const strategiesElem = fundElem.ele("Strategies");
@@ -161,12 +161,16 @@ function downloadXMLFile(xmlData) {
 
     // Build structured groups
     cpGroups.forEach(g => {
+      const qno = g[0]?.qno;    
+
+      const cpType = qno === "23" ? "Dollar" : "Percent";
+
       const entry = {
-        type: g.find(t => t.xmltags === "CounterpartyType")?.value || "Dollar",
-        legal: g.find(t => t.xmltags === "CounterpartyLegalName")?.value || "NA",
-        code: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionCode")?.value || "32",
-        other: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionOtherName")?.value || "NA",
-        exposure: g.find(t => t.xmltags === "CounterpartyExposure")?.value || "NA"
+        type: g.find(t => t.xmltags === "CounterpartyType")?.value || cpType,
+        legal: g.find(t => t.xmltags === "CounterpartyLegalName")?.value || '',
+        code: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionCode")?.value || '',
+        other: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionOtherName")?.value || '',
+        exposure: g.find(t => t.xmltags === "CounterpartyExposure")?.value || ''
       };
 
       if (entry.type === "Dollar") dollarItems.push(entry);
