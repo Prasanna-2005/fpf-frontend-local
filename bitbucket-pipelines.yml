@@ -46,7 +46,7 @@ pipelines:
                     set -e;
                     echo "Deploying branch: $BITBUCKET_BRANCH";
                     if [ ! -d "$REPO_LOCATION" ]; then
-                      sudo git clone https://$GIT_USER:$GIT_PWD@bitbucket.org/quantrium-tech/bank_statement.git $REPO_LOCATION;
+                      sudo git clone https://$GIT_USER:$GIT_PWD@bitbucket.org/quantrium-tech/form_pf_frontend.git $REPO_LOCATION;
                     fi;
                     cd $REPO_LOCATION;
                     sudo git fetch origin --prune;
