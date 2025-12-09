@@ -29,7 +29,7 @@ definitions:
 pipelines:
   pull-requests:
     '{feature/*,bugfix/*}':
-      parallel:
+    - parallel:
         - step: *build-test-sonarcloud
         - step: *check-quality-gate-sonarcloud
         - step:
