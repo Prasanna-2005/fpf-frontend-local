@@ -153,7 +153,7 @@ function downloadXMLFile(xmlData) {
       .filter(t => t.xmltags.startsWith("Counterparty"))
       .forEach(t => {
         temp.push(t);
-        if (temp.length === 3) {
+        if (temp.length === 4) {
           cpGroups.push(temp);
           temp = [];
         }
