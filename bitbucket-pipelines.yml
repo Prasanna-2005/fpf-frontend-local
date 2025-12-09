@@ -1,0 +1,59 @@
+image: atlassian/default-image:4
+
+clone:
+  depth: full              # SonarCloud scanner needs the full history to assign issues properly
+
+definitions:
+  services:
+    docker:
+      memory: 3072
+  caches:
+    sonar: $HOME/.sonar/cache  # Caching SonarCloud artifacts will speed up your build
+  steps:
+    - step: &build-test-sonarcloud
+        name: Build, test and analyze on SonarCloud
+        caches:
+          - sonar
+        script:
+          - pipe: sonarsource/sonarcloud-scan:2.0.0
+            variables:
+              SONAR_TOKEN: ${SONAR_TOKEN}
+
+    - step: &check-quality-gate-sonarcloud
+        name: Check the Quality Gate on SonarCloud
+        script:
+          - pipe: sonarsource/sonarcloud-quality-gate:0.1.6
+
+
+
+pipelines:
+  pull-requests:
+    '{feature/*,bugfix/*}':
+    - parallel:
+        - step: *build-test-sonarcloud
+        - step:
+            name: Deploy to Staging Server
+            deployment: Staging
+            clone:
+              enabled: false
+            trigger: manual
+            script:
+              - pipe: atlassian/ssh-run:0.6.0
+                variables:
+                  SSH_USER: $SSH_USER
+                  SERVER: $TEST_SERVER_IP
+                  COMMAND: >
+                    set -e;
+                    echo "Deploying branch: $BITBUCKET_BRANCH";
+                    if [ ! -d "$REPO_LOCATION" ]; then
+                      sudo git clone https://$GIT_USER:$GIT_PWD@bitbucket.org/quantrium-tech/bank_statement.git $REPO_LOCATION;
+                    fi;
+                    cd $REPO_LOCATION;
+                    sudo git fetch origin --prune;
+                    sudo git checkout $BITBUCKET_BRANCH;
+                    sudo git reset --hard origin/$BITBUCKET_BRANCH;
+                    sudo docker compose up --build -d;
+                    sudo docker image prune -f;
+                    sudo docker container prune -f;
+                    sudo docker volume prune -f;
+                    echo "Staging deployment complete";
