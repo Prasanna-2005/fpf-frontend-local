@@ -6,8 +6,4 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: form-pf-frontend
-    ports:
-      - "8081:80"
-    environment:
-      - NODE_ENV=production
     restart: always
