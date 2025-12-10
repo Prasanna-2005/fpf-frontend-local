@@ -31,6 +31,7 @@ pipelines:
     '{feature/*,bugfix/*}':
     - parallel:
         - step: *build-test-sonarcloud
+        - step: *check-quality-gate-sonarcloud
         - step:
             name: Deploy to Staging Server
             deployment: Staging
@@ -48,7 +49,7 @@ pipelines:
                     if [ ! -d "$REPO_LOCATION" ]; then
                       sudo git clone https://$GIT_USER:$GIT_PWD@bitbucket.org/quantrium-tech/form_pf_frontend.git $REPO_LOCATION;
                     fi;
-                    cd $REPO_LOCATION;
+                    cd $REPO_LOCATION/form_pf_frontend/form_pf_frontend;
                     sudo git fetch origin --prune;
                     sudo git checkout $BITBUCKET_BRANCH;
                     sudo git reset --hard origin/$BITBUCKET_BRANCH;
