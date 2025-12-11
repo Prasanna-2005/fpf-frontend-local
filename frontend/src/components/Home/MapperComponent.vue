@@ -5,7 +5,7 @@
   >
     <div class="d-flex justify-content-between align-items-center w-100 ">
       <h3>Mapped Files</h3>
-      <button class="btn btn-primary" @click="open_uploader()">
+      <button class="btn btn-secondary" @click="open_uploader()" disabled>
         <font-awesome-icon class="icon me-2" icon="upload" style="font-size:1em;" />
         Upload More files
       </button>
