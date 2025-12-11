@@ -50,7 +50,7 @@ function downloadXMLFile(xmlData) {
       const name = tag.xmltags;
 
       if (
-        !/Quarter\d+/.test(name) &&
+        !/Quarter\d+/.test(name) && !/Month\d+/.test(name) &&
         !['FundID', 'FundName', 'NFAFundID', 'NFAFundCFTCComplianceFlag', 'IsMasterFund', 'IsParallelFundsAggregated']
           .includes(name)
       ) {
@@ -75,6 +75,19 @@ function downloadXMLFile(xmlData) {
       if (gross) perfElem.ele(`GrossValueQuarter${q}`).ele('Value').txt(gross.value || '');
       if (net) perfElem.ele(`NetValueQuarter${q}`).ele('Value').txt(net.value || '');
     });
+    for (let m = 1; m <= 12; m++) {
+    const lastDateM = fundTags.find(t => t.xmltags === `LastFiscalDateMonth${m}`);
+    const grossM = fundTags.find(t => t.xmltags === `GrossValueMonth${m}`);
+    const netM = fundTags.find(t => t.xmltags === `NetValueMonth${m}`);
+
+    if (lastDateM) perfElem.ele(`LastFiscalDateMonth${m}`).ele('Value').txt(lastDateM.value || '');
+    if (grossM) perfElem.ele(`GrossValueMonth${m}`).ele('Value').txt(grossM.value || '');
+    if (netM) perfElem.ele(`NetValueMonth${m}`).ele('Value').txt(netM.value || '');
+  }
+
+
+
+    
   });
 
   // -------------------------------------------------------------
