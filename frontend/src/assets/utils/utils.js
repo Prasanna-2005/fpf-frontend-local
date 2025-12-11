@@ -50,7 +50,7 @@ function downloadXMLFile(xmlData) {
       const name = tag.xmltags;
 
       if (
-        !/Quarter\d+/.test(name) && !/Month\d+/.test(name) &&
+        !/Quarter\d+/.test(name) && !/Month\d+/.test(name) && ! /Year$/.test(name) &&
         !['FundID', 'FundName', 'NFAFundID', 'NFAFundCFTCComplianceFlag', 'IsMasterFund', 'IsParallelFundsAggregated']
           .includes(name)
       ) {
@@ -65,7 +65,7 @@ function downloadXMLFile(xmlData) {
     const perfElem = sectionC.ele('PFSection1bItemCFundPerformance');
     const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
     if (fundId) perfElem.ele('FundID').txt(fundId);
-
+    //Quarter
     [1, 2, 3, 4].forEach(q => {
       const lastDate = fundTags.find(t => t.xmltags === `LastFiscalDateQuarter${q}`);
       const gross = fundTags.find(t => t.xmltags === `GrossValueQuarter${q}`);
@@ -75,6 +75,8 @@ function downloadXMLFile(xmlData) {
       if (gross) perfElem.ele(`GrossValueQuarter${q}`).ele('Value').txt(gross.value || '');
       if (net) perfElem.ele(`NetValueQuarter${q}`).ele('Value').txt(net.value || '');
     });
+
+    //Month
     for (let m = 1; m <= 12; m++) {
     const lastDateM = fundTags.find(t => t.xmltags === `LastFiscalDateMonth${m}`);
     const grossM = fundTags.find(t => t.xmltags === `GrossValueMonth${m}`);
@@ -85,7 +87,14 @@ function downloadXMLFile(xmlData) {
     if (netM) perfElem.ele(`NetValueMonth${m}`).ele('Value').txt(netM.value || '');
   }
 
+    //Year
+    const lastDateY = fundTags.find(t => t.xmltags === 'LastFiscalDateFiscalYear');
+    const grossY    = fundTags.find(t => t.xmltags === 'GrossValueFiscalYear');
+    const netY      = fundTags.find(t => t.xmltags === 'NetValueFiscalYear');
 
+    if (lastDateY) perfElem.ele('LastFiscalDateFiscalYear').ele('Value').txt(lastDateY.value || '');
+    if (grossY)    perfElem.ele('GrossValueFiscalYear').ele('Value').txt(grossY.value || '');
+    if (netY)      perfElem.ele('NetValueFiscalYear').ele('Value').txt(netY.value || '');   
 
     
   });
