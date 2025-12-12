@@ -88,13 +88,13 @@ function downloadXMLFile(xmlData) {
   }
 
     //Year
-    const lastDateY = fundTags.find(t => t.xmltags === 'LastFiscalDateFiscalYear');
-    const grossY    = fundTags.find(t => t.xmltags === 'GrossValueFiscalYear');
-    const netY      = fundTags.find(t => t.xmltags === 'NetValueFiscalYear');
+    const lastDateY = fundTags.find(t => t.xmltags === 'LastFiscalDateYear');
+    const grossY    = fundTags.find(t => t.xmltags === 'GrossValueYear');
+    const netY      = fundTags.find(t => t.xmltags === 'NetValueYear');
 
-    if (lastDateY) perfElem.ele('LastFiscalDateFiscalYear').ele('Value').txt(lastDateY.value || '');
-    if (grossY)    perfElem.ele('GrossValueFiscalYear').ele('Value').txt(grossY.value || '');
-    if (netY)      perfElem.ele('NetValueFiscalYear').ele('Value').txt(netY.value || '');   
+    if (lastDateY) perfElem.ele('LastFiscalDateYear').ele('Value').txt(lastDateY.value || '');
+    if (grossY)    perfElem.ele('GrossValueYear').ele('Value').txt(grossY.value || '');
+    if (netY)      perfElem.ele('NetValueYear').ele('Value').txt(netY.value || '');   
 
     
   });
