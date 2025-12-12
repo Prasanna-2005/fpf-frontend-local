@@ -107,7 +107,7 @@
                           class="thick-border fixed-col"
                           :class="!isNaN(val[0]) ? 'number' : ''"
                         >
-                          <span>{{  formatValue(val) }}</span>
+                          <span>{{  formatValue(val,key) }}</span>
                         </td>
                       </template>
                     </tr>
@@ -409,9 +409,10 @@ function get_table_header_name(header){
 
 }
 
-function formatValue(value) {
+function formatValue(value,field='') {
   const num = Number(value);
-
+  console.log(field)
+  if(field=='Institution code')return value;
   // Not a number → return raw
   if (isNaN(num)) return value;
   if (num == 0) return value;
