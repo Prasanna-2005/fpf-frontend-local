@@ -43,10 +43,11 @@ async function reset_password(data,user_id){
 //----------- ENDPOINT CALLS-----------------//
 
 
-async function filings_list(user_id){
+async function filings_list(user_id,clientCode){
     const response=await api.get('/api/v1/filings_list',
         { params: {
-                user_id:user_id
+                user_id:user_id,
+                clientCode:clientCode
             },
             withCredentials: true ,
             headers:{
