@@ -87,6 +87,7 @@ async function submitotp(event) {
             });
 
             if (result.status == '200') {
+                console.log(result.data)
                 toast.success('Code Verified Successfully!');
                 const expiry_time=parseInt(result.data.response.expiry_time[0])* 60 * 60 * 1000
                 const expiry_timestamp = Date.now() +expiry_time
@@ -95,7 +96,8 @@ async function submitotp(event) {
                     email: props.email,
                     role: result.data.response.role,
                     userID: props.user_id,
-                    expiry:expiry_timestamp
+                    expiry:expiry_timestamp,
+                    clientCode:result.data.response.client_id
                 });
                 location.replace('/home');
             } else {

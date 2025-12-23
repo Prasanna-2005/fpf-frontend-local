@@ -139,8 +139,9 @@ async function deleteFiling(filingId) {
 
 onMounted(async () => {
   try {
+    const clientCode=userStore.clientCode
     isLoading.value=true
-    const result=await api_call_methods.filings_list(user_id)
+    const result=await api_call_methods.filings_list(user_id,clientCode)
     data.value=result
     const names = result.data.map(item => item.filing_name.toLowerCase())
     fileStore.setExistingNames(names)
