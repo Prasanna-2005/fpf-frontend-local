@@ -34,6 +34,7 @@
         <!-- File count feedback -->
         <div v-if="files.length > 0" class="mt-3 file-count">
           <font-awesome-icon icon="check-circle" class="me-2 text-success" />
+          
           <span><b>{{ files.length }}</b> file<span v-if="files.length > 1">s</span> uploaded</span>
         </div>
       </div>
@@ -78,7 +79,7 @@ function submitUpload() {
   }
 }
 const errorMessage = ref("")
-const isNameValid = ref(false)
+const isNameValid = ref(true)
 
 function validateName() {
   let value = filingName.value
