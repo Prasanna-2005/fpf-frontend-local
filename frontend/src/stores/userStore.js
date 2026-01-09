@@ -52,6 +52,7 @@ export const useUserStore = defineStore('user', {
     role: (state) => state.user?.role || '',
     userID: (state) => state.user?.userID || '',
     expiry:(state)=>state.user?.expiry || '',
+    clientCode: (state)=>state.user?.clientCode || '',
     
   },
 

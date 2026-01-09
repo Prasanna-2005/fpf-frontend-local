@@ -14,42 +14,59 @@ const router = createRouter({
       path: '/',
       name: 'login',
       component: LoginView,
+      meta: { title: 'Login-FormPf' }
     },
     { 
       path: '/reset',
       name: 'reset',
       component: ResetView,
-      meta: { requiresAuth: true }
+      meta: { 
+        requiresAuth: true,
+        title: 'Reset-FormPf'
+       }
     },
     {
       path: '/home',
       name: 'home',
       component: HomeView,
-      meta: { requiresAuth: true }
+      meta: {  
+        requiresAuth: true,
+        title: 'Home-FormPf'
+     }
     },
     {
       path: '/editing',
       name: 'editing',
       component: EditingView,
-      meta: { requiresAuth: true }
+      meta: { 
+        requiresAuth: true,
+        title: 'Editor-FormPf'
+       }
     },
     {
       path: '/admin',
       name: 'admin',
       component: AdminView,
-      meta: { requiresAuth: true }
+      meta: { 
+        requiresAuth: true,
+        title: 'Admin-FormPf'
+       }
     },
     {
       path:'/preview',
       name:'preview',
       component: PreviewView,
-      meta: { requiresAuth: true }
+      meta: { 
+        requiresAuth: true,
+        title: 'Preview-FormPf'
+       }
     }
   ],
 })
 
 
 router.beforeEach((to, from, next) => {
+  document.title = to.meta.title || 'FormPF'
     const userStore = useUserStore()
     if (to.meta.requiresAuth && !userStore.isAuthenticated) {
         next('/') 

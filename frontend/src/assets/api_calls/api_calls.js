@@ -43,10 +43,11 @@ async function reset_password(data,user_id){
 //----------- ENDPOINT CALLS-----------------//
 
 
-async function filings_list(user_id){
+async function filings_list(user_id,clientCode){
     const response=await api.get('/api/v1/filings_list',
         { params: {
-                user_id:user_id
+                user_id:user_id,
+                clientCode:clientCode
             },
             withCredentials: true ,
             headers:{
@@ -140,6 +141,18 @@ async function submit_files(data,user_id) {
     console.log(response)
     return response
 
+}
+async function discard_filing(data,user_id){
+    const response=await api.post('/api/v1/files/cancel',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
 }
 
 
@@ -260,6 +273,7 @@ const api_call_methods={
     upload,
     map_files,
     submit_files,
+    discard_filing,
     get_response,
     get_xml_data,
     accept_data,
