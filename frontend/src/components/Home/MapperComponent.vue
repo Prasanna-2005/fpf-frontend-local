@@ -5,7 +5,7 @@
   >
     <div class="d-flex justify-content-between align-items-center w-100 ">
       <h3>Mapped Files</h3>
-      <button class="btn btn-secondary" @click="open_uploader()" disabled>
+      <button class="btn btn-primary" @click="open_uploader()">
         <font-awesome-icon class="icon me-2" icon="upload" style="font-size:1em;" />
         Upload More files
       </button>
@@ -69,7 +69,7 @@
     </div>
 
     <div class="w-100 d-flex justify-content-end align-items-center pt-2 gap-2">
-      <button class="btn btn-outline-secondary" @click="$emit('close-click')">
+      <button class="btn btn-outline-secondary" @click="handleCancel">
         Cancel
       </button>
       <button type="submit" class="btn btn-primary " @click="proceed" :disabled="isLoading">
@@ -200,6 +200,20 @@ async function proceed() {
   }
   finally{
     isLoading.value=false
+  }
+}
+
+async function handleCancel(){
+  try{
+    const data={
+      "filing_name":filingName,
+    }
+    await api_call_methods.discard_filing(data,user_id)
+    toast.success("Filing cancelled!")
+    fileStore.clearAllData()
+    emit('close-click')
+  }catch{
+
   }
 }
 

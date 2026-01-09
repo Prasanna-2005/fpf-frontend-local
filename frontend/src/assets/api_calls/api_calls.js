@@ -142,6 +142,18 @@ async function submit_files(data,user_id) {
     return response
 
 }
+async function discard_filing(data,user_id){
+    const response=await api.post('/api/v1/files/cancel',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+}
 
 
 async function get_response(user_id,filing_id) {
@@ -261,6 +273,7 @@ const api_call_methods={
     upload,
     map_files,
     submit_files,
+    discard_filing,
     get_response,
     get_xml_data,
     accept_data,
