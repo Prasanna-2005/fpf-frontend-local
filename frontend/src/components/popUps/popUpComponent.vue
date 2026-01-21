@@ -66,7 +66,11 @@
                     <b v-else>Are you sure you want to send this filing for approval?</b>
                 </h4>
                 </div>
-                <button v-if="!sentForApproval" class="btn btn-primary" @click="sendForApproval('Review')">Send for approval</button>
+                <button v-if="!sentForApproval" class="btn btn-primary" @click="sendForApproval('Review')" :disabled="sendingForApproval">
+                    <span v-if="sendingForApproval" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span v-if="!sendingForApproval ">Send for approval</span>
+                    <span v-else>Sending for approval...</span>
+                    </button>
                 <button v-else class="btn btn-primary" @click="goHome" >
                         <font-awesome-icon class="icon me-2" icon="file-lines" /> Dashboard
                 </button>
@@ -131,6 +135,7 @@ const dataForXML=ref({})
 const nameOfCopyfiling=ref(props.defaultCopyName)
 const downloading=ref(false)
 const sentForApproval=ref(false)
+const sendingForApproval=ref(false)
 function deletePopUp(){
     emit('removePopUp')
 }
@@ -166,6 +171,7 @@ async function downloadXmlFileForApprovedFiling(){
 }
 async function sendForApproval(status){
     try{
+        sendingForApproval.value=true
         responseStore.setStatus(status)
         const result=await api_call_methods.update_status(user_id,props.filingId,status)  
     }
@@ -174,6 +180,7 @@ async function sendForApproval(status){
         
     }
     finally{
+        sendingForApproval.value=false
         sentForApproval.value=true
     }
 }
