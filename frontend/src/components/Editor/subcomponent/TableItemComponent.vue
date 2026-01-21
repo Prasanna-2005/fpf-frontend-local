@@ -46,6 +46,21 @@
                       {{ isChecked(localData[rowIndex][key]) ? 'Yes' : 'No' }}
                     </span>
                   </template>
+                  <template v-else-if="getFieldType(key) === 'date'">
+                      <span v-if="!localData[rowIndex][key] && disabled">    
+                      </span>
+
+                      <input
+                        v-else
+                        type="date"
+                        :value="formatDateForInput(localData[rowIndex][key])"
+                        @change="onDateInput($event, rowIndex, key)"
+                        :disabled="disabled"
+                        style="width: 100%;"
+                      />
+
+                  </template>
+
 
                 <template v-else>
                     <input
@@ -69,6 +84,7 @@
 <script setup>
 import { defaultText } from '@/assets/text/text'
 import { ref, watch, onMounted } from 'vue'
+import DateItemComponent from './DateItemComponent.vue'
 
 const props = defineProps({
   itemNumber: { type: String, required: true },
@@ -153,6 +169,17 @@ function onInput(event, rowIndex, key) {
   localData.value[rowIndex][key] = val
   emit('update', localData.value)
 }
+
+
+function formatDateForInput(value) {
+  if (!value || value==='') return ''
+  return value.split('T')[0] 
+}
+function onDateInput(event, rowIndex, key) {
+  localData.value[rowIndex][key] = event.target.value 
+  emit('update', localData.value)
+}
+
 </script>
 
 <style scoped>
