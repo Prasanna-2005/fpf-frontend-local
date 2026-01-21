@@ -32,7 +32,7 @@
                 <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
             </div> 
             <div v-if="openUploadPopUp" class="backdrop">
-                <UploadComponent @close-click="openUploadPopUp=false"/>
+                  <OverlayComponent  @close-upload="closeUpload"/>
             </div> 
             
         </div>
@@ -43,13 +43,15 @@ import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import topBarComponent from '@/components/Editor/topBarComponent.vue';
 import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue';
 import addFundComponent from '@/components/popUps/addFundComponent.vue';
-import UploadComponent from '@/components/Home/UploadComponent.vue';
+// import UploadComponent from '@/components/Home/UploadComponent.vue';
+import OverlayComponent from '@/components/Home/OverlayComponent.vue';
 import {ref,onMounted} from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toast-notification';
+import { useFileStore } from '@/stores/fileStore';
 const route = useRoute()
 
 const message=ref('Please wait loading editor....')
@@ -61,11 +63,13 @@ const fundNames=ref([])
 const toast=useToast()
 const loader=ref('true')
 
+console.log(localStorage.getItem('filingName'))
 const responseStore = useEditableStore()
 
+const fileStore=useFileStore()
 
-
-
+fileStore.add_filling_name(localStorage.getItem('filingName'))
+fileStore.updateNewFiling()
 const userStore = useUserStore();
 const filing_id=route.query.filing_id
 let data = ''
@@ -117,6 +121,11 @@ async function refreshData(done) {
   } finally {
     if (done) done()    
   }
+}
+
+
+function closeUpload(){
+  openUploadPopUp.value=false
 }
 
 </script>

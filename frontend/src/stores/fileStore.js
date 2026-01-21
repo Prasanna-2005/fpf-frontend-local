@@ -26,6 +26,9 @@ export const useFileStore = defineStore('file', () => {
     files.value = [];
     filing.value = '';
   }
+  function add_filling_name(name){
+    filing_name.value=name
+  }
 
   function getFiles() {
     return [...files.value];
@@ -76,6 +79,7 @@ export const useFileStore = defineStore('file', () => {
     clearAllData,
     existingNames,
     setExistingNames,
-    isNameTaken
+    isNameTaken,
+    add_filling_name
   };
 });
