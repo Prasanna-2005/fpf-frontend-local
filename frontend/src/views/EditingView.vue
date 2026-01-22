@@ -68,7 +68,7 @@ const responseStore = useEditableStore()
 
 const fileStore=useFileStore()
 
-fileStore.add_filling_name(localStorage.getItem('filingName'))
+fileStore.add_filing_name(localStorage.getItem('filingName'))
 fileStore.updateNewFiling()
 const userStore = useUserStore();
 const filing_id=route.query.filing_id

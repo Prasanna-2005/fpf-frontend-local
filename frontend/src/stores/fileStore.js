@@ -8,6 +8,7 @@ export const useFileStore = defineStore('file', () => {
   const filing_name=ref('')
   const new_filing=ref(true)
   const existingNames = ref([])
+  const upload_more_mapper=ref(false)
   function addFiles(filingName, newFiles) {
     filing.value = filingName;
     filing_name.value=filingName
@@ -26,7 +27,7 @@ export const useFileStore = defineStore('file', () => {
     files.value = [];
     filing.value = '';
   }
-  function add_filling_name(name){
+  function add_filing_name(name){
     filing_name.value=name
   }
 
@@ -39,6 +40,7 @@ export const useFileStore = defineStore('file', () => {
   }
   function updateNewFiling(){
     new_filing.value=false
+    console.log('updateNewFiling()')
   }
   function getNewFilingField(){
     return new_filing.value
@@ -57,6 +59,12 @@ export const useFileStore = defineStore('file', () => {
     new_filing.value=true
   } 
 
+  function upload_more(){
+    upload_more_mapper.value=true
+  }
+  function getUploadMore(){
+    return upload_more_mapper.value
+  }
 
   function setExistingNames(names) {
     existingNames.value = names
@@ -80,6 +88,8 @@ export const useFileStore = defineStore('file', () => {
     existingNames,
     setExistingNames,
     isNameTaken,
-    add_filling_name
+    add_filing_name,
+    upload_more,
+    getUploadMore
   };
 });
