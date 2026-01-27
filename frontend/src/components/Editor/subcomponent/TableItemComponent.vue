@@ -47,18 +47,19 @@
                     </span>
                   </template>
                   <template v-else-if="getFieldType(key) === 'date'">
-                      <span v-if="!localData[rowIndex][key] && disabled">    
+                      <span v-if="!localData[rowIndex][key] && disabled" > 
+                       <input type="text" style="width: 100%; box-sizing: border-box; padding: 4px;" :disabled="disabled">
                       </span>
-
-                      <input
-                        v-else
-                        type="date"
-                        :value="formatDateForInput(localData[rowIndex][key])"
-                        @change="onDateInput($event, rowIndex, key)"
-                        :disabled="disabled"
-                        style="width: 100%;"
-                      />
-
+                    <el-date-picker
+                      v-else
+                      style="width: 100%;  box-sizing: border-box; height: 100%; background-color: ghostwhite !important;"
+                      :model-value="localData[rowIndex][key] || null"
+                      format="YYYY-MM-DD"
+                      value-format="YYYY-MM-DD"
+                      placeholder="YYYY-MM-DD"
+                      :disabled="disabled"
+                      @update:model-value="onDateChange($event, rowIndex, key)"
+                    />
                   </template>
 
 
@@ -84,7 +85,8 @@
 <script setup>
 import { defaultText } from '@/assets/text/text'
 import { ref, watch, onMounted } from 'vue'
-import DateItemComponent from './DateItemComponent.vue'
+import { ElDatePicker } from 'element-plus'
+import 'element-plus/dist/index.css'
 
 const props = defineProps({
   itemNumber: { type: String, required: true },
@@ -171,15 +173,11 @@ function onInput(event, rowIndex, key) {
 }
 
 
-function formatDateForInput(value) {
-  if (!value || value==='') return ''
-  return value.split('T')[0] 
-}
-function onDateInput(event, rowIndex, key) {
-  localData.value[rowIndex][key] = event.target.value 
+
+function onDateChange(value, rowIndex, key) {
+  localData.value[rowIndex][key] = value
   emit('update', localData.value)
 }
-
 </script>
 
 <style scoped>
