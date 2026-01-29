@@ -100,7 +100,7 @@ async function upload_files(){
     finally{
       isLoading_uploading.value=false 
       isLoading_mapping.value=false
-      fileStore.updateNewFiling()
+    
     }
 
 }
