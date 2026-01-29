@@ -5,7 +5,7 @@
     <!-- Filing Name -->
     <div>
       <label for="filing_name" class="form-label">Filing Name*</label>
-      <p v-if="!new_filing" class="filing-name"><b>{{ filingName }}</b></p>
+      <p v-if="!new_filing || upload_more" class="filing-name"><b>{{ filingName }}</b></p>
       <input 
         v-else
         type="text"
@@ -60,11 +60,12 @@
 <script setup>
 import { useDropzone } from "vue3-dropzone"
 import { useFileStore } from '@/stores/fileStore'
-import { ref } from 'vue'
+import { ref, watch} from 'vue'
 const fileStore = useFileStore()
 
 const new_filing=ref(fileStore.getNewFilingField())
 const filingName = ref(fileStore.getfilingName() || '')
+const upload_more=ref(fileStore.getUploadMore())
 const files = ref([])
 const emit = defineEmits(['Upload-done'])
 
@@ -72,6 +73,11 @@ function onDrop(acceptedFiles) {
   files.value = [...files.value, ...acceptedFiles];
   fileStore.addFiles(filingName.value, files.value)
 }
+watch(filingName, (newVal) => {
+  if (newVal) {
+    fileStore.add_filing_name(newVal)
+  }
+})
 
 function submitUpload() {
   if (filingName.value !== '' && files.value.length > 0) {
