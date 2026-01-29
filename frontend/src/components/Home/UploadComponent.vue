@@ -60,7 +60,7 @@
 <script setup>
 import { useDropzone } from "vue3-dropzone"
 import { useFileStore } from '@/stores/fileStore'
-import { ref } from 'vue'
+import { ref, watch} from 'vue'
 const fileStore = useFileStore()
 
 const new_filing=ref(fileStore.getNewFilingField())
@@ -73,6 +73,11 @@ function onDrop(acceptedFiles) {
   files.value = [...files.value, ...acceptedFiles];
   fileStore.addFiles(filingName.value, files.value)
 }
+watch(filingName, (newVal) => {
+  if (newVal) {
+    fileStore.add_filing_name(newVal)
+  }
+})
 
 function submitUpload() {
   if (filingName.value !== '' && files.value.length > 0) {
