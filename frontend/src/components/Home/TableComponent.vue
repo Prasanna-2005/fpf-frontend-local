@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" />
+    <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" @update:year="filterByYear"/>
   </div>
   <div v-if="isLoading" style="height: 300px" class="d-flex justify-content-center align-items-center">
     <p>Loading Filings table....</p>
@@ -158,6 +158,11 @@ const currentPage = ref(1)
 const itemsPerPage = 4
 const searchQuery = ref('')
 
+const selectedYear = ref(null)
+function filterByYear(year) {
+  selectedYear.value = year
+  currentPage.value = 1
+}
 
 function handleSearch(query) {
   searchQuery.value = query
@@ -181,6 +186,14 @@ const filteredData = computed(() => {
         String(value).toLowerCase().includes(q)
       )
     );
+  }
+  //filter by Year
+  if (selectedYear.value) {
+    tempData = tempData.filter(item => {
+      if (!item.modified_on) return false
+      const year = new Date(item.modified_on).getFullYear()
+      return year === Number(selectedYear.value)
+    })
   }
 
   // Sort so that archived always goes last
