@@ -46,6 +46,12 @@
           <!-- Edit buttons -->
           <div class="d-flex justify-content-end align-items-center">
             <div>
+              <button 
+              class="btn btn-sm me-2"
+              @click="openCompLogs(fields)"
+              >
+                <font-awesome-icon class="icon" icon="calculator" />
+              </button>
               <button
                 v-if="editingFieldNo !== fields.field_no"
                 class="btn btn-sm me-2"
@@ -240,7 +246,7 @@ const props = defineProps({
   filingId: { type: String, required: true }
 })
 
-const emit = defineEmits(['open-upload','refresh-data'])
+const emit = defineEmits(['open-upload','refresh-data','open-computationLogs'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
@@ -560,6 +566,19 @@ async function downloadInput(){
     downloadInputFiles.value=false
   }
 
+}
+function openCompLogs(fields){
+  const data={
+    field_no: fields.field_no,
+    field_text: fields.field_text,
+    value: fields.value,
+    field_data: fields.field_data,
+    table_data: fields.table_data,
+    field_item_type: fields.field_item_type,
+    has_table_data: fields.has_table_data
+  }
+  console.log(data)
+  emit('open-computationLogs', data)
 }
 </script>
 
