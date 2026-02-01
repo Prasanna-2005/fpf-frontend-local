@@ -24,7 +24,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" />
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-computation-logs="openComputationLogs"/>
                 
                 
             </div>
@@ -34,6 +34,9 @@
             <div v-if="openUploadPopUp" class="backdrop">
                 <UploadComponent @close-click="openUploadPopUp=false"/>
             </div> 
+            <div v-if="openComputationLogsPopUp" class="backdrop">
+                <computationLogsPopUpComp :field="computationLogs" @close-click="openComputationLogsPopUp=false"/>
+            </div>
             
         </div>
 </template>
@@ -44,6 +47,7 @@ import topBarComponent from '@/components/Editor/topBarComponent.vue';
 import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue';
 import addFundComponent from '@/components/popUps/addFundComponent.vue';
 import UploadComponent from '@/components/Home/UploadComponent.vue';
+import computationLogsPopUpComp from '@/components/popUps/computationLogsPopUpComp.vue';
 import {ref,onMounted} from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
@@ -60,16 +64,17 @@ const loading=ref('true')
 const fundNames=ref([])
 const toast=useToast()
 const loader=ref('true')
-
+const openComputationLogsPopUp=ref(false)
 const responseStore = useEditableStore()
 
 
-
+console.log(openComputationLogsPopUp.value)
 
 const userStore = useUserStore();
 const filing_id=route.query.filing_id
 let data = ''
 const user_id=userStore.userID
+const computationLogs=ref({})
 onMounted(async () => {
   try {
     loading.value=true
@@ -118,7 +123,12 @@ async function refreshData(done) {
     if (done) done()    
   }
 }
-
+function openComputationLogs(data){
+  console.log(data)
+  computationLogs.value=data
+  console.log('comp:',computationLogs.value)
+  openComputationLogsPopUp.value=true
+}
 </script>
 
 <style scoped>
