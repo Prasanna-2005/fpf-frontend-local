@@ -47,8 +47,8 @@
           <div class="d-flex justify-content-end align-items-center">
             <div>
               <button 
-              class="btn btn-sm me-2"
-              @click="openCompLogs(fields)"
+              class="btn btn-sm  me-2"
+              @click="openCompLogs(fields.field_no)"
               >
                 <font-awesome-icon class="icon" icon="calculator" />
               </button>
@@ -251,12 +251,14 @@ const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
 const data = ref(responseStore.getFundData(fundname.value))
+const computationLogs=ref(responseStore.getFundComputation(fundname.value))
 const editingFieldNo = ref(null)
 
 watch(() => props.fundName, (newVal) => {
   fundname.value=newVal
   console.log(fundname.value)
   data.value = responseStore.getFundData(newVal)
+  computationLogs.value=responseStore.getFundComputation(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
 })
@@ -567,19 +569,33 @@ async function downloadInput(){
   }
 
 }
-function openCompLogs(fields){
-  const data={
-    field_no: fields.field_no,
-    field_text: fields.field_text,
-    value: fields.value,
-    field_data: fields.field_data,
-    table_data: fields.table_data,
-    field_item_type: fields.field_item_type,
-    has_table_data: fields.has_table_data
+function openCompLogs(field_no){
+  console.log(field_no)
+  const field = computationLogs.value.find(
+    item => item.field_no === field_no
+  )
+  console.log('Field',field)
+
+  if (!field) {
+    console.warn(`No computation found for field_no ${field_no}`)
+    return
   }
-  console.log(data)
+
+  const data = {
+    field_no: field.field_no,
+    field_text: field.field_text,
+    value: field.value,
+    formula:field.computation_formula,
+    type:field.computation_type,
+    field_data: field.field_data,
+    table_data: field.table_data,
+    field_item_type: field.field_item_type,
+    has_table_data: field.has_table_data
+  }
+  console.log("compuation",data)
   emit('open-computationLogs', data)
 }
+
 </script>
 
 <style scoped>

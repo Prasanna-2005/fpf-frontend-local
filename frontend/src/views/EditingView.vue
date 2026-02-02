@@ -99,6 +99,8 @@ async function set_response(){
     fundNames.value = funds.map(fund => fund.fund_name);
     responseStore.setResponse(data)
     fundName.value=fundNames.value[0]
+    const computations=await api_call_methods.get_computations(user_id,filing_id)
+    responseStore.setComputations(computations.data)
 }
 
 function selectFund(fund_name){
@@ -113,6 +115,8 @@ async function update_response(){
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
     responseStore.setResponse(data)
+    const computations=await api_call_methods.get_computations(user_id,filing_id)
+    
 }
 
 async function refreshData(done) {
