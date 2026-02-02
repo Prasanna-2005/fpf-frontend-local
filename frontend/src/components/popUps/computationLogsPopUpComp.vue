@@ -17,9 +17,9 @@
       </div>
 
       <!-- Top-level value -->
-      <div v-if="field.value !== undefined && field.value !== null" class="mb-3">
-        <strong>Value</strong>
-        <pre class="bg-light p-2">{{ field.value }}</pre>
+      <div class="mb-3">
+        <strong>Formula</strong>
+        <pre class="bg-light p-2">{{ field.formula }}</pre>
       </div>
 
       <!-- Sub field data -->
@@ -39,11 +39,13 @@
                 <span  class="fw-medium">
                 {{ item.line_text }}
                 </span>
+                
             </div>
 
             <div class="fw-semibold text-end">
-                {{ item.value ?? '—' }}
-            </div>
+                {{ item.computation_formula ?? '—' }}
+
+              </div>
             </div>
         </div>
         </div>
@@ -60,10 +62,10 @@
                 <table class="table table-sm table-bordered">
                 <thead>
                     <tr>
-                    <th style="width: 30%">Item</th>
                     <th
                         v-for="col in getTableColumns(field.table_data)"
                         :key="col"
+                        
                     >
                         {{ formatColumn(col) }}
                     </th>
@@ -75,9 +77,6 @@
                     v-for="(row, rowIndex) in field.table_data"
                     :key="rowIndex"
                     >
-                    <td>
-                        <small class="text-muted">{{ row['s.text'] }}</small>
-                    </td>
 
                     <td
                         v-for="col in getTableColumns(field.table_data)"
@@ -113,9 +112,8 @@ function getDisplayLineNo(lineItemNo) {
 function getTableColumns(tableData) {
   if (!Array.isArray(tableData) || !tableData.length) return []
 
-  // Take keys from first row
   return Object.keys(tableData[0]).filter(
-    key => key !== 's.name' && key !== 's.text'
+    col => col !== 's.text' && col !== 's.computationType' 
   )
 }
 
