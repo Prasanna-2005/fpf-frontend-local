@@ -11,21 +11,20 @@
       </div>
 
       <!-- Question text -->
-      <div class="mb-3">
+      <div class="mb-3" v-if="field.field_text">
         <strong>Question</strong>
         <p class="mb-0">{{ field.field_text }}</p>
       </div>
 
       <!-- Top-level value -->
-      <div class="mb-3">
-        <strong>Formula</strong>
+      <div class="mb-3" v-if="field.formula">
+        <p class="text-muted">{{getType(field.type)}}</p>
         <pre class="bg-light p-2">{{ field.formula }}</pre>
+        
       </div>
 
       <!-- Sub field data -->
    <div v-if="Array.isArray(field.field_data) && field.field_data.length" class="mb-3">
-        <strong>Sub Questions</strong>
-
         <div class="mt-2">
             <div
             v-for="(item, index) in field.field_data"
@@ -43,8 +42,8 @@
             </div>
 
             <div class="fw-semibold text-end">
-                {{ item.computation_formula ?? '—' }}
-
+                <p>{{ getFormula(item.computation_formula) ?? '—' }}</p>
+                <small class="text-muted">{{getType(item.computation_type)}}</small>
               </div>
             </div>
         </div>
@@ -83,7 +82,8 @@
                         :key="col"
                         class="text-end"
                     >
-                        {{ row[col] || '—' }}
+                        <pre>{{ row[col] || '—' }}</pre>
+                        <small class="text-muted" v-if="col!='s.name'">{{getType(row['s.computationType'][col])}}</small>
                     </td>
                     </tr>
                 </tbody>
@@ -122,7 +122,25 @@ function formatColumn(col) {
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase())
 }
+function getFormula(formula){
+  if(formula=='null'){
+    return '-'
+  }
 
+  return formula
+}
+function getType(type){
+  if(type=='null'){
+    return '-'
+  }
+  else if(type=='formula'){
+    return 'Formula'
+  }
+  else{
+    return 'Static Data'
+  }
+
+}
 </script>
 
 <style scoped>
