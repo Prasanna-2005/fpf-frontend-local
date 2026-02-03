@@ -188,13 +188,15 @@ const filteredData = computed(() => {
     );
   }
   //filter by Year
-  if (selectedYear.value) {
+  // 📅 Year filter (ignore when 'Year' is selected)
+  if (selectedYear.value && selectedYear.value !== 'Year') {
     tempData = tempData.filter(item => {
       if (!item.modified_on) return false
       const year = new Date(item.modified_on).getFullYear()
       return year === Number(selectedYear.value)
     })
   }
+
 
   // Sort so that archived always goes last
   tempData = [...tempData].sort((a, b) => {
