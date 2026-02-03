@@ -584,7 +584,6 @@ function openCompLogs(field_no){
   const data = {
     field_no: field.field_no,
     field_text: field.field_text,
-    value: field.value,
     formula:field.computation_formula,
     type:field.computation_type,
     field_data: field.field_data,
