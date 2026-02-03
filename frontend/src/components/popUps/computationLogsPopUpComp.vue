@@ -12,7 +12,6 @@
 
       <!-- Question text -->
       <div class="mb-3" v-if="field.field_text">
-        <strong>Question</strong>
         <p class="mb-0">{{ field.field_text }}</p>
       </div>
 

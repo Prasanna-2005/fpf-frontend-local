@@ -48,7 +48,7 @@
             <div>
               <button 
               class="btn btn-sm  me-2"
-              @click="openCompLogs(fields.field_no)"
+              @click="openCompLogs(fields.field_no,fields.field_text)"
               >
                 <font-awesome-icon class="icon" icon="calculator" />
               </button>
@@ -566,7 +566,7 @@ async function downloadInput(){
   }
 
 }
-function openCompLogs(field_no){
+function openCompLogs(field_no,field_text){
   const field = computationLogs.value.find(
     item => item.field_no === field_no
   )
@@ -578,7 +578,7 @@ function openCompLogs(field_no){
 
   const data = {
     field_no: field.field_no,
-    field_text: field.field_text,
+    field_text: field_text,
     formula:field.computation_formula,
     type:field.computation_type,
     field_data: field.field_data,
