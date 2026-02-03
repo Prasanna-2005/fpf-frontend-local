@@ -22,31 +22,33 @@
         
       </div>
 
-      <!-- Sub field data -->
-   <div v-if="Array.isArray(field.field_data) && field.field_data.length" class="mb-3">
-        <div class="mt-2">
-            <div
-            v-for="(item, index) in field.field_data"
-            :key="index"
-            class="d-flex justify-content-between align-items-start border-bottom py-1"
-            >
-            <div class="me-3">
-                <small class="text-muted">
-                {{ getDisplayLineNo(item.line_item_no) }}) 
-                </small>
-                <span  class="fw-medium">
-                {{ item.line_text }}
-                </span>
-                
-            </div>
+      <!-- field level value -->
+      <div
+        v-for="(item, index) in field.field_data"
+        :key="index"
+        class="row border-bottom py-1 align-items-start"
+      >
+        
+        <div class="col-6">
+          <small class="text-muted">
+            {{ getDisplayLineNo(item.line_item_no) }})
+          </small>
+          <span class="fw-medium">
+            {{ item.line_text }}
+          </span>
+        </div>
 
-            <div class="fw-semibold text-end">
-                <p>{{ getFormula(item.computation_formula) ?? '—' }}</p>
-                <small class="text-muted">{{getType(item.computation_type)}}</small>
-              </div>
-            </div>
+        
+        <div class="col-6 text-end fw-semibold">
+          <p class="mb-0">
+            {{ getFormula(item.computation_formula) ?? '—' }}
+          </p>
+          <small class="text-muted">
+            {{ getType(item.computation_type) }}
+          </small>
         </div>
-        </div>
+      </div>
+
 
 
       <!-- Table data -->
