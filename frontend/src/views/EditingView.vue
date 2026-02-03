@@ -68,7 +68,7 @@ const openComputationLogsPopUp=ref(false)
 const responseStore = useEditableStore()
 
 
-console.log(openComputationLogsPopUp.value)
+
 
 const userStore = useUserStore();
 const filing_id=route.query.filing_id
@@ -94,7 +94,7 @@ async function update_status_to_draft(){
 async function set_response(){
     const result=await api_call_methods.get_response(user_id,filing_id)
     data=result.data 
-    console.log(data)
+    
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
     responseStore.setResponse(data)
@@ -111,26 +111,24 @@ function selectFund(fund_name){
 async function update_response(){
     const result=await api_call_methods.get_response(user_id,filing_id)
     data=result.data 
-    console.log(data)
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
     responseStore.setResponse(data)
-    const computations=await api_call_methods.get_computations(user_id,filing_id)
     
 }
 
 async function refreshData(done) {
   try {
     await update_response()  
-    console.log('confirmation from parent')
+    
   } finally {
     if (done) done()    
   }
 }
 function openComputationLogs(data){
-  console.log(data)
+  
   computationLogs.value=data
-  console.log('comp:',computationLogs.value)
+  
   openComputationLogsPopUp.value=true
 }
 </script>
