@@ -83,7 +83,7 @@
                         :key="col"
                         class="text-end"
                     >
-                        <pre>{{ row[col] || '—' }}</pre>
+                        <p>{{ row[col] || '—' }}</p>
                         <small class="text-muted" v-if="col!='s.name'">{{getType(row['s.computationType'][col])}}</small>
                     </td>
                     </tr>
