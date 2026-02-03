@@ -118,8 +118,9 @@ function getTableColumns(tableData) {
 
 function formatColumn(col) {
   return col
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, c => c.toUpperCase())
+  .replaceAll('_', ' ')
+  .replace(/\b\w/g, c => c.toUpperCase());
+
 }
 function getFormula(formula){
   if(formula=='null'){

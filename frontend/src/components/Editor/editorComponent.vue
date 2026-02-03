@@ -429,8 +429,8 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     editingFieldNo.value = null
     delete editedData[fieldNo]
     toast.success(`Saved Question ${fieldNo}`)
-  } catch (error) {
-    
+  } catch(error){
+    console.log(error)
     toast.error(`Failed to save question ${fieldNo}`);
   } finally {
     making_api_call.value = false;
