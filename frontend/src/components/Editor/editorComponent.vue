@@ -12,7 +12,7 @@
         <span v-if="!downloadInputFiles"><font-awesome-icon class="icon" icon="download" /> Input Files</span>
         <span v-else>Downloading Input Files...</span>
       </button>
-      <button class="btn btn-secondary m-2 border-0" @click="openUpload" disabled>
+      <button class="btn btn-primary m-2 border-0" @click="openUpload" >
         <font-awesome-icon class="icon" icon="upload" /> Upload More Files
       </button>
     </div>
@@ -244,7 +244,7 @@ const user_id = userStore.userID
 const props = defineProps({
   fundName: { type: String, required: true },
   filingId: { type: String, required: true }
-})
+}) 
 
 const emit = defineEmits(['open-upload','refresh-data','open-computationLogs'])
 const responseStore = useEditableStore()

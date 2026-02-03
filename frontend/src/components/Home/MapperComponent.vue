@@ -181,12 +181,13 @@ function remove_file_from_fund(fund, filename) {
 async function proceed() {
   try {
     isLoading.value=true
+    const new_filing=fileStore.getNewFilingField()
     const current_time = new Date();
     const data={
         "user_id": user_id,
         "filing_name": filingName,
         "file_mappings":localData.value.file_mappings,
-        "new_filing":true,
+        "new_filing":new_filing,
         "timestamp": current_time,
         "series":localData.value.series
         }
@@ -208,9 +209,11 @@ async function handleCancel(){
     const data={
       "filing_name":filingName,
     }
-    await api_call_methods.discard_filing(data,user_id)
-    toast.success("Filing cancelled!")
-    fileStore.clearAllData()
+    if (fileStore.getNewFilingField()){
+      await api_call_methods.discard_filing(data,user_id)
+      toast.success("Filing cancelled!")
+      fileStore.clearAllData()
+    }
     emit('close-click')
   }catch{
 
@@ -218,6 +221,7 @@ async function handleCancel(){
 }
 
 function open_uploader() {
+  fileStore.upload_more()
   emit('open-uploader')
   uploaderFlag.value = true;
 }

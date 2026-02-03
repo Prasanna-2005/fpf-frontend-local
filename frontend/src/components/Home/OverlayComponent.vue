@@ -20,7 +20,8 @@ const openMapper=ref(false)
 const emit= defineEmits(['close-upload'])
 function closeUpload(){
     emit('close-upload')
-    fileStore.clearAllData()
+    if (fileStore.getNewFilingField()){
+    fileStore.clearAllData()}
 }
 const mapped_data=ref('')
 function uploadCompleted(){
@@ -44,5 +45,6 @@ function openUploaderComp(){
 
 
 }
+
 
 </script>

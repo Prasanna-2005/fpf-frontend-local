@@ -32,11 +32,13 @@
                 <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
             </div> 
             <div v-if="openUploadPopUp" class="backdrop">
-                <UploadComponent @close-click="openUploadPopUp=false"/>
+                <OverlayComponent  @close-upload="closeUpload"/>
             </div> 
             <div v-if="openComputationLogsPopUp" class="backdrop">
                 <computationLogsPopUpComp :field="computationLogs" @close-click="openComputationLogsPopUp=false"/>
-            </div>
+
+                  
+            </div> 
             
         </div>
 </template>
@@ -46,14 +48,16 @@ import SideBarComponent from '@/components/Home/SideBarComponent.vue';
 import topBarComponent from '@/components/Editor/topBarComponent.vue';
 import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue';
 import addFundComponent from '@/components/popUps/addFundComponent.vue';
-import UploadComponent from '@/components/Home/UploadComponent.vue';
+// import UploadComponent from '@/components/Home/UploadComponent.vue';
 import computationLogsPopUpComp from '@/components/popUps/computationLogsPopUpComp.vue';
+import OverlayComponent from '@/components/Home/OverlayComponent.vue';
 import {ref,onMounted} from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
 import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toast-notification';
+import { useFileStore } from '@/stores/fileStore';
 const route = useRoute()
 
 const message=ref('Please wait loading editor....')
@@ -67,9 +71,10 @@ const loader=ref('true')
 const openComputationLogsPopUp=ref(false)
 const responseStore = useEditableStore()
 
+const fileStore=useFileStore()
 
-
-
+fileStore.add_filing_name(localStorage.getItem('filingName'))
+fileStore.updateNewFiling()
 const userStore = useUserStore();
 const filing_id=route.query.filing_id
 let data = ''
@@ -131,6 +136,12 @@ function openComputationLogs(data){
   
   openComputationLogsPopUp.value=true
 }
+
+
+function closeUpload(){
+  openUploadPopUp.value=false
+}
+
 </script>
 
 <style scoped>
