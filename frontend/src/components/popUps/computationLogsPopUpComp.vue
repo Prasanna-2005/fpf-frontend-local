@@ -138,6 +138,9 @@ function getType(type){
   else if(type=='formula'){
     return 'Formula'
   }
+  else if(type=='filters'){
+    return 'Filter'
+  }
   else{
     return 'Static Data'
   }
