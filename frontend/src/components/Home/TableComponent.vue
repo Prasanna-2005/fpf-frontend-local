@@ -75,7 +75,7 @@
       <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="btn" ><</button>
 
       <button
-        v-for="page in totalPages"
+        v-for="page in visiblePages"
         :key="page"
         :class="{ active: currentPage === page }"
         @click="goToPage(page)"
@@ -83,6 +83,7 @@
       >
         {{ page }}
       </button>
+
 
       <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn">></button>
     </div>
@@ -210,6 +211,19 @@ const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPer
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return filteredData.value.slice(start, start + itemsPerPage)
+})
+const visiblePages = computed(() => {
+  const maxButtons = 5
+
+  const start =
+    Math.floor((currentPage.value - 1) / maxButtons) * maxButtons + 1
+
+  const end = Math.min(start + maxButtons - 1, totalPages.value)
+
+  return Array.from(
+    { length: end - start + 1 },
+    (_, i) => start + i
+  )
 })
 
 function goToPage(page) {
