@@ -101,10 +101,11 @@ async function handleSubmit() {
       'user_role': role.value,
       'password': password.value,
     }
-
     const data={
+      'client_code':userStore.clientCode,
       'data':userData
     }
+    console.log(data)
     console.log(user_id)
     await api_call_methods.create_user(data,user_id)
     toast.info("Added User successfully")
