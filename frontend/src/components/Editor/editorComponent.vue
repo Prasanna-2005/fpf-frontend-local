@@ -193,9 +193,19 @@
                   :item-number="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :item-value="items.value"
-                  :disabled="false"
+                  :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
                   @update="val => selectedDate = val"
+                />
+                <McqItemComponent
+                  v-else-if="fields.field_item_type === 'mcq'"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                  :itemText="items.line_text"
+                  :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(fields.field_no)"
+                  :options="fields.options"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
               </span>
             </div>
