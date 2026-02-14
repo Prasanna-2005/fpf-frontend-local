@@ -137,6 +137,19 @@
                   :options="fields.options"
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
+                <ExpandingTableItemComp 
+                  v-else-if="fields.field_item_type === 'exp_table'"
+                  :itemNumber="getDisplayFieldNo(fields.field_no)"
+                  :itemText="fields.field_text"
+                  :headers="fields.table_headers"
+                  :metadata="fields.table_metadata"
+                  :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(fields.field_no)"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
+                
+                />
+
               </span>
             </p>
           </div>
@@ -195,17 +208,17 @@
                   :item-value="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => selectedDate = val"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
                 />
                 <McqItemComponent
-                  v-else-if="fields.field_item_type === 'mcq'"
+                  v-else-if="items.line_item_type === 'mcq'"
                   :itemNumber="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
-                  :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
+                  :itemValue="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(fields.field_no)"
-                  :options="fields.options"
-                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
+                  :indent="getIndent(items.line_item_no)"
+                  :options="items.options"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
                 />
               </span>
             </div>
@@ -239,6 +252,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import utils from '@/assets/utils/utils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
+import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
 
 const router = useRouter()
 const toast = useToast()
