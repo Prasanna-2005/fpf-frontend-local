@@ -6,7 +6,7 @@
             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ selectedFund }}
             </button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu scrollable-dropdown">
                 <li  v-for="(item, index) in fundDetails" :key="index" @click="selectFund(item)"><a class="dropdown-item" href="#">{{item}}</a></li>
             </ul>
         </div>
@@ -52,4 +52,10 @@ function selectFund(item) {
   width: 95%;
 
 }
+.scrollable-dropdown {
+  max-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 </style>    
