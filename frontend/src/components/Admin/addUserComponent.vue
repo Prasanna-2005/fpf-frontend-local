@@ -71,6 +71,8 @@
 import { ref } from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore';
+import { useToast } from 'vue-toast-notification';
+const toast = useToast();
 const userStore = useUserStore();
 
 const firstname = ref('')
@@ -82,30 +84,36 @@ const confirmPassword = ref('')
 
 const user_id=userStore.userID
 async function handleSubmit() {
-  if (!firstname.value || !lastname.value || !email.value || !role.value || !password.value || !confirmPassword.value) {
-    alert('Please fill out all fields.')
-    return
-  }
+  try{
+    if (!firstname.value || !lastname.value || !email.value || !role.value || !password.value || !confirmPassword.value) {
+      alert('Please fill out all fields.')
+      return
+    }
 
-  if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match.')
-    return
-  }
+    if (password.value !== confirmPassword.value) {
+      alert('Passwords do not match.')
+      return
+    }
 
-  const userData = {
-    'username': firstname.value+'.'+lastname.value,
-    'email':email.value,
-    'user_role': role.value,
-    'password': password.value,
+    const userData = {
+      'username': firstname.value+'.'+lastname.value,
+      'email':email.value,
+      'user_role': role.value,
+      'password': password.value,
+    }
+    const data={
+      'client_code':userStore.clientCode,
+      'data':userData
+    }
+    console.log(data)
+    console.log(user_id)
+    await api_call_methods.create_user(data,user_id)
+    toast.info("Added User successfully")
+    location.reload()
+  } catch(err){
+    console.log(err)
+    toast.error('Failed to add User')
   }
-
-  const data={
-    'data':userData
-  }
-  console.log(user_id)
-  const result=await api_call_methods.create_user(data,user_id)
-  console.log(result)
-
 }
 const emit=defineEmits(['cancel-add-user'])
 function handleCancel(){
