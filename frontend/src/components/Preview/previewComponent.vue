@@ -76,7 +76,7 @@
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
                   
                   <!-- <span class="line-value"><b>{{ fields.value }}</b></span> -->
-                   <span class="line-value"><b>{{ formatValue(fields.value) }}</b></span>
+                   <span class="line-value"><b>{{ formatValue(fields.value,fields.display_affix) }}</b></span>
                 </span>
               </p>
 
@@ -107,7 +107,7 @@
                           class="thick-border fixed-col"
                           :class="!isNaN(val[0]) ? 'number' : ''"
                         >
-                          <span>{{  formatValue(val,key) }}</span>
+                          <span>{{  formatValue(val,fields.table_metadata?.[key]?.display_affix,key) }}</span>
                         </td>
                       </template>
                     </tr>
@@ -124,7 +124,7 @@
 
                     <!-- Normal value -->
                     <span v-if="items.line_item_type !== 'table'" class="line-value">
-                      <b>{{ formatValue(items.value) }}</b>
+                      <b>{{ formatValue(items.value,items.display_affix) }}</b>
                     </span>
                   </p>
 
@@ -190,7 +190,7 @@ const responseStore = useEditableStore();
 const status=ref(responseStore.getStatus())
 const downloadPDFPreview=ref(false)
 const downloadInputFiles=ref(false)
-console.log('status',status.value)
+
 watch(() => responseStore.status, (v) =>{
  console.log('store.status changed ->', v)
  status.value=responseStore.getStatus()
@@ -200,7 +200,7 @@ watch(() => responseStore.status, (v) =>{
 
 const user_id=userStore.userID
 const data = responseStore.getAllData();
-console.log(data)
+
 const pdfContent = ref(null);
 const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml']);
 const toast=useToast()
@@ -409,9 +409,8 @@ function get_table_header_name(header){
 
 }
 
-function formatValue(value,field='') {
+function formatValue(value,symbol,field='') {
   const num = Number(value);
-  console.log(field)
   if(field=='Institution code')return value;
   // Not a number → return raw
   if (isNaN(num)) return value;
@@ -419,17 +418,25 @@ function formatValue(value,field='') {
 
 
   // Less than 100 → percentage
-  if (Math.abs(num) <= 100) {
-    return `${num}%`;
-  }
+  // if (Math.abs(num) <= 100) {
+  //   return `${num}%`;
+  // }
+  
 
   // 100 or more → formatted currency
   const formatted = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+  console.log("symbol:",symbol)
+    if (symbol === 'Dollar') {
+    return `$ ${formatted}`
+  }
 
-  return `$ ${formatted}`;
+  if (symbol === 'Percentage') {
+    return `${formatted} %`
+  }
+  return `${formatted}`
 }
 </script>
 
