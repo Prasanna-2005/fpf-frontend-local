@@ -66,7 +66,7 @@
                 <template v-else>
                     <input
                       type="text"
-                      :value="displayValue(localData[rowIndex][key])"
+                      :value="displayValue(localData[rowIndex][key],key)"
                       @input="onInput($event, rowIndex, key)"
                       :disabled="disabled"
                       style="width: 100%; box-sizing: border-box; padding: 4px;"
@@ -122,7 +122,7 @@ watch(
 )
 
 function getFieldType(key) {
-  return meta.value[key] || 'text'
+  return meta.value[key].data_type || 'text'
 }
 
 function isChecked(val) {
@@ -152,24 +152,30 @@ function getDisplayFieldNo(fieldNo) {
 }
 
 
-function displayValue(value) {
+function displayValue(value, key) {
   if (value === null || value === undefined || value === '') return ''
   if (!props.disabled) return value
+
   const num = Number(value)
   if (isNaN(num)) return value
-  if (Math.abs(num) < 100) return value
 
-  const formatted=num.toLocaleString('en-US', {
-    minimumFractionDigits: num % 1 === 0 ? 0 : 2,
+  const columnMeta = meta.value[key]
+  const affix = columnMeta?.display_affix?.toLowerCase()
+
+  const formatted = num.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })
-  return `$ ${formatted}`
-}
 
-function onInput(event, rowIndex, key) {
-  const val = event.target.value
-  localData.value[rowIndex][key] = val
-  emit('update', localData.value)
+  if (affix === 'percentage') {
+    return `${formatted} %`
+  }
+
+  if (affix === 'dollar') {
+    return `$ ${formatted}`
+  }
+
+  return formatted
 }
 
 
