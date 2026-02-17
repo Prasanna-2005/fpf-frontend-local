@@ -34,7 +34,7 @@ const props = defineProps({
         type: Boolean,
         default:true
     },
-  displayAffix: { type: String, default: 'dd' },
+  displayAffix: { type: String, default: '' },
 })
 
 const emit = defineEmits(['update'])
