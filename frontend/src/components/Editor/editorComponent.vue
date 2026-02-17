@@ -75,7 +75,7 @@
                 @click="cancelEditing(fields.field_no,fields.value, fieldIndex)"
                 :disabled="making_api_call"
               >
-               <font-awesome-icon class="icon" icon="xmark" />
+               <font-awesome-icon class="icon" icon="xmark"/>
               </button>
             </div>
           </div>
@@ -92,6 +92,7 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
                   :inputNeeded="fields.field_item_type !== 'NULL'"
+                  :displayAffix="fields.display_affix"
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <BooleanItemComponent
@@ -157,6 +158,7 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
                   :inputNeeded=" items.line_item_type !== 'NULL'"
+                  :displayAffix="items.display_affix"
                   @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
                 />
                 <BooleanItemComponent
