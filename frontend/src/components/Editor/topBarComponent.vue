@@ -53,7 +53,7 @@ function selectFund(item) {
 
 }
 .scrollable-dropdown {
-  max-height: 100vh;
+  max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
