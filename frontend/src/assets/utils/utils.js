@@ -19,6 +19,13 @@ function downloadXMLFile(xmlData) {
   const get1a = tag =>
     sec1aTags.find(t => t.xmltags === tag)?.value || "";
 
+  // -------------------------q0 info---------------------
+  root.ele('FilingType').txt(get1a('FilingType'))
+  root.ele('ReportingPeriodType').txt(get1a('ReportingPeriodType'))
+  root.ele('ReportingPeriodEndDate').txt(get1a('ReportingPeriodEndDate') || "")
+
+
+
   // ---------------- Identification Info ----------------
   const section1aIdent = root.ele("PFSection1aItemAIdentInfo");
 
