@@ -38,13 +38,7 @@ const deletePopUp=ref(false)
 const userNameToBeDeleted=ref('')
 const userIdToBeDeleted=ref('')
 const openAddFundPopUp=ref(false)
-// function handleDelete(details){
-//     deletePopUp.value=true
-//     userNameToBeDeleted.value=details.name
-//     userIdToBeDeleted.value=details.id
-    
-// }
-// @delete-user=handleDelete
+
 
 const selectedYear = ref('2026')
 

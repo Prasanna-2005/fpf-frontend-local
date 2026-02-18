@@ -12,7 +12,7 @@ function downloadXMLFile(xmlData) {
   // ---------------- SECTION 1A item A --------
   // -------------------------------------------------------------
 
-  if (data.tags_info_sec1a && data.tags_info_sec1a.length) {
+  if (data.tags_info_sec1a?.length) {
 
   const sec1aTags = data.tags_info_sec1a[0]; // 👈 important
 
@@ -40,7 +40,7 @@ function downloadXMLFile(xmlData) {
   //--------------------------Section 1A item B---------------
 
 
-  if (data.tags_info_sec1a && data.tags_info_sec1a.length) {
+  if (data.tags_info_sec1a?.length) {
 
     const sec1aTags = data.tags_info_sec1a[0];
 
@@ -100,7 +100,7 @@ function downloadXMLFile(xmlData) {
 
 //----------------Section 1a item C--------------
 
-  if (data.tags_info_sec1a && data.tags_info_sec1a.length) {
+  if (data.tags_info_sec1a?.length) {
 
     const sec1aTags = data.tags_info_sec1a[0];
 

@@ -53,10 +53,7 @@ onMounted(async () => {
 
 const emit= defineEmits(['delete-user'])
 
-// function handleDelete(name,id){
-//     emit('delete-user',{ 'name':name, 'id':id })
-    
-// }
+
 const filteredData = computed(() => {
   return data.value.filter(user => {
     if (!user.created_at) return false
