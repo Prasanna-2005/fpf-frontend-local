@@ -79,7 +79,8 @@ function downloadXMLFile(xmlData) {
         group
           .find(t => t.xmltags?.trim() === tagName)
           ?.value
-          ?.replace(/^"+|"+$/g, "") || "";
+          ?.replace(/(^"+|"+$)/g, "") || "";
+
 
       Object.values(grouped).forEach(group => {
 
