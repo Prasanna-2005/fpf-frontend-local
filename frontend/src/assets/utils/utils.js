@@ -140,7 +140,8 @@ function downloadXMLFile(xmlData) {
 
         
         const sanitize = (val) =>
-          val?.replace(/^"+|"+$/g, "") || "";
+          val?.replace(/(^"+|"+$)/g, "") || "";
+
 
         miscElem.ele("QuestionNumber").txt(sanitize(questionNumber));
         miscElem.ele("Description").txt(sanitize(description));
