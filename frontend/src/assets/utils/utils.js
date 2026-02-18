@@ -14,7 +14,7 @@ function downloadXMLFile(xmlData) {
 
   if (data.tags_info_sec1a?.length) {
 
-  const sec1aTags = data.tags_info_sec1a[0]; // 👈 important
+  const sec1aTags = data.tags_info_sec1a[0]; 
 
   const get1a = tag =>
     sec1aTags.find(t => t.xmltags === tag)?.value || "";
@@ -32,6 +32,65 @@ function downloadXMLFile(xmlData) {
   section1aIdent.ele("NFAFirmID").txt(get1a("NFAFirmID"));
   section1aIdent.ele("LargeTraderID").txt(get1a("LargeTraderID"));
   section1aIdent.ele("LargeTraderIDSuffix").txt(get1a("LargeTraderIDSuffix"));
+  
+  // ---- SECTION 1A - QUESTION 1B (Related Persons) ----
+  if (data.tags_info_sec1a?.length) {
+
+    const sec1aTags = data.tags_info_sec1a.flat();
+
+    const item1bTags = sec1aTags.filter(
+      t => t.qno === "1" && t.qSubno === "1_b"
+    );
+
+    if (item1bTags.length) {
+
+    
+      const wrapper =
+        root.ele("PFSection1aItemARelatedPersons");
+
+      const grouped = [];
+      let currentGroup = null;
+
+      item1bTags.forEach(tag => {
+
+       
+        if (tag.xmltags === "LegalName") {
+
+          if (currentGroup) {
+            grouped.push(currentGroup);
+          }
+
+          currentGroup = {};
+        }
+
+        if (!currentGroup) {
+          currentGroup = {};
+        }
+
+        currentGroup[tag.xmltags] = tag.value;
+      });
+
+      
+      if (currentGroup) {
+        grouped.push(currentGroup);
+      }
+
+      const sanitize = (val) =>
+        val?.replace(/(^"+|"+$)/g, "") || "";
+
+      grouped.forEach(group => {
+
+        const personElem =
+          wrapper.ele("PFSection1aItemARelatedPerson");
+
+        Object.entries(group).forEach(([key, value]) => {
+          personElem.ele(key).txt(sanitize(value));
+        });
+
+      });
+    }
+  }
+
 
   // ---------------- Signature Section ----------------
   const section1aSignature = root.ele("PFSection1aItemASignatureFirmAndRelatedPersons");
@@ -42,6 +101,19 @@ function downloadXMLFile(xmlData) {
   section1aSignature.ele("EmailAddress").txt(get1a("EmailAddress"));
   section1aSignature.ele("TelephoneNumber").txt(get1a("TelephoneNumber"));
   section1aSignature.ele("SignatureDate").txt(get1a("SignatureDate"));
+ 
+
+  const section1aSignaturesRelatedPersons = root.ele("PFSection1aItemASignaturesRelatedPersons");
+
+  const relatedPerson= section1aSignaturesRelatedPersons.ele("PFSection1aItemASignature")
+
+  relatedPerson.ele("IndividualName").txt(get1a("FirmDependentsName"))
+  relatedPerson.ele("Signature").txt(get1a("FirmDependentsSign"));
+  relatedPerson.ele("Title").txt(get1a("FirmDependentsTitle"));
+  relatedPerson.ele("EmailAddress").txt(get1a("FirmDependentsEmail"));
+  relatedPerson.ele("TelephoneNumber").txt(get1a("FirmDependentsPhno"));
+  relatedPerson.ele("SignatureDate").txt(get1a("FirmDependentsSignatureDate"));
+
   }
 
   //--------------------------Section 1A item B---------------
@@ -120,39 +192,30 @@ function downloadXMLFile(xmlData) {
       const section1aItemC = root.ele("PFSection1aItemCMiscellaneousItems");
 
      
-      const grouped = {};
+      const grouped = [];
 
-      itemCTags.forEach(tag => {
-        if (!grouped[tag.qSubno]) {
-          grouped[tag.qSubno] = [];
-        }
-        grouped[tag.qSubno].push(tag);
-      });
-
-      Object.values(grouped).forEach(group => {
+      for (let i = 0; i < itemCTags.length; i += 2) {
+        grouped.push(itemCTags.slice(i, i + 2));
+      }
+      grouped.forEach(group => {
 
         const miscElem = section1aItemC.ele("PFSection1aItemCMiscellaneous");
 
-        
-        const cleanTag = (tagName) =>
-          tagName?.replace(/[()]/g, "").trim();
-
-        const questionNumber = group.find(t =>
-          cleanTag(t.xmltags) === "QuestionNumber"
-        )?.value || "";
-
-        const description = group.find(t =>
-          cleanTag(t.xmltags) === "Description"
-        )?.value || "";
-
-        
         const sanitize = (val) =>
           val?.replace(/(^"+|"+$)/g, "") || "";
 
+        const questionNumber = group.find(t =>
+          t.xmltags === "QuestionNumber"
+        )?.value || "";
+
+        const description = group.find(t =>
+          t.xmltags === "Description"
+        )?.value || "";
 
         miscElem.ele("QuestionNumber").txt(sanitize(questionNumber));
         miscElem.ele("Description").txt(sanitize(description));
       });
+
     }
   }
 
