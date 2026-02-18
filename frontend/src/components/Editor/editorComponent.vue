@@ -226,10 +226,10 @@
                   :itemText="items.line_text"
                   :headers="items.table_headers"
                   :metadata="items.table_metadata"
-                  :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
+                  :itemValue="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
                 
                 />
               </span>
