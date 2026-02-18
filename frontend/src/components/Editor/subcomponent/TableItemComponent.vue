@@ -175,13 +175,18 @@ function displayValue(value, key) {
     return `$ ${formatted}`
   }
 
-  return formatted
+  return `${formatted}` 
+
 }
-
-
 
 function onDateChange(value, rowIndex, key) {
   localData.value[rowIndex][key] = value
+  emit('update', localData.value)
+}
+
+function onInput(event, rowIndex, key) {
+  const val = event.target.value
+  localData.value[rowIndex][key] = val
   emit('update', localData.value)
 }
 </script>
