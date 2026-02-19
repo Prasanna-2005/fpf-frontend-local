@@ -103,16 +103,44 @@ function downloadXMLFile(xmlData) {
   section1aSignature.ele("SignatureDate").txt(get1a("SignatureDate"));
  
 
-  const section1aSignaturesRelatedPersons = root.ele("PFSection1aItemASignaturesRelatedPersons");
+  //------------------Related Person------------------------
+  // Get all values first
+  const individualName = get1a("FirmDependentsName");
+  const signature = get1a("FirmDependentsSign");
+  const title = get1a("FirmDependentsTitle");
+  const email = get1a("FirmDependentsEmail");
+  const phone = get1a("FirmDependentsPhno");
+  const signatureDate = get1a("FirmDependentsSignatureDate");
 
-  const relatedPerson= section1aSignaturesRelatedPersons.ele("PFSection1aItemASignature")
+  // Helper to check if value is valid
+  const isValid = (val) =>
+    val !== undefined &&
+    val !== null &&
+    val !== "";
 
-  relatedPerson.ele("IndividualName").txt(get1a("FirmDependentsName"))
-  relatedPerson.ele("Signature").txt(get1a("FirmDependentsSign"));
-  relatedPerson.ele("Title").txt(get1a("FirmDependentsTitle"));
-  relatedPerson.ele("EmailAddress").txt(get1a("FirmDependentsEmail"));
-  relatedPerson.ele("TelephoneNumber").txt(get1a("FirmDependentsPhno"));
-  relatedPerson.ele("SignatureDate").txt(get1a("FirmDependentsSignatureDate"));
+  // Check if ALL required fields exist
+  if (
+    isValid(individualName) &&
+    isValid(signature) &&
+    isValid(title) &&
+    isValid(email) &&
+    isValid(phone) &&
+    isValid(signatureDate)
+  ) {
+
+    const section1aSignaturesRelatedPersons =
+      root.ele("PFSection1aItemASignaturesRelatedPersons");
+
+    const relatedPerson =
+      section1aSignaturesRelatedPersons.ele("PFSection1aItemASignature");
+
+    relatedPerson.ele("IndividualName").txt(individualName);
+    relatedPerson.ele("Signature").txt(signature);
+    relatedPerson.ele("Title").txt(title);
+    relatedPerson.ele("EmailAddress").txt(email);
+    relatedPerson.ele("TelephoneNumber").txt(phone);
+    relatedPerson.ele("SignatureDate").txt(signatureDate);
+  }
 
   }
 
