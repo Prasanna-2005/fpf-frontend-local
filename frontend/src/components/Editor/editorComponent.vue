@@ -45,7 +45,14 @@
           <b><hr /></b>
           <!-- Edit buttons -->
           <div class="d-flex justify-content-end align-items-center">
+            
             <div>
+              <button
+                class="btn btn-sm me-2"
+                @click="openHistory(fields.field_no)"
+              >
+                <font-awesome-icon class="icon" icon="clock-rotate-left" />
+              </button>
               <button
                 v-if="editingFieldNo !== fields.field_no"
                 class="btn btn-sm me-2"
@@ -240,7 +247,7 @@ const props = defineProps({
   filingId: { type: String, required: true }
 }) 
 
-const emit = defineEmits(['open-upload','refresh-data'])
+const emit = defineEmits(['open-upload','refresh-data','open-history'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
@@ -514,9 +521,6 @@ function cancelEditing(fieldNo,value,fieldIndex) {
   }
 
   // no changes — safe to cancel
-  
-
-
   delete editedData[fieldNo]
   editingFieldNo.value = null
 }
@@ -550,7 +554,6 @@ async function downloadInput(){
       const filing_name=localStorage.getItem('filingName')
       const response=await api_call_methods.download_input(user_id,filing_name)
       utils.downloadInputZip(response, filing_name)
-      
       toast.success("Input files downloaded successfully")
     }
   catch{
@@ -559,7 +562,11 @@ async function downloadInput(){
   finally{
     downloadInputFiles.value=false
   }
+}
 
+async function openHistory(field_no){
+  const fund_id = responseStore.getFundId(fundname.value)
+  emit('open-history',field_no,fund_id)
 }
 </script>
 
