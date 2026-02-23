@@ -24,7 +24,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" />
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-history="openHistory" />
                 
                 
             </div>
@@ -126,6 +126,11 @@ async function refreshData(done) {
 
 function closeUpload(){
   openUploadPopUp.value=false
+}
+
+async function openHistory(data){
+  const result=await api_call_methods.get_history(user_id,data)
+  console.log(result)
 }
 
 </script>
