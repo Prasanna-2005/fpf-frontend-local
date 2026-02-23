@@ -33,11 +33,11 @@ const props = defineProps({
   inputNeeded:{
         type: Boolean,
         default:true
-    }
+    },
+  displayAffix: { type: String, default: '' },
 })
 
 const emit = defineEmits(['update'])
-
 // internal raw value
 const inputValue = ref(String(props.itemValue ?? ''))
 
@@ -52,13 +52,19 @@ watch(
 // computed value for display in input
 const displayValue = computed(() => {
   if (!inputValue.value) return ''   // <- return empty string if no value
-  if (props.disabled) {
+  if (props.disabled) {      
     const num = Number(inputValue.value)
     if (isNaN(num)) return inputValue.value
-    if (Math.abs(num) < 100) return inputValue.value
 
     const formatted=num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  if (props.displayAffix === 'Dollar') {
     return `$ ${formatted}`
+  }
+
+  if (props.displayAffix === 'Percentage') {
+    return `${formatted} %`
+  }
+    return `${formatted}`
   } else {
     return inputValue.value
   }

@@ -2,7 +2,7 @@
     <div class="w-100 d-flex justify-content-center">
         <div class="main-container d-flex" style="max-width: 100%;border: 1px solid grey;">
             <div class="w-100 editor" >
-                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="handleRefreshData" @open-history="openHistory"/>
+                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="handleRefreshData" @open-computation-logs="openComputationLogs" @open-history="openHistory"/>
             </div>
             <!-- <div class="series-selector w-10 d-flex justify-content-end" >
                 <div class="w-100 d-flex flex-column align-items-end">
@@ -33,7 +33,7 @@ const props=defineProps({
 
 
 const selected_series=ref('series1')
-const emit=defineEmits(['open-upload','refresh-data','open-history'])
+const emit=defineEmits(['open-upload','refresh-data','open-computationLogs','open-history'])
 function select_series(series){
     selected_series.value=series
 }
@@ -52,7 +52,10 @@ async function openHistory(fieldNo,fundId){
     }
     emit('open-history',data)
 }
-  
+  function openComputationLogs(data){
+  emit("open-computationLogs",data)
+}
+
 </script>
 
 <style scoped>

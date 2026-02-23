@@ -169,6 +169,19 @@ async function get_response(user_id,filing_id) {
     return response
 
 }
+async function get_computations(user_id,filing_id) {
+    const response=await api.get(`/api/v1/edit/computation_logs/${filing_id}`,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log("compuations",response)
+    return response
+
+}
 
 
 async function get_xml_data(user_id,filing_id) {
@@ -300,6 +313,7 @@ const api_call_methods={
     update_status,
     download_input,
     verify_user,
+    get_computations,
     get_history
 
 }
