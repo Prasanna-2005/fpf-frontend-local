@@ -46,6 +46,12 @@
           <!-- Edit buttons -->
           <div class="d-flex justify-content-end align-items-center">
             <div>
+              <button 
+              class="btn btn-sm  me-2"
+              @click="openCompLogs(fields.field_no,fields.field_text)"
+              >
+                <font-awesome-icon class="icon" icon="calculator" />
+              </button>
               <button
                 v-if="editingFieldNo !== fields.field_no"
                 class="btn btn-sm me-2"
@@ -240,17 +246,19 @@ const props = defineProps({
   filingId: { type: String, required: true }
 }) 
 
-const emit = defineEmits(['open-upload','refresh-data'])
+const emit = defineEmits(['open-upload','refresh-data','open-computationLogs'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
 const data = ref(responseStore.getFundData(fundname.value))
+const computationLogs=ref(responseStore.getFundComputation(fundname.value))
 const editingFieldNo = ref(null)
 
 watch(() => props.fundName, (newVal) => {
   fundname.value=newVal
-  console.log(fundname.value)
+  
   data.value = responseStore.getFundData(newVal)
+  computationLogs.value=responseStore.getFundComputation(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
 })
@@ -260,7 +268,6 @@ function updateTableValue(fieldNo, tableData) {
   // Replace the table_data completely
   editedData[fieldNo].table_data = tableData
   // editedData[fieldNo].has_table_data=true
-  console.log(editedData[fieldNo])
   editedData[fieldNo].changed=true
 
 }
@@ -394,7 +401,7 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     // );
 
     // Prepare API payload
-    console.log(editedData)
+    
     const acceptApiData = {
       field_no: fieldNo,
       value: `${ editedData[fieldNo].field_item_value?.[0]?.value ?? value}`, // single-value field
@@ -415,15 +422,15 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     })
 
 
-    console.log('inside save',fundname.value)
+    
 
     data.value = responseStore.getFundData(fundname.value)
-    console.log('data refresh in child')
+    
     editingFieldNo.value = null
     delete editedData[fieldNo]
     toast.success(`Saved Question ${fieldNo}`)
-  } catch (error) {
-    console.log(error);
+  } catch(error){
+    console.log(error)
     toast.error(`Failed to save question ${fieldNo}`);
   } finally {
     making_api_call.value = false;
@@ -453,7 +460,6 @@ async function restoreEdits(fieldNo) {
 
     //data update
     data.value = responseStore.getFundData(fundname.value)
-    console.log('data refresh in child')
     editingFieldNo.value = null
     delete editedData[fieldNo]
     toast.success(`Reverted Question ${fieldNo}`)
@@ -471,7 +477,6 @@ const pendingFieldNo = ref(null)
 
 function cancelEditing(fieldNo,value,fieldIndex) {
   const field = editedData[fieldNo]
-  console.log(editedData[fieldNo])
   if (field?.changed) {
     // OR even better, handle logic below:
     toast.open({
@@ -561,6 +566,29 @@ async function downloadInput(){
   }
 
 }
+function openCompLogs(field_no,field_text){
+  const field = computationLogs.value.find(
+    item => item.field_no === field_no
+  )
+
+  if (!field) {
+    console.warn(`No computation found for field_no ${field_no}`)
+    return
+  }
+
+  const data = {
+    field_no: field.field_no,
+    field_text: field_text,
+    formula:field.computation_formula,
+    type:field.computation_type,
+    field_data: field.field_data,
+    table_data: field.table_data,
+    field_item_type: field.field_item_type,
+    has_table_data: field.has_table_data
+  }
+  emit('open-computationLogs', data)
+}
+
 </script>
 
 <style scoped>

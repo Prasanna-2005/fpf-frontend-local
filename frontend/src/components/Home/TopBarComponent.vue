@@ -41,9 +41,11 @@ function emitSearch() {
 }
 
 
-const years = ['2025']
+const years = ['Year','2025','2026']
 const selectedYear = ref(years[0])
 function selectYear(year) {
   selectedYear.value = year
+  console.log(selectedYear.value)
+  emit('update:year',selectedYear.value)
 }
 </script>
