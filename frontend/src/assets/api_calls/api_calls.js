@@ -260,6 +260,25 @@ async function verify_user(user_id){
     console.log(response)
 }
 
+//"/history"
+
+async function get_history(user_id,data){
+    const response=await api.get(`/api/v1/submissions/history`, 
+        {   params: {
+                filingid: data.filingId,
+                fundSeriesid: data.fundId,
+                fieldNo: data.fieldNo
+            },
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
+
 const api_call_methods={
     login,
     verify_otp,
@@ -280,7 +299,8 @@ const api_call_methods={
     revert_data,
     update_status,
     download_input,
-    verify_user
+    verify_user,
+    get_history
 
 }
 
