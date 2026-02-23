@@ -4,6 +4,8 @@ import { ref } from 'vue'
 export const useEditableStore = defineStore('response', () => {
   const response = ref([])
   const fund_mapper = ref({})
+  const computations_mapper=ref({})
+  const computations=ref([])
   const status=ref(localStorage.getItem('filingStatus') || '')
 
   function setResponse(rawResponse) {
@@ -20,6 +22,21 @@ export const useEditableStore = defineStore('response', () => {
       }))
     })
   }
+  function setComputations(rawComputations) {
+    computations.value = rawComputations
+    computations_mapper.value = {}
+
+    rawComputations.funds.forEach(fund => {
+      const fundName = fund.fund_name
+      computations_mapper.value[fundName] = fund.fund_computation.map(q => ({
+        ...q,
+        isRestoreAvailable: false,
+        restoreValue: null,
+        fund_id: fund.fund_id
+      }))
+    })
+  }
+
 
   function setStatus(filingStatus){
     status.value=filingStatus
@@ -34,6 +51,9 @@ export const useEditableStore = defineStore('response', () => {
 
   function getFundData(fundName) {
     return fund_mapper.value[fundName] 
+  }
+  function getFundComputation(fundName){
+    return computations_mapper.value[fundName]
   }
 
   function getAllData(){
@@ -92,6 +112,9 @@ export const useEditableStore = defineStore('response', () => {
     getFundId,
     setStatus,
     getStatus,
-    status
+    status,
+    setComputations,
+    getFundComputation
+
   }
 })
