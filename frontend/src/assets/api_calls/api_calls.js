@@ -289,7 +289,7 @@ async function get_history(user_id,data){
 
         }
     )
-    console.log(response)
+    return response
 }
 
 const api_call_methods={
