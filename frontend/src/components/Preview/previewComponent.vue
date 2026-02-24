@@ -76,7 +76,7 @@
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
                   
                   <!-- <span class="line-value"><b>{{ fields.value }}</b></span> -->
-                   <span class="line-value"><b>{{ formatValue(fields.value) }}</b></span>
+                   <span class="line-value" v-if="fields.field_item_type!=='exp_table'"><b>{{ formatValue(fields.value) }}</b></span>
                 </span>
               </p>
 
@@ -127,7 +127,7 @@
                     <span class="line-text">{{ items.line_text }}:</span>
 
                     <!-- Normal value -->
-                    <span v-if="items.line_item_type !== 'table'" class="line-value">
+                    <span v-if="items.line_item_type !== 'table' && items.line_item_type !=='exp_table'" class="line-value">
                       <b>{{ formatValue(items.value) }}</b>
                     </span>
                   </p>
