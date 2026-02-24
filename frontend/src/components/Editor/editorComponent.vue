@@ -49,7 +49,7 @@
             <div>
               <button
                 class="btn btn-sm me-2"
-                @click="openHistory(fields.field_no)"
+                @click="openHistory(fields.field_no,fields.field_item_type)"
               >
                 <font-awesome-icon class="icon" icon="clock-rotate-left" />
               </button>
@@ -571,9 +571,9 @@ async function downloadInput(){
   }
 }
 
-async function openHistory(field_no){
+async function openHistory(field_no,fieldType){
   const fund_id = responseStore.getFundId(fundname.value)
-  emit('open-history',field_no,fund_id)
+  emit('open-history',field_no,fund_id,fieldType)
 }
 function openCompLogs(field_no,field_text){
   const field = computationLogs.value.find(

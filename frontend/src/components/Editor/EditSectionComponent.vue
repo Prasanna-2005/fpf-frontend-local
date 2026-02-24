@@ -44,11 +44,12 @@ async function handleRefreshData(done) {
   emit('refresh-data', done)
 }
 
-async function openHistory(fieldNo,fundId){
+async function openHistory(fieldNo,fundId,fieldType){
     const data={
         'fieldNo':fieldNo,
         'filingId':props.filingId,
-        'fundId':fundId
+        'fundId':fundId,
+        'fieldType':fieldType,
     }
     emit('open-history',data)
 }
