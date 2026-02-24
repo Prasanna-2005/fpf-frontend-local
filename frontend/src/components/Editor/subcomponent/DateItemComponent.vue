@@ -1,23 +1,41 @@
 <template>
-  <div class="d-flex flex-column" :style="{ paddingLeft: indent + 'px' }">
-    <p>
-      <span>{{ props.itemNumber }}</span>)
-      <span>{{ props.itemText }}</span>:
+  <div
+    class="d-flex justify-content-between"
+    :style="{ paddingLeft: indent + 'px' }"
+  >
+    <p style="max-width: 70%;">
+      <span>{{ itemNumber }}</span>)
+      <span>{{ itemText }}</span>:
     </p>
+
     <p>
-      <input 
-        type="date" 
-        v-if="inputNeeded" 
-        v-model="inputValue" 
-        style="width: 180px;" 
+      
+      <input
+        v-if="!localValue && disabled"
+        type="text"
+        style="width: 300px; box-sizing: border-box; padding: 4px;"
+        disabled
+      />
+
+      
+      <el-date-picker
+        v-else
+        v-model="localValue"
+        type="date"
+        style="width: 300px; box-sizing: border-box;"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        placeholder="YYYY-MM-DD"
         :disabled="disabled"
-      >
+      />
     </p>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import { ElDatePicker } from 'element-plus'
+import 'element-plus/dist/index.css'
 
 const props = defineProps({
   itemNumber: {
@@ -29,28 +47,31 @@ const props = defineProps({
     required: true
   },
   itemValue: {
-    type: String, // Use "YYYY-MM-DD" format for date
+    type: String,
     default: ''
   },
   disabled: {
     type: Boolean,
     required: true
   },
-  indent: { 
+  indent: {
     type: Number,
-    default: 0 
-  },
-  inputNeeded: {
-    type: Boolean,
-    default: true
+    default: 0
   }
 })
 
-const inputValue = ref(props.itemValue)
-
 const emit = defineEmits(['update'])
-watch(inputValue, () => {
-  emit('update', inputValue.value)
+
+const localValue = ref(props.itemValue)
+watch(
+  () => props.itemValue,
+  (newVal) => {
+    localValue.value = newVal
+  }
+)
+
+
+watch(localValue, (newVal) => {
+  emit('update', newVal)
 })
 </script>
-

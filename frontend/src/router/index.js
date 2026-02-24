@@ -31,7 +31,8 @@ const router = createRouter({
       component: HomeView,
       meta: {  
         requiresAuth: true,
-        title: 'Home-FormPf'
+        title: 'Home-FormPf',
+        roles: ['contributor','approver'],
      }
     },
     {
@@ -40,7 +41,8 @@ const router = createRouter({
       component: EditingView,
       meta: { 
         requiresAuth: true,
-        title: 'Editor-FormPf'
+        title: 'Editor-FormPf',
+        roles: ['contributor','approver'],
        }
     },
     {
@@ -49,7 +51,8 @@ const router = createRouter({
       component: AdminView,
       meta: { 
         requiresAuth: true,
-        title: 'Admin-FormPf'
+        title: 'Admin-FormPf',
+        roles: ['admin'],
        }
     },
     {
@@ -58,7 +61,8 @@ const router = createRouter({
       component: PreviewView,
       meta: { 
         requiresAuth: true,
-        title: 'Preview-FormPf'
+        title: 'Preview-FormPf',
+        roles: ['contributor','approver'],
        }
     }
   ],
@@ -67,12 +71,24 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title || 'FormPF'
-    const userStore = useUserStore()
-    if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-        next('/') 
-    } else {
-        next()
+
+  const userStore = useUserStore()
+
+  // 1️⃣ Not logged in
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    return next('/')
+  }
+
+  // 2️⃣ Role restricted route
+  if (to.meta.roles && !to.meta.roles.includes(userStore.role)) {
+    // redirect based on role
+    if (userStore.role === 'admin') {
+      return next('/admin')
     }
+    return next('/home')
+  }
+
+  next()
 })
 
 
