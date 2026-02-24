@@ -17,54 +17,61 @@
       </div>
 
       <!-- Subfields -->
-      <div
-        v-for="(subFieldData, subFieldKey) in fieldData"
-        :key="subFieldKey"
-        class="mb-4"
-      >
-
-        <!-- Collapsible Header -->
-         
+       <!-- No Records -->
+      <div v-if="!fieldData || Object.keys(fieldData).length === 0" class="text-center py-4">
+        <p class="mb-0 text-muted">No records found.</p>
+      </div>
+      <div v-else>
         <div
-          class="subfield-header"
-          @click="toggle(subFieldKey)"
+          v-for="(subFieldData, subFieldKey) in fieldData"
+          :key="subFieldKey"
+          class="mb-4"
         >
-          <strong class=".text-uppercase">{{getDisplayFieldNo(subFieldKey) }} <span>{{ subFieldData[0].line_text }}</span></strong>
+
+          <!-- Collapsible Header -->
           
-          <span>{{ isOpen(subFieldKey) ? '−' : '+' }}</span>
-        </div>
-
-        <!-- Collapsible Content -->
-        <div v-if="isOpen(subFieldKey)" class="mt-3">
-
           <div
-            v-for="(item, index) in getSorted(subFieldData)"
-            :key="index"
-            class="history-block mb-3 p-3"
-            :class="item.is_current_value ? 'current-block' : 'previous-block'"
+            class="subfield-header"
+            @click="toggle(subFieldKey)"
           >
-            <p class="mb-1">
-              <strong>Value:</strong>
-              {{ item.value || '—' }}
-            </p>
+            <strong class=".text-uppercase">{{getDisplayFieldNo(subFieldKey) }} <span>{{ subFieldData[0].line_text }}</span></strong>
+            
+            <span>{{ isOpen(subFieldKey) ? '−' : '+' }}</span>
+          </div>
 
-            <p class="mb-1">
-              <strong>Updated At:</strong>
-              {{ formatDate(item.updated_at || item.created_at) }}
-            </p>
+          <!-- Collapsible Content -->
+          <div v-if="isOpen(subFieldKey)" class="mt-3">
 
-            <p class="mb-0">
-              <strong>Updated By:</strong>
-              {{ item.updated_by || item.created_by || '—' }}
-            </p>
+            <div
+              v-for="(item, index) in getSorted(subFieldData)"
+              :key="index"
+              class="history-block mb-3 p-3"
+              :class="item.is_current_value ? 'current-block' : 'previous-block'"
+            >
+              <p class="mb-1">
+                <strong>Value:</strong>
+                {{ item.value || '—' }}
+              </p>
 
-            <div v-if="item.is_current_value" class="current-label">
-              Current Value
+              <p class="mb-1">
+                <strong>Updated At:</strong>
+                {{ formatDate(item.updated_at || item.created_at) }}
+              </p>
+
+              <p class="mb-0">
+                <strong>Updated By:</strong>
+                {{ item.updated_by || item.created_by || '—' }}
+              </p>
+
+              <div v-if="item.is_current_value" class="current-label">
+                Current Value
+              </div>
             </div>
+
           </div>
 
         </div>
-
+              
       </div>
 
     </div>
@@ -119,7 +126,7 @@ function getDisplayFieldNo(fieldNo) {
 
   // TYPE 1 → 17_(g)_Net_of_...
   if (parts[1]?.startsWith('(')) {
-    const letterPart = parts[1].replace('(', '') // (g) → g)
+    const letterPart = parts[1].replace('(', '') 
     const remaining = parts.slice(2).join(' ')
 
     return `${letterPart} ${remaining.replaceAll('_', ' ')}`
