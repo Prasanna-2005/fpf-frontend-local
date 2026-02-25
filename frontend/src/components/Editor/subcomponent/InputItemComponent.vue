@@ -56,15 +56,17 @@ const displayValue = computed(() => {
     const num = Number(inputValue.value)
     if (isNaN(num)) return inputValue.value
 
-    const formatted=num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
   if (props.displayAffix === 'Dollar') {
+    const absolute_num=Math.abs(num)
+    const formatted=absolute_num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     return `$ ${formatted}`
   }
 
   if (props.displayAffix === 'Percentage') {
-    return `${formatted} %`
+    return `${num} %`
   }
-    return `${formatted}`
+    return `${num}`
   } else {
     return inputValue.value
   }
