@@ -20,7 +20,7 @@
         <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
           <td v-for="(header, colIndex) in headers" :key="colIndex">
             
-            <!-- Always input, just toggle disabled -->
+            
             <input
               type="text"
               style="width: 100% ;"
@@ -41,7 +41,7 @@
           </td>
         </tr>
 
-        <!-- If no rows and disabled → show empty state -->
+        
         <tr v-if="rows.length === 0 && disabled">
           <td :colspan="headers.length" class="text-center">
             No data available
