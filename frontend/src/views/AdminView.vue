@@ -4,8 +4,8 @@
                 <SideBarComponent @add-fund="openAddFundPopUp=true"/>
             </div>
             <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
-                <TopBarComponent @add-user="handleAddUser"/>
-                <AnalyticsTableComponent class="h-75" @delete-user=handleDelete />
+                <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
+                <AnalyticsTableComponent class="h-75" :selected-year="selectedYear"  />
 
                 <div v-if="deletePopUp" class="backdrop">
                     <popUpComponent :userNameToBeDeleted="userNameToBeDeleted" :userIdToBeDeleted="userIdToBeDeleted"  type="deleteUser"  @remove-pop-up="deletePopUp = false"/>
@@ -38,14 +38,9 @@ const deletePopUp=ref(false)
 const userNameToBeDeleted=ref('')
 const userIdToBeDeleted=ref('')
 const openAddFundPopUp=ref(false)
-function handleDelete(details){
-    deletePopUp.value=true
-    userNameToBeDeleted.value=details.name
-    userIdToBeDeleted.value=details.id
-    
-}
 
 
+const selectedYear = ref('2026')
 
 const adding_user=ref(false)
 function handleAddUser(){

@@ -1,11 +1,11 @@
 <template>
-  <div class="d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }">
+  <div class="d-flex justify-content-between pb-4" :style="{ paddingLeft: indent + 'px' }">
     <p style="max-width: 70%;">
       <span>{{ itemNumber }}</span>)
       <span>{{ itemText }}</span>:
     </p>
 
-    <div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-column gap-3" style="max-width: 300px">
       <label 
         v-for="option in options" 
         :key="option" 
@@ -51,7 +51,7 @@ watch(
 
 function handleSelect(option) {
   selected.value = option
-
+  console.log(option)
   emit('update', option)
 }
 </script>
