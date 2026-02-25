@@ -407,7 +407,7 @@ function formatValue(value,symbol,field='') {
   if (symbol === 'Dollar') {
     const absolute_num=Math.abs(num)
     const formatted = absolute_num.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
     return `$ ${formatted}`

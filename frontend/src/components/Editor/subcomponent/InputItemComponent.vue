@@ -59,7 +59,7 @@ const displayValue = computed(() => {
 
   if (props.displayAffix === 'Dollar') {
     const absolute_num=Math.abs(num)
-    const formatted=absolute_num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    const formatted=absolute_num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
     return `$ ${formatted}`
   }
 
