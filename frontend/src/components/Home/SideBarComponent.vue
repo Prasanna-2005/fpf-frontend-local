@@ -26,13 +26,13 @@
 
       <hr />
       <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
+        <li class="nav-item" v-if="role!='admin'">
           <a href="/home" class="nav-link active">Home</a>
         </li>
-        <li>
+        <li v-if="role!='admin'">
           <a href="#" class="nav-link link-dark">Report</a>
         </li>
-        <li>
+        <li v-if="role!='admin'">
           <a  class="nav-link link-dark" @click="addFund">Add Fund</a>
         </li>
         <li >
