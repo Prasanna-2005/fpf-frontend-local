@@ -416,27 +416,19 @@ function formatValue(value,symbol,field='') {
   if (isNaN(num)) return value;
   if (num == 0) return value;
 
-
-  // Less than 100 → percentage
-  // if (Math.abs(num) <= 100) {
-  //   return `${num}%`;
-  // }
-  
-
-  // 100 or more → formatted currency
-  const formatted = num.toLocaleString("en-US", {
+  if (symbol === 'Dollar') {
+    const absolute_num=Math.abs(num)
+    const formatted = absolute_num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  console.log("symbol:",symbol)
-    if (symbol === 'Dollar') {
     return `$ ${formatted}`
   }
 
   if (symbol === 'Percentage') {
-    return `${formatted} %`
+    return `${num} %`
   }
-  return `${formatted}`
+  return `${num}`
 }
 </script>
 
