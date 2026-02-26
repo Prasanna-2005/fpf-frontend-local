@@ -162,20 +162,17 @@ function displayValue(value, key) {
   const columnMeta = meta.value[key]
   const affix = columnMeta?.display_affix?.toLowerCase()
 
-  const formatted = num.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-
   if (affix === 'percentage') {
-    return `${formatted} %`
+    return `${num} %`
   }
 
   if (affix === 'dollar') {
+    const absolute_num=Math.abs(num)
+    const formatted=absolute_num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
     return `$ ${formatted}`
   }
 
-  return `${formatted}` 
+  return `${num}` 
 
 }
 

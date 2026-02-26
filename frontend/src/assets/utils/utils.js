@@ -344,106 +344,108 @@ function downloadXMLFile(xmlData) {
   // -------------------------------------------------------------
   // ---------------- SECTION 1C (NEW) ----------------------------
   // -------------------------------------------------------------
-  const section1C = root.ele("PFSection1cItemBHedgeFundsInfo");
+  if (data.tags_info_sec1c?.length) {
+    const section1C = root.ele("PFSection1cItemBHedgeFundsInfo");
 
-  data.tag_info_sec1c.forEach(fundTags => {
-    const fundElem = section1C.ele("PFSection1cItemBHedgeFundInfo");
+    data.tag_info_sec1c.forEach(fundTags => {
+      const fundElem = section1C.ele("PFSection1cItemBHedgeFundInfo");
 
-    const get = tag => fundTags.find(t => t.xmltags === tag)?.value || "";
+      const get = tag => fundTags.find(t => t.xmltags === tag)?.value || "";
 
-    // Basic fields
-    fundElem.ele("FundID").txt(get("FundID"));
-    fundElem.ele("StrategyTypeSM").txt(get("StrategyTypeSM"));
-    fundElem.ele("StrategyHighFrequencyTradingPercent").txt(get("StrategyHighFrequencyTradingPercent") || "");
+      // Basic fields
+      fundElem.ele("FundID").txt(get("FundID"));
+      fundElem.ele("StrategyTypeSM").txt(get("StrategyTypeSM"));
+      fundElem.ele("StrategyHighFrequencyTradingPercent").txt(get("StrategyHighFrequencyTradingPercent") || "");
 
-    // Percent wrapper fields
-    const percentFields = [
-      "SecuritiesTradedOTCPercent",
-      "SecuritiesTradedExchangePercent",
-      "DerivativesTradedOTCPercent",
-      "DerivativesTradedExchangePercent",
-      "DerivativesTradedCCPClearedPercent",
-      "DerivativesTradedNotCCPClearedPercent",
-      "RepoTradedCCPClearedPercent",
-      "RepoTradedNotCCPClearedPercent",
-      "RepoTradedTriPartyRepoPercent"
-    ];
+      // Percent wrapper fields
+      const percentFields = [
+        "SecuritiesTradedOTCPercent",
+        "SecuritiesTradedExchangePercent",
+        "DerivativesTradedOTCPercent",
+        "DerivativesTradedExchangePercent",
+        "DerivativesTradedCCPClearedPercent",
+        "DerivativesTradedNotCCPClearedPercent",
+        "RepoTradedCCPClearedPercent",
+        "RepoTradedNotCCPClearedPercent",
+        "RepoTradedTriPartyRepoPercent"
+      ];
 
-    percentFields.forEach(field => {
-      const wrapper = fundElem.ele(field);
-      wrapper.ele("Value").txt(get(field) || '');
-    });
-
-    // OtherTransactionPercent
-    fundElem.ele("OtherTransactionPercent").txt(get("OtherTransactionPercent") || '');
-
-    // ------------------- Strategies -------------------
-    const strategiesElem = fundElem.ele("Strategies");
-
-    const strategyType = get("StrategyType");
-    const strategyChecked = get("StrategyChecked");
-    const strategyNAV = get("StrategyNAVPercent");
-
-    const strategyEntry = strategiesElem.ele("PFSection1cItemBHedgeFundInfoStrategy");
-    strategyEntry.ele("StrategyType").txt(strategyType);
-    strategyEntry.ele("StrategyChecked").txt(strategyChecked);
-    strategyEntry.ele("StrategyNAVPercent").txt(strategyNAV);
-
-    // ------------------- Counterparties (Dollar + Percent) -------------------
-    function addCounterpartyBlock(type, items) {
-      const container = fundElem.ele(type);
-
-      items.forEach(cp => {
-        const cpElem = container.ele("PFSection1cItemBHedgeFundInfoCounterParty");
-
-        cpElem.ele("CounterpartyType").txt(cp.type);
-        cpElem.ele("CounterpartyLegalName").txt(cp.legal);
-        cpElem.ele("CounterpartyAffiliatedInstitutionCode").txt(cp.code);
-        cpElem.ele("CounterpartyAffiliatedInstitutionOtherName").txt(cp.other);
-
-        const exp = cpElem.ele("CounterpartyExposure");
-        exp.ele("Value").txt(cp.exposure);
-      });
-    }
-
-    // Build Dollar CounterParties list
-    const dollarItems = [];
-    const percentItems = [];
-
-    // Grouping CounterParty records
-    const cpGroups = [];
-    let temp = [];
-    fundTags
-      .filter(t => t.xmltags.startsWith("Counterparty"))
-      .forEach(t => {
-        temp.push(t);
-        if (temp.length === 4) {
-          cpGroups.push(temp);
-          temp = [];
-        }
+      percentFields.forEach(field => {
+        const wrapper = fundElem.ele(field);
+        wrapper.ele("Value").txt(get(field) || '');
       });
 
-    // Build structured groups
-    cpGroups.forEach(g => {
-      const qno = g[0]?.qno;    
+      // OtherTransactionPercent
+      fundElem.ele("OtherTransactionPercent").txt(get("OtherTransactionPercent") || '');
 
-      const cpType = qno === "23" ? "Dollar" : "Percent";
+      // ------------------- Strategies -------------------
+      const strategiesElem = fundElem.ele("Strategies");
 
-      const entry = {
-        type: g.find(t => t.xmltags === "CounterpartyType")?.value || cpType,
-        legal: g.find(t => t.xmltags === "CounterpartyLegalName")?.value || '',
-        code: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionCode")?.value || '',
-        other: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionOtherName")?.value || '',
-        exposure: g.find(t => t.xmltags === "CounterpartyExposure")?.value || ''
-      };
+      const strategyType = get("StrategyType");
+      const strategyChecked = get("StrategyChecked");
+      const strategyNAV = get("StrategyNAVPercent");
 
-      if (entry.type === "Dollar") dollarItems.push(entry);
-      else percentItems.push(entry);
+      const strategyEntry = strategiesElem.ele("PFSection1cItemBHedgeFundInfoStrategy");
+      strategyEntry.ele("StrategyType").txt(strategyType);
+      strategyEntry.ele("StrategyChecked").txt(strategyChecked);
+      strategyEntry.ele("StrategyNAVPercent").txt(strategyNAV);
+
+      // ------------------- Counterparties (Dollar + Percent) -------------------
+      function addCounterpartyBlock(type, items) {
+        const container = fundElem.ele(type);
+
+        items.forEach(cp => {
+          const cpElem = container.ele("PFSection1cItemBHedgeFundInfoCounterParty");
+
+          cpElem.ele("CounterpartyType").txt(cp.type);
+          cpElem.ele("CounterpartyLegalName").txt(cp.legal);
+          cpElem.ele("CounterpartyAffiliatedInstitutionCode").txt(cp.code);
+          cpElem.ele("CounterpartyAffiliatedInstitutionOtherName").txt(cp.other);
+
+          const exp = cpElem.ele("CounterpartyExposure");
+          exp.ele("Value").txt(cp.exposure);
+        });
+      }
+
+      // Build Dollar CounterParties list
+      const dollarItems = [];
+      const percentItems = [];
+
+      // Grouping CounterParty records
+      const cpGroups = [];
+      let temp = [];
+      fundTags
+        .filter(t => t.xmltags.startsWith("Counterparty"))
+        .forEach(t => {
+          temp.push(t);
+          if (temp.length === 4) {
+            cpGroups.push(temp);
+            temp = [];
+          }
+        });
+
+      // Build structured groups
+      cpGroups.forEach(g => {
+        const qno = g[0]?.qno;    
+
+        const cpType = qno === "23" ? "Dollar" : "Percent";
+
+        const entry = {
+          type: g.find(t => t.xmltags === "CounterpartyType")?.value || cpType,
+          legal: g.find(t => t.xmltags === "CounterpartyLegalName")?.value || '',
+          code: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionCode")?.value || '',
+          other: g.find(t => t.xmltags === "CounterpartyAffiliatedInstitutionOtherName")?.value || '',
+          exposure: g.find(t => t.xmltags === "CounterpartyExposure")?.value || ''
+        };
+
+        if (entry.type === "Dollar") dollarItems.push(entry);
+        else percentItems.push(entry);
+      });
+
+      addCounterpartyBlock("CounterPartiesDollar", dollarItems);
+      addCounterpartyBlock("CounterPartiesPercent", percentItems);
     });
-
-    addCounterpartyBlock("CounterPartiesDollar", dollarItems);
-    addCounterpartyBlock("CounterPartiesPercent", percentItems);
-  });
+  }
 
   // ---------- Finalize ----------
   const xmlString = root.end({ prettyPrint: true });
