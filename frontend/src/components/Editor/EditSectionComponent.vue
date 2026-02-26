@@ -2,7 +2,7 @@
     <div class="w-100 d-flex justify-content-center">
         <div class="main-container d-flex" style="max-width: 100%;border: 1px solid grey;">
             <div class="w-100 editor" >
-                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="handleRefreshData" @open-computation-logs="openComputationLogs"/>
+                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="handleRefreshData" @open-computation-logs="openComputationLogs" @open-history="openHistory"/>
             </div>
             <!-- <div class="series-selector w-10 d-flex justify-content-end" >
                 <div class="w-100 d-flex flex-column align-items-end">
@@ -29,15 +29,13 @@ const props=defineProps({
         type:String,
         required:true
     },
-    
 })
 
 
 const selected_series=ref('series1')
-const emit=defineEmits(['open-upload','refresh-data','open-computationLogs'])
+const emit=defineEmits(['open-upload','refresh-data','open-computationLogs','open-history'])
 function select_series(series){
     selected_series.value=series
-    
 }
 function openUpload(){
     emit('open-upload')
@@ -45,7 +43,17 @@ function openUpload(){
 async function handleRefreshData(done) {
   emit('refresh-data', done)
 }
-function openComputationLogs(data){
+
+async function openHistory(fieldNo,fundId,fieldType){
+    const data={
+        'fieldNo':fieldNo,
+        'filingId':props.filingId,
+        'fundId':fundId,
+        'fieldType':fieldType,
+    }
+    emit('open-history',data)
+}
+  function openComputationLogs(data){
   emit("open-computationLogs",data)
 }
 

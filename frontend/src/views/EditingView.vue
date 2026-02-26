@@ -24,7 +24,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-computation-logs="openComputationLogs"/>
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-history="openHistory" @open-computation-logs="openComputationLogs"/>
                 
                 
             </div>
@@ -36,9 +36,10 @@
             </div> 
             <div v-if="openComputationLogsPopUp" class="backdrop">
                 <computationLogsPopUpComp :field="computationLogs" @close-click="openComputationLogsPopUp=false"/>
-
-                  
             </div> 
+            <div v-if="openhistoryPopUp" class="backdrop">
+              <historyComponent :fieldData="history" :fieldNo="fieldNo" :fieldType="fieldType"  @close-click="openhistoryPopUp=false" />
+            </div>
             
         </div>
 </template>
@@ -58,6 +59,7 @@ import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toast-notification';
 import { useFileStore } from '@/stores/fileStore';
+import historyComponent from '@/components/popUps/historyComponent.vue';
 const route = useRoute()
 
 const message=ref('Please wait loading editor....')
@@ -70,8 +72,11 @@ const toast=useToast()
 const loader=ref('true')
 const openComputationLogsPopUp=ref(false)
 const responseStore = useEditableStore()
-
+const openhistoryPopUp=ref(false)
 const fileStore=useFileStore()
+const history=ref({})
+const fieldNo=ref('')
+const fieldType=ref('')
 
 fileStore.add_filing_name(localStorage.getItem('filingName'))
 fileStore.updateNewFiling()
@@ -140,6 +145,14 @@ function openComputationLogs(data){
 
 function closeUpload(){
   openUploadPopUp.value=false
+}
+
+async function openHistory(data){
+  fieldNo.value=data.fieldNo
+  fieldType.value=data.fieldType
+  const result=await api_call_methods.get_history(user_id,data)
+  history.value=result.data
+  openhistoryPopUp.value=true
 }
 
 </script>

@@ -45,7 +45,14 @@
           <b><hr /></b>
           <!-- Edit buttons -->
           <div class="d-flex justify-content-end align-items-center">
+            
             <div>
+              <button
+                class="btn btn-sm me-2"
+                @click="openHistory(fields.field_no,fields.field_item_type)"
+              >
+                <font-awesome-icon class="icon" icon="clock-rotate-left" />
+              </button>
               <button 
               class="btn btn-sm  me-2"
               @click="openCompLogs(fields.field_no,fields.field_text)"
@@ -284,7 +291,7 @@ const props = defineProps({
   filingId: { type: String, required: true }
 }) 
 
-const emit = defineEmits(['open-upload','refresh-data','open-computationLogs'])
+const emit = defineEmits(['open-upload','refresh-data','open-computationLogs','open-history'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
@@ -557,9 +564,6 @@ function cancelEditing(fieldNo,value,fieldIndex) {
   }
 
   // no changes — safe to cancel
-  
-
-
   delete editedData[fieldNo]
   editingFieldNo.value = null
 }
@@ -593,7 +597,6 @@ async function downloadInput(){
       const filing_name=localStorage.getItem('filingName')
       const response=await api_call_methods.download_input(user_id,filing_name)
       utils.downloadInputZip(response, filing_name)
-      
       toast.success("Input files downloaded successfully")
     }
   catch{
@@ -602,7 +605,11 @@ async function downloadInput(){
   finally{
     downloadInputFiles.value=false
   }
+}
 
+async function openHistory(field_no,fieldType){
+  const fund_id = responseStore.getFundId(fundname.value)
+  emit('open-history',field_no,fund_id,fieldType)
 }
 function openCompLogs(field_no,field_text){
   const field = computationLogs.value.find(
