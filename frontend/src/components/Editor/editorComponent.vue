@@ -45,7 +45,20 @@
           <b><hr /></b>
           <!-- Edit buttons -->
           <div class="d-flex justify-content-end align-items-center">
+            
             <div>
+              <button
+                class="btn btn-sm me-2"
+                @click="openHistory(fields.field_no,fields.field_item_type)"
+              >
+                <font-awesome-icon class="icon" icon="clock-rotate-left" />
+              </button>
+              <button 
+              class="btn btn-sm  me-2"
+              @click="openCompLogs(fields.field_no,fields.field_text)"
+              >
+                <font-awesome-icon class="icon" icon="calculator" />
+              </button>
               <button
                 v-if="editingFieldNo !== fields.field_no"
                 class="btn btn-sm me-2"
@@ -75,7 +88,7 @@
                 @click="cancelEditing(fields.field_no,fields.value, fieldIndex)"
                 :disabled="making_api_call"
               >
-               <font-awesome-icon class="icon" icon="xmark" />
+               <font-awesome-icon class="icon" icon="xmark"/>
               </button>
             </div>
           </div>
@@ -92,6 +105,7 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
                   :inputNeeded="fields.field_item_type !== 'NULL'"
+                  :displayAffix="fields.display_affix"
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <BooleanItemComponent
@@ -137,6 +151,19 @@
                   :options="fields.options"
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
+                <ExpandingTableItemComp 
+                  v-else-if="fields.field_item_type === 'exp_table'"
+                  :itemNumber="getDisplayFieldNo(fields.field_no)"
+                  :itemText="fields.field_text"
+                  :headers="fields.table_headers"
+                  :metadata="fields.table_metadata"
+                  :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(fields.field_no)"
+                  @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
+                
+                />
+
               </span>
             </p>
           </div>
@@ -157,6 +184,7 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
                   :inputNeeded=" items.line_item_type !== 'NULL'"
+                  :displayAffix="items.display_affix"
                   @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
                 />
                 <BooleanItemComponent
@@ -193,9 +221,31 @@
                   :item-number="getDisplayFieldNo(items.line_item_no)"
                   :itemText="items.line_text"
                   :item-value="items.value"
-                  :disabled="false"
+                  :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => selectedDate = val"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                />
+                <McqItemComponent
+                  v-else-if="items.line_item_type === 'mcq'"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                  :itemText="items.line_text"
+                  :itemValue="items.value"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"
+                  :options="items.options"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                />
+                <ExpandingTableItemComp 
+                  v-else-if="items.line_item_type === 'exp_table'"
+                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                  :itemText="items.line_text"
+                  :headers="items.table_headers"
+                  :metadata="items.table_metadata"
+                  :itemValue="items.value"
+                  :disabled="editingFieldNo !== fields.field_no"
+                  :indent="getIndent(items.line_item_no)"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                
                 />
               </span>
             </div>
@@ -229,6 +279,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import utils from '@/assets/utils/utils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
+import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
 
 const router = useRouter()
 const toast = useToast()
@@ -240,17 +291,19 @@ const props = defineProps({
   filingId: { type: String, required: true }
 }) 
 
-const emit = defineEmits(['open-upload','refresh-data'])
+const emit = defineEmits(['open-upload','refresh-data','open-computationLogs','open-history'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
 const data = ref(responseStore.getFundData(fundname.value))
+const computationLogs=ref(responseStore.getFundComputation(fundname.value))
 const editingFieldNo = ref(null)
 
 watch(() => props.fundName, (newVal) => {
   fundname.value=newVal
-  console.log(fundname.value)
+  
   data.value = responseStore.getFundData(newVal)
+  computationLogs.value=responseStore.getFundComputation(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
 })
@@ -260,7 +313,6 @@ function updateTableValue(fieldNo, tableData) {
   // Replace the table_data completely
   editedData[fieldNo].table_data = tableData
   // editedData[fieldNo].has_table_data=true
-  console.log(editedData[fieldNo])
   editedData[fieldNo].changed=true
 
 }
@@ -394,7 +446,7 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     // );
 
     // Prepare API payload
-    console.log(editedData)
+    
     const acceptApiData = {
       field_no: fieldNo,
       value: `${ editedData[fieldNo].field_item_value?.[0]?.value ?? value}`, // single-value field
@@ -415,15 +467,15 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     })
 
 
-    console.log('inside save',fundname.value)
+    
 
     data.value = responseStore.getFundData(fundname.value)
-    console.log('data refresh in child')
+    
     editingFieldNo.value = null
     delete editedData[fieldNo]
     toast.success(`Saved Question ${fieldNo}`)
-  } catch (error) {
-    console.log(error);
+  } catch(error){
+    console.log(error)
     toast.error(`Failed to save question ${fieldNo}`);
   } finally {
     making_api_call.value = false;
@@ -453,7 +505,6 @@ async function restoreEdits(fieldNo) {
 
     //data update
     data.value = responseStore.getFundData(fundname.value)
-    console.log('data refresh in child')
     editingFieldNo.value = null
     delete editedData[fieldNo]
     toast.success(`Reverted Question ${fieldNo}`)
@@ -471,7 +522,6 @@ const pendingFieldNo = ref(null)
 
 function cancelEditing(fieldNo,value,fieldIndex) {
   const field = editedData[fieldNo]
-  console.log(editedData[fieldNo])
   if (field?.changed) {
     // OR even better, handle logic below:
     toast.open({
@@ -514,9 +564,6 @@ function cancelEditing(fieldNo,value,fieldIndex) {
   }
 
   // no changes — safe to cancel
-  
-
-
   delete editedData[fieldNo]
   editingFieldNo.value = null
 }
@@ -550,7 +597,6 @@ async function downloadInput(){
       const filing_name=localStorage.getItem('filingName')
       const response=await api_call_methods.download_input(user_id,filing_name)
       utils.downloadInputZip(response, filing_name)
-      
       toast.success("Input files downloaded successfully")
     }
   catch{
@@ -559,8 +605,35 @@ async function downloadInput(){
   finally{
     downloadInputFiles.value=false
   }
-
 }
+
+async function openHistory(field_no,fieldType){
+  const fund_id = responseStore.getFundId(fundname.value)
+  emit('open-history',field_no,fund_id,fieldType)
+}
+function openCompLogs(field_no,field_text){
+  const field = computationLogs.value.find(
+    item => item.field_no === field_no
+  )
+
+  if (!field) {
+    console.warn(`No computation found for field_no ${field_no}`)
+    return
+  }
+
+  const data = {
+    field_no: field.field_no,
+    field_text: field_text,
+    formula:field.computation_formula,
+    type:field.computation_type,
+    field_data: field.field_data,
+    table_data: field.table_data,
+    field_item_type: field.field_item_type,
+    has_table_data: field.has_table_data
+  }
+  emit('open-computationLogs', data)
+}
+
 </script>
 
 <style scoped>

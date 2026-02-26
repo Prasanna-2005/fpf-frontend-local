@@ -24,7 +24,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" />
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-history="openHistory" @open-computation-logs="openComputationLogs"/>
                 
                 
             </div>
@@ -32,8 +32,14 @@
                 <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
             </div> 
             <div v-if="openUploadPopUp" class="backdrop">
-                  <OverlayComponent  @close-upload="closeUpload"/>
+                <OverlayComponent  @close-upload="closeUpload"/>
             </div> 
+            <div v-if="openComputationLogsPopUp" class="backdrop">
+                <computationLogsPopUpComp :field="computationLogs" @close-click="openComputationLogsPopUp=false"/>
+            </div> 
+            <div v-if="openhistoryPopUp" class="backdrop">
+              <historyComponent :fieldData="history" :fieldNo="fieldNo" :fieldType="fieldType"  @close-click="openhistoryPopUp=false" />
+            </div>
             
         </div>
 </template>
@@ -44,6 +50,7 @@ import topBarComponent from '@/components/Editor/topBarComponent.vue';
 import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue';
 import addFundComponent from '@/components/popUps/addFundComponent.vue';
 // import UploadComponent from '@/components/Home/UploadComponent.vue';
+import computationLogsPopUpComp from '@/components/popUps/computationLogsPopUpComp.vue';
 import OverlayComponent from '@/components/Home/OverlayComponent.vue';
 import {ref,onMounted} from 'vue';
 import { useUserStore } from '@/stores/userStore';
@@ -52,6 +59,7 @@ import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toast-notification';
 import { useFileStore } from '@/stores/fileStore';
+import historyComponent from '@/components/popUps/historyComponent.vue';
 const route = useRoute()
 
 const message=ref('Please wait loading editor....')
@@ -62,11 +70,13 @@ const loading=ref('true')
 const fundNames=ref([])
 const toast=useToast()
 const loader=ref('true')
-
-console.log(localStorage.getItem('filingName'))
+const openComputationLogsPopUp=ref(false)
 const responseStore = useEditableStore()
-
+const openhistoryPopUp=ref(false)
 const fileStore=useFileStore()
+const history=ref({})
+const fieldNo=ref('')
+const fieldType=ref('')
 
 fileStore.add_filing_name(localStorage.getItem('filingName'))
 fileStore.updateNewFiling()
@@ -74,6 +84,7 @@ const userStore = useUserStore();
 const filing_id=route.query.filing_id
 let data = ''
 const user_id=userStore.userID
+const computationLogs=ref({})
 onMounted(async () => {
   try {
     loading.value=true
@@ -93,11 +104,13 @@ async function update_status_to_draft(){
 async function set_response(){
     const result=await api_call_methods.get_response(user_id,filing_id)
     data=result.data 
-    console.log(data)
+    
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
     responseStore.setResponse(data)
     fundName.value=fundNames.value[0]
+    const computations=await api_call_methods.get_computations(user_id,filing_id)
+    responseStore.setComputations(computations.data)
 }
 
 function selectFund(fund_name){
@@ -108,24 +121,38 @@ function selectFund(fund_name){
 async function update_response(){
     const result=await api_call_methods.get_response(user_id,filing_id)
     data=result.data 
-    console.log(data)
     const funds=data.funds
     fundNames.value = funds.map(fund => fund.fund_name);
     responseStore.setResponse(data)
+    
 }
 
 async function refreshData(done) {
   try {
     await update_response()  
-    console.log('confirmation from parent')
+    
   } finally {
     if (done) done()    
   }
+}
+function openComputationLogs(data){
+  
+  computationLogs.value=data
+  
+  openComputationLogsPopUp.value=true
 }
 
 
 function closeUpload(){
   openUploadPopUp.value=false
+}
+
+async function openHistory(data){
+  fieldNo.value=data.fieldNo
+  fieldType.value=data.fieldType
+  const result=await api_call_methods.get_history(user_id,data)
+  history.value=result.data
+  openhistoryPopUp.value=true
 }
 
 </script>

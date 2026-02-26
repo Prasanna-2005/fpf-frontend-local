@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" />
+    <TopBarComponent @update:search="handleSearch" @upload-click="handleUploadClick" @update:year="filterByYear"/>
   </div>
   <div v-if="isLoading" style="height: 300px" class="d-flex justify-content-center align-items-center">
     <p>Loading Filings table....</p>
@@ -75,7 +75,7 @@
       <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="btn" ><</button>
 
       <button
-        v-for="page in totalPages"
+        v-for="page in visiblePages"
         :key="page"
         :class="{ active: currentPage === page }"
         @click="goToPage(page)"
@@ -83,6 +83,7 @@
       >
         {{ page }}
       </button>
+
 
       <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn">></button>
     </div>
@@ -158,6 +159,11 @@ const currentPage = ref(1)
 const itemsPerPage = 4
 const searchQuery = ref('')
 
+const selectedYear = ref(null)
+function filterByYear(year) {
+  selectedYear.value = year
+  currentPage.value = 1
+}
 
 function handleSearch(query) {
   searchQuery.value = query
@@ -182,6 +188,16 @@ const filteredData = computed(() => {
       )
     );
   }
+  //filter by Year
+  // 📅 Year filter (ignore when 'Year' is selected)
+  if (selectedYear.value && selectedYear.value !== 'Year') {
+    tempData = tempData.filter(item => {
+      if (!item.modified_on) return false
+      const year = new Date(item.modified_on).getFullYear()
+      return year === Number(selectedYear.value)
+    })
+  }
+
 
   // Sort so that archived always goes last
   tempData = [...tempData].sort((a, b) => {
@@ -210,6 +226,19 @@ const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPer
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return filteredData.value.slice(start, start + itemsPerPage)
+})
+const visiblePages = computed(() => {
+  const maxButtons = 5
+
+  const start =
+    Math.floor((currentPage.value - 1) / maxButtons) * maxButtons + 1
+
+  const end = Math.min(start + maxButtons - 1, totalPages.value)
+
+  return Array.from(
+    { length: end - start + 1 },
+    (_, i) => start + i
+  )
 })
 
 function goToPage(page) {

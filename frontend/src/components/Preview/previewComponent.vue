@@ -76,7 +76,7 @@
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
                   
                   <!-- <span class="line-value"><b>{{ fields.value }}</b></span> -->
-                   <span class="line-value"><b>{{ formatValue(fields.value) }}</b></span>
+                   <span class="line-value"><b>{{ formatValue(fields.value,fields.display_affix) }}</b></span>
                 </span>
               </p>
 
@@ -107,14 +107,18 @@
                           class="thick-border fixed-col"
                           :class="!isNaN(val[0]) ? 'number' : ''"
                         >
-                          <span>{{  formatValue(val,key) }}</span>
+                          <span>{{  formatValue(val,fields.table_metadata?.[key]?.display_affix,key) }}</span>
                         </td>
                       </template>
                     </tr>
                   </tbody>
                 </table>
               </div>
-
+              <expandingTableComponent
+                  v-if="fields.field_item_type=='exp_table'"
+                  :tableHeaders="fields.table_headers"
+                  :value="fields.value"
+              />
               <!-- Field Sub Items -->
               <div v-if="fields.field_data?.length" class="field-content">
                 <span v-for="(items, itemIndex) in fields.field_data" :key="itemIndex" class="line-item">
@@ -124,34 +128,17 @@
 
                     <!-- Normal value -->
                     <span v-if="items.line_item_type !== 'table'" class="line-value">
-                      <b>{{ formatValue(items.value) }}</b>
+                      <b>{{ formatValue(items.value,items.display_affix) }}</b>
                     </span>
                   </p>
 
-                  <!-- Nested Table -->
-                  <div v-if="items.line_item_type === 'table' && items.table_data?.length" class="table-responsive my-2">
-                    <table class="table table-bordered table-sm thick-border">
-                      <thead>
-                        <tr class="thick-border">
-                          <th
-                            v-for="(val, key, colIndex) in items.table_data?.[0] || {}"
-                            :key="colIndex"
-                            class="thick-border"
-                          >
-                            <b>{{ get_table_header_name(key).toUpperCase() }}</b>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(row, rowIndex) in items.table_data || []" :key="rowIndex" class="thick-border">
-                          <td v-for="(val, key, colIndex) in row" :key="colIndex" class="thick-border">
-                            <span v-if="key === 's.text'">{{ getDisplayFieldNo(val) }}</span>
-                            <span v-else class="mono">{{ val }}</span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  <expandingTableComponent
+                  v-if="items.line_item_type=='exp_table'"
+                  :tableHeaders="items.table_headers"
+                  :value="items.value"
+              />
+
+                  
                 </span>
               </div>
             </div>
@@ -171,6 +158,7 @@ import { defaultText } from '@/assets/text/text';
 import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
 import { useUserStore } from '@/stores/userStore';
+import expandingTableComponent from './subComponent/expandingTableComponent.vue';
 const userStore=useUserStore()
 const role=userStore.role
 import api_call_methods from '@/assets/api_calls/api_calls';
@@ -190,7 +178,7 @@ const responseStore = useEditableStore();
 const status=ref(responseStore.getStatus())
 const downloadPDFPreview=ref(false)
 const downloadInputFiles=ref(false)
-console.log('status',status.value)
+
 watch(() => responseStore.status, (v) =>{
  console.log('store.status changed ->', v)
  status.value=responseStore.getStatus()
@@ -200,7 +188,7 @@ watch(() => responseStore.status, (v) =>{
 
 const user_id=userStore.userID
 const data = responseStore.getAllData();
-console.log(data)
+
 const pdfContent = ref(null);
 const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml']);
 const toast=useToast()
@@ -409,27 +397,26 @@ function get_table_header_name(header){
 
 }
 
-function formatValue(value,field='') {
+function formatValue(value,symbol,field='') {
   const num = Number(value);
-  console.log(field)
   if(field=='Institution code')return value;
   // Not a number → return raw
   if (isNaN(num)) return value;
   if (num == 0) return value;
 
-
-  // Less than 100 → percentage
-  if (Math.abs(num) <= 100) {
-    return `${num}%`;
-  }
-
-  // 100 or more → formatted currency
-  const formatted = num.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
+  if (symbol === 'Dollar') {
+    const absolute_num=Math.abs(num)
+    const formatted = absolute_num.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+    return `$ ${formatted}`
+  }
 
-  return `$ ${formatted}`;
+  if (symbol === 'Percentage') {
+    return `${num} %`
+  }
+  return `${num}`
 }
 </script>
 

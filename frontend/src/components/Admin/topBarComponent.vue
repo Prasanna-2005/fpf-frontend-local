@@ -23,14 +23,15 @@
 
 <script setup>
 import {ref} from 'vue'     
-const years = ['YEAR 2024-25', 'YEAR 2023-24', 'YEAR 2022-23']
+const years = ['2026', '2025']
 const selectedYear = ref(years[0])
 function selectYear(year) {
   selectedYear.value = year
+  emit('update:year', year)
 }
 
 const emit=defineEmits(
-    ['add-user']
+    ['add-user','update:year']
 )
 
 function emit_add_User_event(){
