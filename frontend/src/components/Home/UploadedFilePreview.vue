@@ -90,16 +90,6 @@ async function upload_files(){
     }
     catch(error){
       toast.error(error.response.data.message)
-      // if(error.status=='409'){
-      //   console.log(error)
-      //   toast.error(error.message)
-      //   fileStore.clearAllData()
-      //   emit('close-preview')
-      //   emit('open-uploader')
-      // }
-      // if(error.status=='400'){
-      //   toast.error("Upload contains funds from multiple series. Please upload single series at a time")
-      // }
     }
     finally{
       isLoading_uploading.value=false 

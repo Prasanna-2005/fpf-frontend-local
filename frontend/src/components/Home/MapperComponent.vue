@@ -195,9 +195,9 @@ async function proceed() {
     await api_call_methods.submit_files(data,user_id)
     toast.success("Mappings updated successfully!")
     location.reload();
-  } catch (err) {
-    console.error("Error updating mappings:", err);
-    toast.error("Failed to update mappings.");
+  } catch (error) {
+    console.error("Error updating mappings:", error);
+    toast.error(error.response.data.message)
   }
   finally{
     isLoading.value=false
