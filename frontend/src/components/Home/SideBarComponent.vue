@@ -29,12 +29,13 @@
         <li class="nav-item" v-if="role!='admin'">
           <a href="/home" class="nav-link active">Home</a>
         </li>
-        <li v-if="role!='admin'">
+        <!-- Will be used later  -->
+        <!-- <li v-if="role!='admin'">
           <a href="#" class="nav-link link-dark">Report</a>
         </li>
         <li v-if="role!='admin'">
           <a  class="nav-link link-dark" @click="addFund">Add Fund</a>
-        </li>
+        </li> -->  
         <li >
           <a class="nav-link link-dark" v-on:click="Logout">Logout</a>
         </li>
