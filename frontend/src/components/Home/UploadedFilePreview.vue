@@ -90,6 +90,7 @@ async function upload_files(){
     }
     catch(error){
       if(error.status=='409'){
+        console.log(error)
         toast.error(error.message)
         fileStore.clearAllData()
         emit('close-preview')
