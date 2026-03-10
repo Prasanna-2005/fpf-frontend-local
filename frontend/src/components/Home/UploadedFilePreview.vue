@@ -89,13 +89,7 @@ async function upload_files(){
       emit('files-mapped', mapped_data.value)
     }
     catch(error){
-      if(error.status=='409'){
-        toast.error("Duplicate filing name.")
-        fileStore.clearAllData()
-        emit('close-preview')
-        emit('open-uploader')
-       
-      }
+      toast.error(error.response.data.message)
     }
     finally{
       isLoading_uploading.value=false 

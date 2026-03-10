@@ -72,7 +72,7 @@
 
 
     <div class="d-flex justify-content-end pagination">
-      <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="btn" ><</button>
+      <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"  :class="currentPage === 1 ? 'btn btn-dark' : 'btn'" ><</button>
 
       <button
         v-for="page in visiblePages"
@@ -85,7 +85,7 @@
       </button>
 
 
-      <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn">></button>
+      <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'btn btn-dark' : 'btn'">></button>
     </div>
   </div>
 </template>

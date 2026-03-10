@@ -61,6 +61,8 @@
 import { useDropzone } from "vue3-dropzone"
 import { useFileStore } from '@/stores/fileStore'
 import { ref, watch} from 'vue'
+import { useToast } from 'vue-toast-notification';
+const toast = useToast();
 const fileStore = useFileStore()
 
 const new_filing=ref(fileStore.getNewFilingField())
@@ -70,9 +72,32 @@ const files = ref([])
 const emit = defineEmits(['Upload-done'])
 
 function onDrop(acceptedFiles) {
-  files.value = [...files.value, ...acceptedFiles];
-  fileStore.addFiles(filingName.value, files.value)
+
+  const allowedExtensions = new Set(["xlsx", "xls", "zip","pdf"])
+  const validFiles = []
+  const invalidFiles = []
+
+  acceptedFiles.forEach(file => {
+    const ext = file.name.split(".").pop().toLowerCase()
+
+    if (allowedExtensions.has(ext)) {
+      validFiles.push(file)
+    } else {
+      invalidFiles.push(file.name)
+    }
+  })
+
+  if (invalidFiles.length > 0) {
+    toast.error(`Invalid file type: ${invalidFiles.join(", ")}. Only XLSX, XLS, ZIP, PDF allowed.`)
+  }
+
+  if (validFiles.length > 0) {
+    files.value = [...files.value, ...validFiles]
+    fileStore.addFiles(filingName.value, files.value)
+  }
 }
+
+
 watch(filingName, (newVal) => {
   if (newVal) {
     fileStore.add_filing_name(newVal)
