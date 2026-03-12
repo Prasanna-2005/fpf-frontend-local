@@ -66,7 +66,7 @@ const displayValue = computed(() => {
   if (props.displayAffix === 'Percentage') {
     return `${num} %`
   }
-    return `${num}`
+    return `${inputValue.value}`
   } else {
     return inputValue.value
   }
