@@ -195,7 +195,7 @@
                   :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <DropdownItemComponent
                   v-else-if="items.line_item_type === 'dropdown'"
@@ -205,7 +205,7 @@
                   :options="items.options"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <TableItemComponent
                   v-else-if="items.line_item_type === 'table'"
@@ -223,7 +223,7 @@
                   :item-value="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <McqItemComponent
                   v-else-if="items.line_item_type === 'mcq'"
@@ -233,7 +233,7 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
                   :options="items.options"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <ExpandingTableItemComp 
                   v-else-if="items.line_item_type === 'exp_table'"
@@ -244,7 +244,7 @@
                   :itemValue="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 
                 />
               </span>
