@@ -250,7 +250,7 @@ function downloadXMLFile(xmlData) {
   // ---------- Section PFFund--------
   const section = root.ele('PFFunds');
   data.fund_info.forEach(fund => {
-    const fundElem = section.ele('PFFunds');
+    const fundElem = section.ele('PFFund');
     fundElem.ele('FundID').txt(fund.fund_id || '');
     fundElem.ele('FundName').txt(fund.fund_name || '');
     fundElem.ele('FundType').txt(fund.fund_type || '');
