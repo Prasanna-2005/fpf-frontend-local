@@ -310,9 +310,16 @@ watch(() => props.fundName, (newVal) => {
 
 function updateTableValue(fieldNo, tableData) {
   if (!editedData[fieldNo]) return
-  // Replace the table_data completely
-  editedData[fieldNo].table_data = tableData
-  // editedData[fieldNo].has_table_data=true
+  // idx and key level accept
+  const { idx,key, rows } = tableData
+  console.log(idx)
+
+  editedData[fieldNo].table_data = rows
+  if (!editedData[fieldNo].changedTableCells.has(idx)) {
+    editedData[fieldNo].changedTableCells.set(idx, new Set())
+  }
+
+  editedData[fieldNo].changedTableCells.get(idx).add(key)
   editedData[fieldNo].changed=true
 
 }
@@ -398,7 +405,8 @@ function startEditing(fieldNo) {
      has_table_data:field.has_table_data,
      field_item_type: field.field_item_type,
      changed: false,
-     changedSubFields: new Set() 
+     changedSubFields: new Set() ,
+    changedTableCells: new Map()
     }
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
@@ -453,13 +461,7 @@ async function saveEdits(fieldNo, value, fieldIndex) {
 
     const fund_id = responseStore.getFundId(fundname.value);
 
-    // Update store with edited data
-    // responseStore.updateItem(
-    //   props.fundName,
-    //   fieldNo,
-    //   editedData[fieldNo], // pass the whole object with items, table_data, field_item_value
-    //   fieldIndex
-    // );
+
 
     // Prepare API payload
 
@@ -468,12 +470,31 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     const filteredFieldData = editedData[fieldNo].value.filter(item =>
       changedSet.has(item.line_item_no)
     )
-    
+
+    const changedMap = editedData[fieldNo].changedTableCells
+    const filteredTableData = []
+
+    changedMap.forEach((keys, idx) => {
+      const row = editedData[fieldNo].table_data[idx]
+
+      const updatedRow = {}
+      updatedRow['s.name'] = row['s.name']
+      updatedRow['s.text'] = row['s.text']
+
+
+      keys.forEach(key => {
+        updatedRow[key] = row[key]
+      })
+
+      filteredTableData.push({
+        ...updatedRow
+      })
+    })
     const acceptApiData = {
       field_no: fieldNo,
       value: `${ editedData[fieldNo].field_item_value?.[0]?.value ?? value}`, // single-value field
       field_data: filteredFieldData,  // field_data array
-      table_data: editedData[fieldNo].table_data ?? [], // table rows
+      table_data: filteredTableData, // table rows
       confirmed: true,
       editing: false,
       has_table_data:editedData[fieldNo].has_table_data,
