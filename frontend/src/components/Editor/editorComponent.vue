@@ -423,9 +423,6 @@ function startEditing(fieldNo) {
 // Updated updateValue
 function updateValue(fieldNo, itemIndex, newVal, type = 'value',line_item_no='') {
   if (!editedData[fieldNo]) return
-  console.log('fieldnumber',fieldNo)
-  console.log('itemIndex',itemIndex)
-  console.log('itemIndex',line_item_no)
   switch (type) {
     case 'value':
       if (editedData[fieldNo].value[itemIndex]){
