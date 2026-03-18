@@ -185,7 +185,7 @@
                   :indent="getIndent(items.line_item_no)"
                   :inputNeeded=" items.line_item_type !== 'NULL'"
                   :displayAffix="items.display_affix"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
                 />
                 <BooleanItemComponent
                   v-else-if="items.line_item_type === 'bool'"
@@ -391,7 +391,15 @@ function startEditing(fieldNo) {
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type,changed: false}
+  editedData[fieldNo] = {
+     value: [],
+     table_data: [],
+     field_item_value: [],
+     has_table_data:field.has_table_data,
+     field_item_type: field.field_item_type,
+     changed: false,
+     changedSubFields: new Set() 
+    }
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
@@ -405,11 +413,19 @@ function startEditing(fieldNo) {
 }
 
 // Updated updateValue
-function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
+function updateValue(fieldNo, itemIndex, newVal, type = 'value',line_item_no='') {
   if (!editedData[fieldNo]) return
+  console.log('fieldnumber',fieldNo)
+  console.log('itemIndex',itemIndex)
+  console.log('itemIndex',line_item_no)
   switch (type) {
     case 'value':
-      if (editedData[fieldNo].value[itemIndex]) editedData[fieldNo].value[itemIndex].value = newVal
+      if (editedData[fieldNo].value[itemIndex]){
+         editedData[fieldNo].value[itemIndex].value = newVal
+         editedData[fieldNo].changedSubFields.add(
+          line_item_no || editedData[fieldNo].value[itemIndex]?.line_item_no || itemIndex
+        )
+      }
       break
     case 'table_data':
       if (editedData[fieldNo].table_data[itemIndex]) {
@@ -446,11 +462,17 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     // );
 
     // Prepare API payload
+
+    const changedSet = editedData[fieldNo].changedSubFields
+
+    const filteredFieldData = editedData[fieldNo].value.filter(item =>
+      changedSet.has(item.line_item_no)
+    )
     
     const acceptApiData = {
       field_no: fieldNo,
       value: `${ editedData[fieldNo].field_item_value?.[0]?.value ?? value}`, // single-value field
-      field_data: editedData[fieldNo].value ?? [],  // field_data array
+      field_data: filteredFieldData,  // field_data array
       table_data: editedData[fieldNo].table_data ?? [], // table rows
       confirmed: true,
       editing: false,
