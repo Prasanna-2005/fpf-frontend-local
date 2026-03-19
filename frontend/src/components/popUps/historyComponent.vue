@@ -54,13 +54,13 @@
               </p>
 
               <p class="mb-1">
-                <strong>Updated At:</strong>
-                {{ formatDate(item.updated_at || item.created_at) }}
+                <strong>Created At:</strong>
+                {{ formatDate( item.created_at) }}
               </p>
 
               <p class="mb-0">
-                <strong>Updated By:</strong>
-                {{ item.updated_by || item.created_by || '—' }}
+                <strong>Created By:</strong>
+                {{ item.created_by || '—' }}
               </p>
 
               <div v-if="item.is_current_value" class="current-label">
