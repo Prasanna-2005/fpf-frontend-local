@@ -1,7 +1,7 @@
 <template>
   <div class="w-100 d-flex pb-4 justify-content-center">
       <div class="main-container  d-flex justify-content-between align-items-center">
-        <h2>Editing Filing</h2>
+        <h3 class="text-capitalize">Editing : {{ filingName }}</h3>
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ selectedFund }}
@@ -19,6 +19,8 @@
 <script setup>
  
 import {ref,onMounted} from 'vue';
+import { useFileStore } from '@/stores/fileStore';
+const fileStore=useFileStore()
 
 const props = defineProps({
   fundNames: { 
@@ -28,7 +30,7 @@ const props = defineProps({
 })
 
 const fundDetails=props.fundNames
-const filingName="Financial Year 2024-25"
+const filingName=fileStore.getfilingName()
 const selectedFund=ref('')
 
 const emit= defineEmits(['selected-fund'])
