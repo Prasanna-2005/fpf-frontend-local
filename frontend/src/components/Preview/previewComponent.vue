@@ -105,7 +105,9 @@
                         <td
                           v-if="key !== 's.name'"
                           class="thick-border fixed-col"
-                          :class="!isNaN(val[0]) ? 'number' : ''"
+                          :class="!isNaN( formatValue(val, fields.table_metadata?.[key]?.display_affix, key)
+                                        .replace('$', '')[0]
+                                        ) ? 'number' : ''"
                         >
                           <span>{{  formatValue(val,fields.table_metadata?.[key]?.display_affix,key) }}</span>
                         </td>

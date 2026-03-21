@@ -185,7 +185,7 @@
                   :indent="getIndent(items.line_item_no)"
                   :inputNeeded=" items.line_item_type !== 'NULL'"
                   :displayAffix="items.display_affix"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
                 />
                 <BooleanItemComponent
                   v-else-if="items.line_item_type === 'bool'"
@@ -195,7 +195,7 @@
                   :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <DropdownItemComponent
                   v-else-if="items.line_item_type === 'dropdown'"
@@ -205,7 +205,7 @@
                   :options="items.options"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <TableItemComponent
                   v-else-if="items.line_item_type === 'table'"
@@ -223,7 +223,7 @@
                   :item-value="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <McqItemComponent
                   v-else-if="items.line_item_type === 'mcq'"
@@ -233,7 +233,7 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
                   :options="items.options"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 />
                 <ExpandingTableItemComp 
                   v-else-if="items.line_item_type === 'exp_table'"
@@ -244,7 +244,7 @@
                   :itemValue="items.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value')"
+                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
                 
                 />
               </span>
@@ -310,9 +310,16 @@ watch(() => props.fundName, (newVal) => {
 
 function updateTableValue(fieldNo, tableData) {
   if (!editedData[fieldNo]) return
-  // Replace the table_data completely
-  editedData[fieldNo].table_data = tableData
-  // editedData[fieldNo].has_table_data=true
+  // idx and key level accept
+  const { idx,key, rows } = tableData
+  console.log(idx)
+
+  editedData[fieldNo].table_data = rows
+  if (!editedData[fieldNo].changedTableCells.has(idx)) {
+    editedData[fieldNo].changedTableCells.set(idx, new Set())
+  }
+
+  editedData[fieldNo].changedTableCells.get(idx).add(key)
   editedData[fieldNo].changed=true
 
 }
@@ -391,7 +398,16 @@ function startEditing(fieldNo) {
   const field = data.value.find(f => f.field_no === fieldNo)
   if (!field) return
 
-  editedData[fieldNo] = { value: [], table_data: [], field_item_value: [],has_table_data:field.has_table_data,field_item_type: field.field_item_type,changed: false}
+  editedData[fieldNo] = {
+     value: [],
+     table_data: [],
+     field_item_value: [],
+     has_table_data:field.has_table_data,
+     field_item_type: field.field_item_type,
+     changed: false,
+     changedSubFields: new Set() ,
+    changedTableCells: new Map()
+    }
 
   if (Array.isArray(field.field_data) && field.field_data.length) {
     editedData[fieldNo].value = field.field_data.map(i => ({ ...i, value: i.value ?? '' }))
@@ -405,11 +421,16 @@ function startEditing(fieldNo) {
 }
 
 // Updated updateValue
-function updateValue(fieldNo, itemIndex, newVal, type = 'value') {
+function updateValue(fieldNo, itemIndex, newVal, type = 'value',line_item_no='') {
   if (!editedData[fieldNo]) return
   switch (type) {
     case 'value':
-      if (editedData[fieldNo].value[itemIndex]) editedData[fieldNo].value[itemIndex].value = newVal
+      if (editedData[fieldNo].value[itemIndex]){
+         editedData[fieldNo].value[itemIndex].value = newVal
+         editedData[fieldNo].changedSubFields.add(
+          line_item_no || editedData[fieldNo].value[itemIndex]?.line_item_no || itemIndex
+        )
+      }
       break
     case 'table_data':
       if (editedData[fieldNo].table_data[itemIndex]) {
@@ -437,21 +458,40 @@ async function saveEdits(fieldNo, value, fieldIndex) {
 
     const fund_id = responseStore.getFundId(fundname.value);
 
-    // Update store with edited data
-    // responseStore.updateItem(
-    //   props.fundName,
-    //   fieldNo,
-    //   editedData[fieldNo], // pass the whole object with items, table_data, field_item_value
-    //   fieldIndex
-    // );
+
 
     // Prepare API payload
-    
+
+    const changedSet = editedData[fieldNo].changedSubFields
+
+    const filteredFieldData = editedData[fieldNo].value.filter(item =>
+      changedSet.has(item.line_item_no)
+    )
+
+    const changedMap = editedData[fieldNo].changedTableCells
+    const filteredTableData = []
+
+    changedMap.forEach((keys, idx) => {
+      const row = editedData[fieldNo].table_data[idx]
+
+      const updatedRow = {}
+      updatedRow['s.name'] = row['s.name']
+      updatedRow['s.text'] = row['s.text']
+
+
+      keys.forEach(key => {
+        updatedRow[key] = row[key]
+      })
+
+      filteredTableData.push({
+        ...updatedRow
+      })
+    })
     const acceptApiData = {
       field_no: fieldNo,
       value: `${ editedData[fieldNo].field_item_value?.[0]?.value ?? value}`, // single-value field
-      field_data: editedData[fieldNo].value ?? [],  // field_data array
-      table_data: editedData[fieldNo].table_data ?? [], // table rows
+      field_data: filteredFieldData,  // field_data array
+      table_data: filteredTableData, // table rows
       confirmed: true,
       editing: false,
       has_table_data:editedData[fieldNo].has_table_data,
