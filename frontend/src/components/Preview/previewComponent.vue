@@ -395,7 +395,9 @@ function get_table_header_name(header){
   else if (header=='costbased'){
     return "cost-based"
   }
-  
+  else if (/^level\d+$/.test(header)) {
+    return header.replace(/level(\d+)/, 'level $1')
+  }
   else{
     return header.replaceAll("_", " ");
 
