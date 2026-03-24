@@ -7,8 +7,8 @@
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF" :disabled="downloadPDFPreview">
         <span v-if="downloadPDFPreview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        <span v-if="!downloadPDFPreview"><font-awesome-icon class="icon" icon="download" /> Pdf Preview Download</span>
-        <span v-else>Downloading Pdf Preview...</span>
+        <span v-if="!downloadPDFPreview"><font-awesome-icon class="icon" icon="download" /> PDF Preview Download</span>
+        <span v-else>Downloading PDF Preview...</span>
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
         <!-- <font-awesome-icon class="icon" icon="download" /> Input File -->
@@ -56,7 +56,7 @@
 
           <!-- Group by Heading -->
           <div v-for="(fieldsGroup, heading) in groupByHeading(seriesData)" :key="heading">
-            <h4><b>{{ heading }}</b></h4>
+            <h4><b>{{ heading.split(':')[1] }}</b></h4>
             <b><hr /></b>
 
             <!-- Fields Loop -->
@@ -67,10 +67,10 @@
               
               :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
             >
+
               <p class="field-number">
                 {{ getDisplayFieldNo(fields.field_no) }})
                 <span v-if="fields.has_field_item_text">
-                  
                   <pre  v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</pre>
                    <!-- <span v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</span> -->
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
@@ -79,6 +79,8 @@
                    <span class="line-value"><b>{{ formatValue(fields.value,fields.display_affix) }}</b></span>
                 </span>
               </p>
+              
+
 
               <!-- Table Data -->
               <div v-if="fields.has_table_data && fields.table_data?.length" class="table-responsive my-2 ">
@@ -142,6 +144,14 @@
 
                   
                 </span>
+              </div>
+              <div v-if="fields.field_no=='17'" class="d-flex w-100 mb-4" style="border: 1px solid;">
+                <div style="border: 1px solid;" class="w-50 p-2">
+                  <h4>{{ fundKey }}</h4>
+                </div>
+                <div style="border: 1px solid;" class="w-50 p-2">
+                  <h4>Information about the hedge funds you advise</h4>
+                </div>
               </div>
             </div>
           </div>
@@ -391,6 +401,12 @@ function get_table_header_name(header){
   }
   else if(header==='s.text'){
     return ''
+  }
+  else if (header=='costbased'){
+    return "cost-based"
+  }
+  else if (/^level\d+$/.test(header)) {
+    return header.replace(/level(\d+)/, 'level $1')
   }
   else{
     return header.replaceAll("_", " ");

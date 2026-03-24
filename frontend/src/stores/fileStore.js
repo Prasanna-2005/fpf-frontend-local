@@ -57,6 +57,7 @@ export const useFileStore = defineStore('file', () => {
     filing.value = '';
     filing_name.value=''
     new_filing.value=true
+    upload_more_mapper.value=false
   } 
 
   function upload_more(){

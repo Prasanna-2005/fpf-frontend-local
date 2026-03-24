@@ -48,7 +48,7 @@
       </div>
 
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" @click="$emit('close-click')">Cancel</button>
+        <button class="btn btn-outline-secondary btn-sm" @click="handleCancel">Cancel</button>
         <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName ||  !isNameValid">Next</button>
       </div>
     </div>
@@ -62,6 +62,8 @@ import { useDropzone } from "vue3-dropzone"
 import { useFileStore } from '@/stores/fileStore'
 import { ref, watch} from 'vue'
 import { useToast } from 'vue-toast-notification';
+import { useUserStore } from '@/stores/userStore'
+import api_call_methods from "@/assets/api_calls/api_calls";
 const toast = useToast();
 const fileStore = useFileStore()
 
@@ -144,6 +146,26 @@ function validateName() {
 
 
 
+const userStore=useUserStore()
+const user_id=userStore.userID
+async function handleCancel(){
+  try{
+    console.log("new filing field:",fileStore.getUploadMore())
+    if (fileStore.getUploadMore()){
+      console.log("cancel api call")
+      console.log(filingName.value)
+      const data={
+      "filing_name":filingName.value,
+    }
+      await api_call_methods.discard_filing(data,user_id)
+      toast.success("Filing cancelled!")
+      fileStore.clearAllData()
+    }
+    emit('close-click')
+  }catch(e){
+    console.log(e)
+  }
+}
 const { getRootProps, getInputProps } = useDropzone({ onDrop })
 </script>
 
