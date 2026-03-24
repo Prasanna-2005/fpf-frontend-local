@@ -7,8 +7,8 @@
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadPDF" :disabled="downloadPDFPreview">
         <span v-if="downloadPDFPreview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        <span v-if="!downloadPDFPreview"><font-awesome-icon class="icon" icon="download" /> Pdf Preview Download</span>
-        <span v-else>Downloading Pdf Preview...</span>
+        <span v-if="!downloadPDFPreview"><font-awesome-icon class="icon" icon="download" /> PDF Preview Download</span>
+        <span v-else>Downloading PDF Preview...</span>
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
         <!-- <font-awesome-icon class="icon" icon="download" /> Input File -->
@@ -391,6 +391,12 @@ function get_table_header_name(header){
   }
   else if(header==='s.text'){
     return ''
+  }
+  else if (header=='costbased'){
+    return "cost-based"
+  }
+  else if (/^level\d+$/.test(header)) {
+    return header.replace(/level(\d+)/, 'level $1')
   }
   else{
     return header.replaceAll("_", " ");
