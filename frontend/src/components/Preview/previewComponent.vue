@@ -392,6 +392,10 @@ function get_table_header_name(header){
   else if(header==='s.text'){
     return ''
   }
+  else if (header=='costbased'){
+    return "cost-based"
+  }
+  
   else{
     return header.replaceAll("_", " ");
 
