@@ -56,7 +56,7 @@
 
           <!-- Group by Heading -->
           <div v-for="(fieldsGroup, heading) in groupByHeading(seriesData)" :key="heading">
-            <h4><b>{{ heading }}</b></h4>
+            <h4><b>{{ heading.split(':')[1] }}</b></h4>
             <b><hr /></b>
 
             <!-- Fields Loop -->
@@ -67,10 +67,10 @@
               
               :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
             >
+
               <p class="field-number">
                 {{ getDisplayFieldNo(fields.field_no) }})
                 <span v-if="fields.has_field_item_text">
-                  
                   <pre  v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</pre>
                    <!-- <span v-if="fields.field_no=='14'" class="formatted-text">{{ defaultText }}</span> -->
                   <span v-else class="line-text">{{ fields.field_text }}:</span>
@@ -79,6 +79,8 @@
                    <span class="line-value"><b>{{ formatValue(fields.value,fields.display_affix) }}</b></span>
                 </span>
               </p>
+              
+
 
               <!-- Table Data -->
               <div v-if="fields.has_table_data && fields.table_data?.length" class="table-responsive my-2 ">
@@ -142,6 +144,14 @@
 
                   
                 </span>
+              </div>
+              <div v-if="fields.field_no=='17'" class="d-flex w-100 mb-4" style="border: 1px solid;">
+                <div style="border: 1px solid;" class="w-50 p-2">
+                  <h4>{{ fundKey }}</h4>
+                </div>
+                <div style="border: 1px solid;" class="w-50 p-2">
+                  <h4>Information about the hedge funds you advise</h4>
+                </div>
               </div>
             </div>
           </div>
