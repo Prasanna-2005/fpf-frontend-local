@@ -30,16 +30,33 @@
       <div :key="props.fundName">
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
           <div v-if="getDisplayFieldNo(fields.field_no) === '5'">
-            <h4 class=" mb-3 mt-4">Item A. Reporting fund identifying information</h4>
+            <h5 class=" mb-3 mt-4">Item A. Reporting fund identifying information</h5>
           </div>
 
           <!-- Add heading before question 8 (i.e., after 7) -->
           <div v-if="getDisplayFieldNo(fields.field_no) === '8'">
-            <h4 class=" mb-3 mt-4">Item B. Assets, financing and investor concentration</h4>
+            <h5 class=" mb-3 mt-4">Item B. Assets, financing and investor concentration</h5>
           </div>
           <!-- Add heading before question 18 (i.e., after 17) -->
+          <div v-if="getDisplayFieldNo(fields.field_no) === '17'">
+            <h5 class=" mb-3 mt-4">Item C. Reporting fund performance</h5>
+          </div>
+
           <div v-if="getDisplayFieldNo(fields.field_no) === '18'">
-            <h4 class=" mb-3 mt-4">Item C. Information about the hedge funds you advise</h4>
+            <div class="d-flex w-100 mb-4" style="border: 1px solid;">
+              <div style="border: 1px solid;" class="w-50 p-2">
+                <h4>{{ props.fundName }}</h4>
+              </div>
+              <div style="border: 1px solid;" class="w-50 p-2">
+                <h4>Information about the hedge funds you advise</h4>
+              </div>
+            </div>
+          </div>
+          <div v-if="getDisplayFieldNo(fields.field_no) === '18'">
+            <h5 class=" mb-3 mt-4">Item A. Reporting fund identifying information </h5>
+          </div>
+          <div v-if="getDisplayFieldNo(fields.field_no) === '19'">
+            <h5 class=" mb-3 mt-4">Item B. Certain information regarding the reporting fund </h5>
           </div>
 
           <b><hr /></b>
