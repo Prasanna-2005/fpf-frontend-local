@@ -5,7 +5,7 @@
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
       </button>
       <button class="btn btn-primary m-2 border-0" @click="goToPreview">
-        <font-awesome-icon class="icon" icon="eye" /> Pdf Preview
+        <font-awesome-icon class="icon" icon="eye" /> PDF Preview
       </button>
       <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
         <span v-if="downloadInputFiles" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
