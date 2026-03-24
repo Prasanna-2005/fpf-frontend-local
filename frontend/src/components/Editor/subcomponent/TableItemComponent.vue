@@ -145,6 +145,9 @@ function onCheckbox(event, rowIndex, key) {
 
 function get_table_header_name(header) {
   if (header === 's.name' || header === 's.text') return ''
+  if (header=='costbased'){
+    return "cost-based"
+  }
   return header.replaceAll('_', ' ')
 }
 
