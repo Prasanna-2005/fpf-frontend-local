@@ -141,18 +141,28 @@
                   :tableHeaders="items.table_headers"
                   :value="items.value"
               />
-
-                  
                 </span>
               </div>
-              <div v-if="fields.field_no=='17'" class="d-flex w-100 mb-4" style="border: 1px solid;">
-                <div style="border: 1px solid;" class="w-50 p-2">
-                  <h4>{{ fundKey }}</h4>
+              <div  v-if="
+                    getDisplayFieldNo(fields.field_no) === '17' &&
+                    hasField(seriesData, '18')
+                  ">
+                <b><hr /></b>
+                <div
+                 
+                  class="d-flex w-100 mb-4"
+                  style="border: 1px solid;"
+                >
+                  <div style="border: 1px solid;" class="w-50 p-2">
+                    <h4>{{ fundKey }}</h4>
+                  </div>
+                  <div style="border: 1px solid;" class="w-50 p-2">
+                    <h4>Information about the hedge funds you advise</h4>
+                  </div>
                 </div>
-                <div style="border: 1px solid;" class="w-50 p-2">
-                  <h4>Information about the hedge funds you advise</h4>
-                </div>
+
               </div>
+
             </div>
           </div>
         </div>
@@ -360,7 +370,11 @@ async function downloadInput(){
 
 
 
-
+function hasField(seriesData, fieldNo) {
+  return seriesData.some(
+    f => getDisplayFieldNo(f.field_no) === fieldNo
+  );
+}
 
 function getDisplayFieldNo(fieldNo) {
   if (!fieldNo || typeof fieldNo !== 'string') return '';
