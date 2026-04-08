@@ -15,6 +15,9 @@
       <button class="btn btn-primary m-2 border-0" @click="openUpload" >
         <font-awesome-icon class="icon" icon="upload" /> Upload More Files
       </button>
+      <button class="btn btn-primary m-2 border-0" @click="openMappedFiles" >
+        <font-awesome-icon class="icon" icon="upload" /> Mapped files
+      </button>
     </div>
 
     <div class="max-dimensions" style="padding: 10px 30px 10px 30px; height: 80vh; overflow: scroll;">
@@ -291,7 +294,7 @@ const props = defineProps({
   filingId: { type: String, required: true }
 }) 
 
-const emit = defineEmits(['open-upload','refresh-data','open-computationLogs','open-history'])
+const emit = defineEmits(['open-upload','refresh-data','open-computationLogs','open-history','open-mapped-files'])
 const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
@@ -572,6 +575,9 @@ function openUpload() {
   emit('open-upload')
 }
 
+function openMappedFiles(){
+  emit('open-mapped-files')
+}
 function getDisplayFieldNo(fieldNo) {
   const parts = fieldNo.split('_')
   return parts[parts.length - 1]
