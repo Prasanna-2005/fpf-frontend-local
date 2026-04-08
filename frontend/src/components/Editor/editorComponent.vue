@@ -16,7 +16,7 @@
         <font-awesome-icon class="icon" icon="upload" /> Upload More Files
       </button>
       <button class="btn btn-primary m-2 border-0" @click="openMappedFiles" >
-        <font-awesome-icon class="file" icon="upload" /> Mapped files
+        <font-awesome-icon class="icon" icon="file" /> Mapped files
       </button>
     </div>
 
