@@ -24,7 +24,7 @@
                 
                 
                 <topBarComponent @selected-fund="selectFund" :fundNames="fundNames" />
-                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-history="openHistory" @open-computation-logs="openComputationLogs"/>
+                <EditSectionComponent :fundName="fundName" @open-upload="openUploadPopUp=true" :filingId="filing_id" @refresh-data="refreshData" @open-history="openHistory" @open-computation-logs="openComputationLogs" @open-mapped-files="openMappedFiles"/>
                 
                 
             </div>
@@ -40,6 +40,10 @@
             <div v-if="openhistoryPopUp" class="backdrop">
               <historyComponent :fieldData="history" :fieldNo="fieldNo" :fieldType="fieldType"  @close-click="openhistoryPopUp=false" />
             </div>
+            <div v-if="openMappedFilesPopUp" class="backdrop">
+              <mappedFilesPopUpComp @close-click="openMappedFilesPopUp=false" :userId="user_id" />
+            </div>
+           
             
         </div>
 </template>
@@ -60,6 +64,7 @@ import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toast-notification';
 import { useFileStore } from '@/stores/fileStore';
 import historyComponent from '@/components/popUps/historyComponent.vue';
+import mappedFilesPopUpComp from '@/components/popUps/mappedFilesPopUpComp.vue';
 const route = useRoute()
 
 const message=ref('Please wait loading editor....')
@@ -77,6 +82,7 @@ const fileStore=useFileStore()
 const history=ref({})
 const fieldNo=ref('')
 const fieldType=ref('')
+const openMappedFilesPopUp=ref(false)
 
 fileStore.add_filing_name(localStorage.getItem('filingName'))
 fileStore.updateNewFiling()
@@ -142,6 +148,9 @@ function openComputationLogs(data){
   openComputationLogsPopUp.value=true
 }
 
+function openMappedFiles(){
+  openMappedFilesPopUp.value=true
+}
 
 function closeUpload(){
   openUploadPopUp.value=false
