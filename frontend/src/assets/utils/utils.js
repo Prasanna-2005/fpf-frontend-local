@@ -250,7 +250,7 @@ function downloadXMLFile(xmlData) {
   // ---------- Section PFFund--------
   const section = root.ele('PFFunds');
   data.fund_info.forEach(fund => {
-    const fundElem = section.ele('PFFunds');
+    const fundElem = section.ele('PFFund');
     fundElem.ele('FundID').txt(fund.fund_id || '');
     fundElem.ele('FundName').txt(fund.fund_name || '');
     fundElem.ele('FundType').txt(fund.fund_type || '');
@@ -347,7 +347,7 @@ function downloadXMLFile(xmlData) {
   if (data.tags_info_sec1c?.length) {
     const section1C = root.ele("PFSection1cItemBHedgeFundsInfo");
 
-    data.tag_info_sec1c.forEach(fundTags => {
+    data.tags_info_sec1c.forEach(fundTags => {
       const fundElem = section1C.ele("PFSection1cItemBHedgeFundInfo");
 
       const get = tag => fundTags.find(t => t.xmltags === tag)?.value || "";

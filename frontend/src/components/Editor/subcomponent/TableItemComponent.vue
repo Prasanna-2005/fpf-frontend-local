@@ -132,7 +132,12 @@ function isChecked(val) {
 function onCheckbox(event, rowIndex, key) {
   const newVal = event.target.checked
   localData.value[rowIndex][key] = newVal ? 'true' : 'false'
-  emit('update', localData.value)
+    const updated_data={
+    'idx':rowIndex, 
+    'key':key,
+    'rows': localData.value
+  }
+  emit('update', updated_data)
 }
 
 
@@ -140,6 +145,12 @@ function onCheckbox(event, rowIndex, key) {
 
 function get_table_header_name(header) {
   if (header === 's.name' || header === 's.text') return ''
+  if (header=='costbased'){
+    return "cost-based"
+  }
+  if (/^level\d+$/.test(header)) {
+    return header.replace(/level(\d+)/, 'level $1')
+  }
   return header.replaceAll('_', ' ')
 }
 
@@ -178,13 +189,23 @@ function displayValue(value, key) {
 
 function onDateChange(value, rowIndex, key) {
   localData.value[rowIndex][key] = value
-  emit('update', localData.value)
+    const updated_data={
+    'idx':rowIndex, 
+    'key':key,
+    'rows': localData.value
+  }
+  emit('update', updated_data)
 }
 
 function onInput(event, rowIndex, key) {
   const val = event.target.value
   localData.value[rowIndex][key] = val
-  emit('update', localData.value)
+  const updated_data={
+    'idx':rowIndex, 
+    'key':key,
+    'rows': localData.value
+  }
+  emit('update', updated_data)
 }
 </script>
 
