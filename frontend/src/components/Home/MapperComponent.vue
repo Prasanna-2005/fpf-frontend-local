@@ -17,14 +17,18 @@
           <tr>
             <th scope="col">Fund Name</th>
             <th scope="col" v-if="series=='Private Investors'">Quarter</th>
-            <th scope="col" v-else>File Type</th>
+            <th scope="col" v-else >File Type</th>
+            <th scope="col" v-if="series=='Curio'">Period</th>
             <th scope="col">Mapped File</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(fund, index) in localData.fund_details" :key="index">
             <td>{{ fund.fundname }}</td>
-            <td>{{ fund.quarter }}</td>
+            <td >
+              {{ fund.quarter }}
+            </td>
+            <td  v-if="series=='Curio'">{{getPeriod(fund)}}</td>
             <td>
               <!-- Show mapped file -->
               <span v-if="getMappedFile(fund)">
@@ -113,6 +117,15 @@ const localData = ref({
 const series=localData.value.series
 
 const uploaderFlag = ref(false);
+
+
+function getPeriod(fund) {
+  const mapping = localData.value.file_mappings.find(
+    (fm) => fm.shortcode === fund.shortcode && fm.quarter === fund.quarter
+  );
+  
+  return mapping ? mapping.period : "";
+}
 
 function getMappedFile(fund) {
   const mapping = localData.value.file_mappings.find(
