@@ -74,7 +74,7 @@ export const useUserStore = defineStore('user', {
             this.logout()
           }
         }
-      }, 0.5 * 60 * 1000) // every 5 min
+      }, 5 * 60 * 1000) // every 5 min
     },
 
     logout() {
