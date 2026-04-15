@@ -48,6 +48,7 @@
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
+                  :disabled="!localData.unmapped_files || localData.unmapped_files.length === 0"
                 >
                   Select file 
 
@@ -118,6 +119,10 @@ const series=localData.value.series
 
 const uploaderFlag = ref(false);
 
+function normalizePeriod(val) {
+  return val ?? null; // converts undefined → null
+}
+
 function isSameMapping(fm, fund) {
   return (
     fm.shortcode === fund.shortcode &&
@@ -125,19 +130,13 @@ function isSameMapping(fm, fund) {
     (
       // if period exists 
       (fm.period || fund.period)
-        ? fm.period === fund.period
+        ? normalizePeriod(fm.period) === normalizePeriod(fund.period)
         : true 
     )
   );
 }
 
-// function getPeriod(fund) {
-//   const mapping = localData.value.file_mappings.find(fm =>
-//     isSameMapping(fm, fund)
-//   );
-  
-//   return mapping ? mapping.period : "";
-// }
+
 
 function getMappedFile(fund) {
   const mapping = localData.value.file_mappings.find(fm =>
@@ -169,7 +168,7 @@ function update_unmapped_files(fund, filename) {
     shortcode: fund.shortcode,
     quarter: fund.quarter,
     fundname: fund.fundname,
-    period: fileObj?.period || ""
+    period: normalizePeriod(fileObj?.period ?? fund.period)
   });
 
 }
@@ -180,10 +179,11 @@ function remove_file_from_fund(fund, filename) {
     localData.value.unmapped_files = [];
   }
 
-  const idx = localData.value.file_mappings.findIndex(fm =>
-    isSameMapping(fm, fund) && fm.filename === filename
-  );
-
+const idx = localData.value.file_mappings.findIndex(
+  (fm) =>
+    isSameMapping(fm, fund) &&
+    fm.filename === filename
+);
   if (idx !== -1) {
     const fileObj = localData.value.file_mappings[idx];
 
