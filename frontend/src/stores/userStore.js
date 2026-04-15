@@ -21,24 +21,57 @@ export const useUserStore = defineStore('user', {
 
       sessionInterval = setInterval(async () => {
         try {
-          console.log("refrresh token check")
           if (!this.userID) return
-          console.log( await api_call_methods.refresh_token(this.userID))
-          await api_call_methods.verify_user(this.userID)
+          await api_call_methods.verify_users(this.userID)
         } 
         catch{
           try {
-            // attempt token refresh
-            await api_call_methods.refresh_token(this.userID)
+           const user_id=this.userID
+           const toastInstance = toast.open({
+                message: `
+                  <div style="display:flex; flex-direction:column; gap:6px;">
+                    <strong>Session expired</strong>
+                    <div>You can stay logged in or log out.</div>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                      <button id="stayBtn" class="btn btn-success btn-sm">Stay Logged In</button>
+                      <button id="logoutBtn" class="btn btn-danger btn-sm">Logout</button>
+                    </div>
+                  </div>
+                `,
+                type: 'warning',
+                duration: 0,
+                dismissible: false,
+              })
 
-            // retry original request after refresh
-            await api_call_methods.verify_user(this.userID)
+              setTimeout(() => {
+                const stayBtn = document.getElementById('stayBtn')
+                const logoutBtn = document.getElementById('logoutBtn')
+
+                if (stayBtn) {
+                  stayBtn.addEventListener('click', async () => {
+                    try {
+                      await api_call_methods.refresh_token(user_id)
+                      await api_call_methods.verify_user(user_id)
+                      toast.success("Session refreshed successfully!")
+                      toastInstance.dismiss()
+                    } catch (err) {
+                      toast.error("Session refresh failed. Please login again.")
+                      window.location.replace('/')
+                    }
+                  })
+                }
+
+                if (logoutBtn) {
+                  logoutBtn.addEventListener('click', () => {
+                    this.logout()
+                    window.location.replace('/')
+                  })
+                }
+              }, 50)
 
           } catch  {
-            // if refresh also fails → logout
             toast.info('Session expired. Please login again.')
             this.logout()
-            // window.location.replace('/')
           }
         }
       }, 0.5 * 60 * 1000) // every 5 min
