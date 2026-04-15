@@ -28,7 +28,7 @@
             <td >
               {{ fund.quarter }}
             </td>
-            <td  v-if="series=='Curio'">{{getPeriod(fund)}}</td>
+            <td  v-if="series=='Curio'">{{ fund.period }}</td>
             <td>
               <!-- Show mapped file -->
               <span v-if="getMappedFile(fund)">
@@ -118,18 +118,30 @@ const series=localData.value.series
 
 const uploaderFlag = ref(false);
 
-
-function getPeriod(fund) {
-  const mapping = localData.value.file_mappings.find(
-    (fm) => fm.shortcode === fund.shortcode && fm.quarter === fund.quarter
+function isSameMapping(fm, fund) {
+  return (
+    fm.shortcode === fund.shortcode &&
+    fm.quarter === fund.quarter &&
+    (
+      // if period exists 
+      (fm.period || fund.period)
+        ? fm.period === fund.period
+        : true 
+    )
   );
-  
-  return mapping ? mapping.period : "";
 }
 
+// function getPeriod(fund) {
+//   const mapping = localData.value.file_mappings.find(fm =>
+//     isSameMapping(fm, fund)
+//   );
+  
+//   return mapping ? mapping.period : "";
+// }
+
 function getMappedFile(fund) {
-  const mapping = localData.value.file_mappings.find(
-    (fm) => fm.shortcode === fund.shortcode && fm.quarter === fund.quarter
+  const mapping = localData.value.file_mappings.find(fm =>
+    isSameMapping(fm, fund)
   );
   
   return mapping ? mapping.filename : "";
@@ -168,11 +180,8 @@ function remove_file_from_fund(fund, filename) {
     localData.value.unmapped_files = [];
   }
 
-  const idx = localData.value.file_mappings.findIndex(
-    (fm) =>
-      fm.shortcode === fund.shortcode &&
-      fm.quarter === fund.quarter &&
-      fm.filename === filename
+  const idx = localData.value.file_mappings.findIndex(fm =>
+    isSameMapping(fm, fund) && fm.filename === filename
   );
 
   if (idx !== -1) {
@@ -187,7 +196,6 @@ function remove_file_from_fund(fund, filename) {
       localData.value.unmapped_files.push({
         filename: fileObj.filename,
         filepath: fileObj.filepath, 
-        period:fileObj.period
       });
     }
   }
