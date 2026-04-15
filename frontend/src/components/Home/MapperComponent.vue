@@ -150,12 +150,14 @@ function update_unmapped_files(fund, filename) {
     localData.value.unmapped_files.splice(idx, 1);
   }
 
+
   localData.value.file_mappings.push({
     filename,
     filepath: fileObj?.filepath || "", 
     shortcode: fund.shortcode,
     quarter: fund.quarter,
     fundname: fund.fundname,
+    period: fileObj?.period || ""
   });
 
 }
@@ -185,6 +187,7 @@ function remove_file_from_fund(fund, filename) {
       localData.value.unmapped_files.push({
         filename: fileObj.filename,
         filepath: fileObj.filepath, 
+        period:fileObj.period
       });
     }
   }
