@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', {
       sessionInterval = setInterval(async () => {
         try {
           if (!this.userID) return
-          await api_call_methods.verify_users(this.userID)
+          await api_call_methods.verify_user(this.userID)
         } 
         catch{
           try {
