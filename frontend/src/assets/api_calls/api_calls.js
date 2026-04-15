@@ -14,7 +14,10 @@ async function verify_otp(data){
     )
     return response
 }
-async function refresh_token(data){
+async function refresh_token(user_id){
+    const data={
+        'user_id':user_id
+    }
     const response=await api.post('/api/v1/auth/access_token',data,
         {
             withCredentials: true ,
