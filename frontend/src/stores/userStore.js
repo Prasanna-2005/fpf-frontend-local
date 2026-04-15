@@ -21,15 +21,27 @@ export const useUserStore = defineStore('user', {
 
       sessionInterval = setInterval(async () => {
         try {
+          console.log("refrresh token check")
           if (!this.userID) return
+          console.log( await api_call_methods.refresh_token(this.userID))
           await api_call_methods.verify_user(this.userID)
         } 
         catch{
-          toast.info('Session expired. Please login again.')
-          this.logout()
-          window.location.replace('/')
+          try {
+            // attempt token refresh
+            await api_call_methods.refresh_token(this.userID)
+
+            // retry original request after refresh
+            await api_call_methods.verify_user(this.userID)
+
+          } catch  {
+            // if refresh also fails → logout
+            toast.info('Session expired. Please login again.')
+            this.logout()
+            // window.location.replace('/')
+          }
         }
-      }, 5 * 60 * 1000) // every 5 min
+      }, 0.5 * 60 * 1000) // every 5 min
     },
 
     logout() {
