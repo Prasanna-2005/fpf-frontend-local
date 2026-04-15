@@ -33,6 +33,9 @@
       <button class="btn btn-primary m-2 border-0" v-if="status!='Approved'" @click="goBackToEdit">
         <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
+      <button class="btn btn-primary m-2 border-0" @click="openMappedFiles" >
+        <font-awesome-icon class="icon" icon="file" /> Mapped files
+      </button>
       
     </div>
 
@@ -141,18 +144,28 @@
                   :tableHeaders="items.table_headers"
                   :value="items.value"
               />
-
-                  
                 </span>
               </div>
-              <div v-if="fields.field_no=='17'" class="d-flex w-100 mb-4" style="border: 1px solid;">
-                <div style="border: 1px solid;" class="w-50 p-2">
-                  <h4>{{ fundKey }}</h4>
+              <div  v-if="
+                    getDisplayFieldNo(fields.field_no) === '17' &&
+                    hasField(seriesData, '18')
+                  ">
+                <b><hr /></b>
+                <div
+                 
+                  class="d-flex w-100 mb-4"
+                  style="border: 1px solid;"
+                >
+                  <div style="border: 1px solid;" class="w-50 p-2">
+                    <h4>{{ fundKey }}</h4>
+                  </div>
+                  <div style="border: 1px solid;" class="w-50 p-2">
+                    <h4>Information about the hedge funds you advise</h4>
+                  </div>
                 </div>
-                <div style="border: 1px solid;" class="w-50 p-2">
-                  <h4>Information about the hedge funds you advise</h4>
-                </div>
+
               </div>
+
             </div>
           </div>
         </div>
@@ -202,7 +215,7 @@ const user_id=userStore.userID
 const data = responseStore.getAllData();
 
 const pdfContent = ref(null);
-const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml']);
+const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml','open-mapped-files']);
 const toast=useToast()
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
@@ -360,7 +373,11 @@ async function downloadInput(){
 
 
 
-
+function hasField(seriesData, fieldNo) {
+  return seriesData.some(
+    f => getDisplayFieldNo(f.field_no) === fieldNo
+  );
+}
 
 function getDisplayFieldNo(fieldNo) {
   if (!fieldNo || typeof fieldNo !== 'string') return '';
@@ -436,6 +453,10 @@ function formatValue(value,symbol,field='') {
   }
   return `${num}`
 }
+function openMappedFiles(){
+  emit('open-mapped-files')
+}
+
 </script>
 
 <style scoped>
