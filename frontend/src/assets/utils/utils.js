@@ -285,15 +285,22 @@ function downloadXMLFile(xmlData) {
   data.tags_info_sec1b.forEach(fundTags => {
     const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
     const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
+    const GrossAssetValue =
+      fundTags.find(t => t.xmltags === 'GrossAssetValue')?.value ?? '';
+
+    const NetAssetValue =
+      fundTags.find(t => t.xmltags === 'NetAssetValue')?.value ?? '';
 
     fundElem.ele('FundID').txt(fundId);
+    fundElem.ele('GrossAssetValue').txt(GrossAssetValue)
+    fundElem.ele('NetAssetValue').txt(NetAssetValue)
 
     fundTags.forEach(tag => {
       const name = tag.xmltags;
 
       if (
         !/Quarter\d+/.test(name) && !/Month\d+/.test(name) && ! /Year$/.test(name) &&
-        !['FundID', 'FundName', 'NFAFundID', 'NFAFundCFTCComplianceFlag', 'IsMasterFund', 'IsParallelFundsAggregated']
+        !['FundID', 'FundName', 'NFAFundID', 'NFAFundCFTCComplianceFlag', 'IsMasterFund', 'IsParallelFundsAggregated','GrossAssetValue','NetAssetValue']
           .includes(name)
       ) {
         fundElem.ele(name).txt(tag.value ?? '');
