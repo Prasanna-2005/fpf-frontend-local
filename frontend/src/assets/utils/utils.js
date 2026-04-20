@@ -5,7 +5,13 @@ import sequenceOrder from './config/sequenceOrder';
 const tagOrder = sequenceOrder.sec1b;
 function downloadXMLFile(xmlData) {
   const data = xmlData;
-  const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"');
+  const root = create({
+                  version: '1.0',
+                  encoding: 'UTF-8'
+                }).ele('PFXMLFiling', {
+                  'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+                  'xmlns:xsd': 'http://www.w3.org/2001/XMLSchema'
+                });
 
 
 
