@@ -1,7 +1,8 @@
 
 import { create } from 'xmlbuilder2';
+import sequenceOrder from './config/sequenceOrder';
 
-
+const tagOrder = sequenceOrder.sec1b;
 function downloadXMLFile(xmlData) {
   const data = xmlData;
   const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
@@ -282,29 +283,24 @@ function downloadXMLFile(xmlData) {
 
   // ---------- Item B ----------
   const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
+
   data.tags_info_sec1b.forEach(fundTags => {
     const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
-    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
-    const GrossAssetValue =
-      fundTags.find(t => t.xmltags === 'GrossAssetValue')?.value ?? '';
 
-    const NetAssetValue =
-      fundTags.find(t => t.xmltags === 'NetAssetValue')?.value ?? '';
-
-    fundElem.ele('FundID').txt(fundId);
-    fundElem.ele('GrossAssetValue').txt(GrossAssetValue)
-    fundElem.ele('NetAssetValue').txt(NetAssetValue)
-
+    // Convert array → map for fast lookup
+    const tagMap = {};
     fundTags.forEach(tag => {
-      const name = tag.xmltags;
-
-      if (
-        !/Quarter\d+/.test(name) && !/Month\d+/.test(name) && ! /Year$/.test(name) &&
-        !['FundID', 'FundName', 'NFAFundID', 'NFAFundCFTCComplianceFlag', 'IsMasterFund', 'IsParallelFundsAggregated','GrossAssetValue','NetAssetValue']
-          .includes(name)
-      ) {
-        fundElem.ele(name).txt(tag.value ?? '');
+      if (tag.xmltags) {
+        tagMap[tag.xmltags] = tag.value;
       }
+      if (tag.fund_id) {
+        tagMap['FundID'] = tag.fund_id;
+      }
+    });
+
+    // Maintain strict order
+    tagOrder.forEach(tagName => {
+      fundElem.ele(tagName).txt(tagMap[tagName] ?? '');
     });
   });
 
