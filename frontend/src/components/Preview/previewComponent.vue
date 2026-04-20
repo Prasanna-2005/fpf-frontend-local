@@ -33,6 +33,9 @@
       <button class="btn btn-primary m-2 border-0" v-if="status!='Approved'" @click="goBackToEdit">
         <font-awesome-icon class="icon" icon="pen" /> Edit
       </button>
+      <button class="btn btn-primary m-2 border-0" @click="openMappedFiles" >
+        <font-awesome-icon class="icon" icon="file" /> Mapped files
+      </button>
       
     </div>
 
@@ -212,7 +215,7 @@ const user_id=userStore.userID
 const data = responseStore.getAllData();
 
 const pdfContent = ref(null);
-const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml']);
+const emit = defineEmits(['create-copy', 'approve','send-for-approval','download-xml','open-mapped-files']);
 const toast=useToast()
 function groupByHeading(seriesData) {
   return seriesData.reduce((acc, item) => {
@@ -450,6 +453,10 @@ function formatValue(value,symbol,field='') {
   }
   return `${num}`
 }
+function openMappedFiles(){
+  emit('open-mapped-files')
+}
+
 </script>
 
 <style scoped>

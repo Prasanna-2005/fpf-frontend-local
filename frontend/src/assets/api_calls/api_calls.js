@@ -292,6 +292,23 @@ async function get_history(user_id,data){
     return response
 }
 
+async function get_mapped_files(user_id,filing_name) {
+    const data={
+    "filing_name":filing_name,
+    "filing":false
+    }
+
+    const response=await api.post('/api/v1/files/mapper',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    return response
+}
+
 const api_call_methods={
     login,
     verify_otp,
@@ -314,7 +331,8 @@ const api_call_methods={
     download_input,
     verify_user,
     get_computations,
-    get_history
+    get_history,
+    get_mapped_files
 
 }
 

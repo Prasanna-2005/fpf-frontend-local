@@ -22,7 +22,7 @@
               </div>
             <div v-else class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
                 <!-- <topBarComponent @selected-fund="selectFund"  /> -->
-                <previewComponent  @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id" @send-for-approval="sendForApproval=true" @download-xml="downloadXMl=true" />
+                <previewComponent  @create-copy="createCopyPopUp=true" @approve="approvePopUp=true" :filingId="filing_id" @send-for-approval="sendForApproval=true" @download-xml="downloadXMl=true" @open-mapped-files="openMappedFiles"/>
             </div> 
             <div v-if="createCopyPopUp" class="backdrop">
                     <popUpComponent  type="createCopy"  @remove-pop-up="createCopyPopUp = false" defaultCopyName="FinancialPaper24-25: Copy"/>
@@ -36,6 +36,10 @@
             <div v-if="downloadXMl" class="backdrop" >
                   <popUpComponent  type="downloadXmlFileForApprovedFiling"  @remove-pop-up="downloadXMl = false" :filingId="filing_id"/>
             </div>
+            <div v-if="openMappedFilesPopUp" class="backdrop">
+              <mappedFilesPopUpComp @close-click="openMappedFilesPopUp=false" :userId="user_id" />
+            </div>
+
 
             
             <div v-if="openAddFundPopUp" class="backdrop">
@@ -55,7 +59,7 @@ import addFundComponent from '@/components/popUps/addFundComponent.vue';
 import {ref,onMounted} from 'vue'
 import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
-
+import mappedFilesPopUpComp from '@/components/popUps/mappedFilesPopUpComp.vue';
 import { useEditableStore } from '@/stores/responseStore'
 import { useRoute } from 'vue-router'
 const route = useRoute()
@@ -71,7 +75,7 @@ const loading=ref(true)
 const loader=ref('true')
 const userStore = useUserStore();
 
-
+const openMappedFilesPopUp=ref(false)
 let data = ''
 const user_id=userStore.userID  
 onMounted(async () => {
@@ -87,6 +91,11 @@ onMounted(async () => {
     console.error("Error fetching data:", error)
   }
 })
+
+function openMappedFiles(){
+  openMappedFilesPopUp.value=true
+}
+
 </script>
 
 
