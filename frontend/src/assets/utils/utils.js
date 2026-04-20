@@ -252,8 +252,8 @@ function downloadXMLFile(xmlData) {
   data.fund_info.forEach(fund => {
     const fundElem = section.ele('PFFund');
     fundElem.ele('FundID').txt(fund.fund_id || '');
-    fundElem.ele('FundName').txt(fund.fund_name || '');
     fundElem.ele('FundType').txt(fund.fund_type || '');
+    fundElem.ele('FundName').txt(fund.fund_name || '');
     fundElem.ele('CFTCFund').txt('N');
   });
 
