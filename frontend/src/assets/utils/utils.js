@@ -1,10 +1,17 @@
 
 import { create } from 'xmlbuilder2';
+import sequenceOrder from './config/sequenceOrder';
 
-
+const tagOrder = sequenceOrder.sec1b;
 function downloadXMLFile(xmlData) {
   const data = xmlData;
-  const root = create({ version: '1.0', encoding: 'UTF-8' }).ele('PFXMLFiling');
+  const root = create({
+                  version: '1.0',
+                  encoding: 'UTF-8'
+                }).ele('PFXMLFiling', {
+                  'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+                  'xmlns:xsd': 'http://www.w3.org/2001/XMLSchema'
+                });
 
 
 
@@ -252,8 +259,8 @@ function downloadXMLFile(xmlData) {
   data.fund_info.forEach(fund => {
     const fundElem = section.ele('PFFund');
     fundElem.ele('FundID').txt(fund.fund_id || '');
-    fundElem.ele('FundName').txt(fund.fund_name || '');
     fundElem.ele('FundType').txt(fund.fund_type || '');
+    fundElem.ele('FundName').txt(fund.fund_name || '');
     fundElem.ele('CFTCFund').txt('N');
   });
 
@@ -282,22 +289,24 @@ function downloadXMLFile(xmlData) {
 
   // ---------- Item B ----------
   const sectionB = root.ele('PFSection1bItemBFundsAssetsFinancingInvestors');
+
   data.tags_info_sec1b.forEach(fundTags => {
     const fundElem = sectionB.ele('PFSection1bItemBFundAssetsFinancingInvestors');
-    const fundId = fundTags.find(t => t.fund_id)?.fund_id || '';
 
-    fundElem.ele('FundID').txt(fundId);
-
+    // Convert array → map for fast lookup
+    const tagMap = {};
     fundTags.forEach(tag => {
-      const name = tag.xmltags;
-
-      if (
-        !/Quarter\d+/.test(name) && !/Month\d+/.test(name) && ! /Year$/.test(name) &&
-        !['FundID', 'FundName', 'NFAFundID', 'NFAFundCFTCComplianceFlag', 'IsMasterFund', 'IsParallelFundsAggregated']
-          .includes(name)
-      ) {
-        fundElem.ele(name).txt(tag.value ?? '');
+      if (tag.xmltags) {
+        tagMap[tag.xmltags] = tag.value;
       }
+      if (tag.fund_id) {
+        tagMap['FundID'] = tag.fund_id;
+      }
+    });
+
+    // Maintain strict order
+    tagOrder.forEach(tagName => {
+      fundElem.ele(tagName).txt(tagMap[tagName] ?? '');
     });
   });
 
