@@ -17,14 +17,18 @@
           <tr>
             <th scope="col">Fund Name</th>
             <th scope="col" v-if="series=='Private Investors'">Quarter</th>
-            <th scope="col" v-else>File Type</th>
+            <th scope="col" v-else >File Type</th>
+            <th scope="col" v-if="series=='Curio'">Period</th>
             <th scope="col">Mapped File</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(fund, index) in localData.fund_details" :key="index">
             <td>{{ fund.fundname }}</td>
-            <td>{{ fund.quarter }}</td>
+            <td >
+              {{ fund.quarter }}
+            </td>
+            <td  v-if="series=='Curio'">{{ fund.period }}</td>
             <td>
               <!-- Show mapped file -->
               <span v-if="getMappedFile(fund)">
@@ -44,6 +48,7 @@
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
+                  :disabled="!localData.unmapped_files || localData.unmapped_files.length === 0"
                 >
                   Select file 
 
@@ -114,9 +119,28 @@ const series=localData.value.series
 
 const uploaderFlag = ref(false);
 
+function normalizePeriod(val) {
+  return val ?? null; // converts undefined → null
+}
+
+function isSameMapping(fm, fund) {
+  return (
+    fm.shortcode === fund.shortcode &&
+    fm.quarter === fund.quarter &&
+    (
+      // if period exists 
+      (fm.period || fund.period)
+        ? normalizePeriod(fm.period) === normalizePeriod(fund.period)
+        : true 
+    )
+  );
+}
+
+
+
 function getMappedFile(fund) {
-  const mapping = localData.value.file_mappings.find(
-    (fm) => fm.shortcode === fund.shortcode && fm.quarter === fund.quarter
+  const mapping = localData.value.file_mappings.find(fm =>
+    isSameMapping(fm, fund)
   );
   
   return mapping ? mapping.filename : "";
@@ -137,12 +161,14 @@ function update_unmapped_files(fund, filename) {
     localData.value.unmapped_files.splice(idx, 1);
   }
 
+
   localData.value.file_mappings.push({
     filename,
     filepath: fileObj?.filepath || "", 
     shortcode: fund.shortcode,
     quarter: fund.quarter,
     fundname: fund.fundname,
+    period: normalizePeriod(fileObj?.period ?? fund.period)
   });
 
 }
@@ -153,13 +179,11 @@ function remove_file_from_fund(fund, filename) {
     localData.value.unmapped_files = [];
   }
 
-  const idx = localData.value.file_mappings.findIndex(
-    (fm) =>
-      fm.shortcode === fund.shortcode &&
-      fm.quarter === fund.quarter &&
-      fm.filename === filename
-  );
-
+const idx = localData.value.file_mappings.findIndex(
+  (fm) =>
+    isSameMapping(fm, fund) &&
+    fm.filename === filename
+);
   if (idx !== -1) {
     const fileObj = localData.value.file_mappings[idx];
 
