@@ -7,6 +7,7 @@
           <th scope="col">Role</th>
           <th scope="col">Email</th>
           <th scope="col">Created at</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody class="table-group-divider">
@@ -15,6 +16,7 @@
           <td><button class="btn rounded-pill btn-outline-info" disabled>{{ data['role'] }}</button></td>
           <td>{{ data['email'] }}</td>
           <td>{{ data['created_at'] }}</td>
+          <td><button @click="openEditUser( data['username'],data['email'],data['role'])"><font-awesome-icon class="icon" icon="pen" /></button></td>
         </tr>
       </tbody>
     </table>
@@ -49,9 +51,9 @@ onMounted(async () => {
     console.error("Error fetching data:", error)
   }
 })
+  
 
-
-const emit= defineEmits(['delete-user'])
+const emit= defineEmits(['delete-user','edit-user'])
 
 
 const filteredData = computed(() => {
@@ -60,6 +62,16 @@ const filteredData = computed(() => {
     return new Date(user.created_at).getFullYear().toString() === props.selectedYear
   })
 })
+
+function openEditUser(username,email,role){
+  const data={
+    'username':username,
+    'email':email,
+    'role':role
+  }
+  console.log(data)
+  emit('edit-user',data)
+}
 
 </script>
 
