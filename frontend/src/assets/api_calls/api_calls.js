@@ -75,6 +75,18 @@ async function create_user(data,user_id){
     console.log(response)
 }
 
+async function edit_user(data,user_id){
+    const response=await api.post('/api/v1/admin/edit_user',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
 
 async function delete_user(userIdToBeDeleted,user_id){
     const response=await api.delete(`/api/v1/admin/delete_user/${userIdToBeDeleted}`,
@@ -332,7 +344,8 @@ const api_call_methods={
     verify_user,
     get_computations,
     get_history,
-    get_mapped_files
+    get_mapped_files,
+    edit_user
 
 }
 
