@@ -3,7 +3,7 @@
     <span class="close-icon" @click="handleCancel"><font-awesome-icon class="icon me-2" icon="xmark" style="font-size: 1em;" /></span>
 
     <div class="d-flex justify-content-center p-2">
-      <h3><b>Add User</b></h3>
+      <h3><b>Edit User</b></h3>
     </div>
 
     <form @submit.prevent="handleSubmit">
@@ -72,6 +72,7 @@ const firstname = ref(names[0] || '')
 const lastname = ref(names[1] || '')
 const email = ref(props.data.email)
 const role = ref(props.data.role)
+const password = ref('')
 
 
 
@@ -82,13 +83,11 @@ async function handleSubmit() {
       alert('Please fill out all fields.')
       return
     }
-  
-   
-
     const userData = {
       'username': firstname.value+'.'+lastname.value,
       'email':email.value,
       'user_role': role.value,
+      'password':password
     }
     const data={
       'client_code':userStore.clientCode,
@@ -104,9 +103,9 @@ async function handleSubmit() {
     toast.error('Failed to add User')
   }
 }
-const emit=defineEmits(['cancel-user'])
+const emit=defineEmits(['cancel-edit-user'])
 function handleCancel(){
-    emit('cancel-add-user')
+    emit('cancel-edit-user')
 }
 </script>
 
