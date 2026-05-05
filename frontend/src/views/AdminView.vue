@@ -3,7 +3,7 @@
             <div >
                 <SideBarComponent @add-fund="openAddFundPopUp=true"/>
             </div>
-            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-start position-relative">
+            <div class="flex-grow-1 d-flex flex-column align-items-start position-relative">
                 <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
                 <AnalyticsTableComponent class="h-75" :selected-year="selectedYear" @edit-user="openUserEditor" />
 
@@ -16,7 +16,7 @@
                 </div>
 
                 <div v-if="editUser" class="backdrop">
-                    <editUserComponent @cancel-add-user=handleEditCancel :data="editUserData" />
+                    <editUserComponent @cancel-edit-user=handleEditCancel :data="editUserData" />
                 </div>
 
                 <div v-if="openAddFundPopUp" class="backdrop">
@@ -43,7 +43,7 @@ const deletePopUp=ref(false)
 const userNameToBeDeleted=ref('')
 const userIdToBeDeleted=ref('')
 const openAddFundPopUp=ref(false)
-const editUser=ref(true)
+const editUser=ref(false)
 const editUserData=ref({})
 
 
@@ -57,7 +57,6 @@ function handleCancel(){
     adding_user.value=false
 }
 function openUserEditor(data){
-    console.log('data',data)
     editUserData.value=data
     editUser.value=true
 }
