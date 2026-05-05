@@ -16,7 +16,7 @@
           <td><button class="btn rounded-pill btn-outline-info" disabled>{{ data['role'] }}</button></td>
           <td>{{ data['email'] }}</td>
           <td>{{ data['created_at'] }}</td>
-          <td><button @click="openEditUser( data['username'],data['email'],data['role'])"><font-awesome-icon class="icon" icon="pen" /></button></td>
+          <td><button class="btn btn-sm me-2" @click="openEditUser( data['username'],data['email'],data['role'])"><font-awesome-icon class="icon" icon="pen" /></button></td>
         </tr>
       </tbody>
     </table>
@@ -69,7 +69,6 @@ function openEditUser(username,email,role){
     'email':email,
     'role':role
   }
-  console.log(data)
   emit('edit-user',data)
 }
 
