@@ -18,7 +18,7 @@
       <div>
         <div  v-if="!isCollapsed">
           <p class="mb-0  text-dark text-capitalize fw-bold">{{ username }}</p>
-          <p class="mb-0 fst-italic text-muted">{{ email }}</p>
+          <p class="mb-0 fst-italic text-muted text-break">{{ email }}</p>
           <p class="mb-0 fst-italic text-secondary fs-6 text-capitalize small">Role: {{ role }}</p>
         </div>
       </div>
