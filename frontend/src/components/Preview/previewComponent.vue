@@ -394,8 +394,60 @@ function getIndent(fieldNo) {
 function createCopyPopUp() {
   emit('create-copy');
 }
+function isEmpty(value) {
+  return (
+    value === null ||
+    value === undefined ||
+    String(value).trim() === ''
+  );
+}
+
+function isQuestionIncomplete(field) {
+  // Validate field 
+  const allowedTypes = ['text', 'mcq', 'date'];
+
+  if (
+    allowedTypes.includes(field.field_item_type) &&
+    field.has_field_item_text &&
+    isEmpty(field.value)
+  ) {
+    return true;
+  }
+
+  // Validate sub questions 
+  if (field.field_data?.length) {
+    return field.field_data.some((item) => {
+      return (
+        allowedTypes.includes(item.line_item_type) &&
+        isEmpty(item.value)
+      );
+    });
+  }
+
+  return false;
+}
 
 function approvePopUp() {
+  const hasMandatoryQuestionMissing = Object.values(data).some((seriesData) => {
+    return seriesData.some((field) => {
+      const fieldNo = getDisplayFieldNo(field.field_no);
+
+      // Validate mandatory questions
+      if (['0', '1'].includes(fieldNo)) {
+        return isQuestionIncomplete(field);
+      }
+
+      return false;
+    });
+  });
+
+  if (hasMandatoryQuestionMissing) {
+    toast.error(
+      'Mandatory questions (Q0, Q1) are incomplete. Please answer all required fields before approval.'
+    );
+    return;
+  }
+
   emit('approve');
 }
 function sendForApprovalPopUp(){
