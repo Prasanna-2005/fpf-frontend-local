@@ -14,6 +14,20 @@ async function verify_otp(data){
     )
     return response
 }
+async function refresh_token(user_id){
+    const data={
+        'user_id':user_id
+    }
+    const response=await api.post('/api/v1/auth/access_token',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    return response
+}
 
 async function resend_otp(data){
     const response=await api.post('/api/v1/auth/resend_otp',data)
@@ -75,6 +89,18 @@ async function create_user(data,user_id){
     console.log(response)
 }
 
+async function edit_user(data,user_id){
+    const response=await api.post('/api/v1/admin/edit_user',data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+
+        }
+    )
+    console.log(response)
+}
 
 async function delete_user(userIdToBeDeleted,user_id){
     const response=await api.delete(`/api/v1/admin/delete_user/${userIdToBeDeleted}`,
@@ -318,6 +344,7 @@ const api_call_methods={
     filings_list,
     create_user,
     delete_user,
+    refresh_token,
     get_users,
     upload,
     map_files,
@@ -332,7 +359,8 @@ const api_call_methods={
     verify_user,
     get_computations,
     get_history,
-    get_mapped_files
+    get_mapped_files,
+    edit_user
 
 }
 

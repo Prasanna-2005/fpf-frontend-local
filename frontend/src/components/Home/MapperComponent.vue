@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(fund, index) in localData.fund_details" :key="index">
+          <tr v-for="(fund, index) in sortedFundDetails" :key="index">
             <td>{{ fund.fundname }}</td>
             <td >
               {{ fund.quarter }}
@@ -88,7 +88,7 @@
 
 <script setup>
 import api_call_methods from "@/assets/api_calls/api_calls";
-import { ref } from "vue";
+import { ref, computed} from "vue";
 import { useFileStore} from '@/stores/fileStore'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification';
@@ -116,6 +116,47 @@ const localData = ref({
 });
 
 const series=localData.value.series
+
+const periodOrder = {
+  q1: 1,
+  january: 2,
+  february: 3,
+  march: 4,
+
+  q2: 5,
+  april: 6,
+  may: 7,
+  june: 8,
+
+  q3: 9,
+  july: 10,
+  august: 11,
+  september: 12,
+
+  q4: 13,
+  october: 14,
+  november: 15,
+  december: 16
+};
+
+function getPeriodSortValue(period) {
+  if (!period) return 999;
+
+  const normalized = period.toString().trim().toLowerCase();
+  return periodOrder[normalized] ?? 999;
+}
+
+const sortedFundDetails = computed(() => {
+  if (series !== "Curio") {
+    return localData.value.fund_details;
+  }
+
+  return [...localData.value.fund_details].sort(
+    (a, b) =>
+      getPeriodSortValue(a.period) -
+      getPeriodSortValue(b.period)
+  );
+});
 
 const uploaderFlag = ref(false);
 
