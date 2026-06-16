@@ -354,6 +354,11 @@ function getFieldKey(fieldNo) {
 
 // Updated startEditing
 function startEditing(fieldNo) {
+  if (making_api_call.value){ 
+    toast.warning(`Please wait saving question ${making_api_call_field.value}`)
+    return
+  }
+
  if (editingFieldNo.value && editingFieldNo.value !== fieldNo) {
     const currentField = editedData[editingFieldNo.value]
 
@@ -467,6 +472,7 @@ function updateValue(fieldNo, itemIndex, newVal, type = 'value',line_item_no='')
 
 
 const making_api_call = ref(false)
+const making_api_call_field=ref('')
 
 async function saveEdits(fieldNo, value, fieldIndex) {
   try {
@@ -474,6 +480,7 @@ async function saveEdits(fieldNo, value, fieldIndex) {
 
 
     making_api_call.value = true;
+    making_api_call_field.value=fieldNo
     toast.info(`Saving Question ${fieldNo}`);
 
     const fund_id = responseStore.getFundId(fundname.value);
