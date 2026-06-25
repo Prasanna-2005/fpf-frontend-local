@@ -403,25 +403,22 @@ function isEmpty(value) {
 }
 
 function isQuestionIncomplete(field) {
-  // Validate field 
   const allowedTypes = ['text', 'mcq', 'date'];
 
   if (
     allowedTypes.includes(field.field_item_type) &&
-    field.has_field_item_text &&
-    isEmpty(field.value)
+    field.has_field_item_text
   ) {
-    return true;
+    return isEmpty(field.value);
   }
 
-  // Validate sub questions 
-  if (field.field_data?.length) {
-    return field.field_data.some((item) => {
-      return (
-        allowedTypes.includes(item.line_item_type) &&
-        isEmpty(item.value)
-      );
-    });
+  if (Array.isArray(field.field_data) && field.field_data.length) {
+    const answerableItems = field.field_data.filter((item) =>
+      allowedTypes.includes(item.line_item_type)
+    );
+
+    // Incomplete only if ALL sub-questions are empty
+    return answerableItems.every((item) => isEmpty(item.value));
   }
 
   return false;
