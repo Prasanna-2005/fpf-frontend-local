@@ -1,102 +1,104 @@
 <template>
-  <div v-if="isCollapsed">
-    <font-awesome-icon class="icon" icon="bars" @click="toggleSidebar" style="font-weight: bolder; font-size: large; padding: 20px; color: black;" />
-  </div>
-  <div class="d-flex">
-    <!-- Sidebar -->
-    <div
-      class="sidebar custom-view bg-light p-3 flex-shrink-0"
+  <div class="sidebar-wrap" :class="{ 'is-collapsed': isCollapsed }">
+    <button
+      v-if="isCollapsed"
+      type="button"
+      class="sidebar-expand"
+      aria-label="Open sidebar"
+      @click="toggleSidebar"
+    >
+      <font-awesome-icon icon="angle-right" />
+    </button>
+
+    <aside
+      class="sidebar flex-shrink-0"
       :class="isCollapsed ? 'collapsed' : 'expanded'"
     >
-    <div class="d-flex align-items-center gap-2 ">
-      <!-- <font-awesome-icon class="icon rounded-circle" icon="user" style=" border:2px solid blue; background-color: blue; color: white;  height:2.6em; overflow: hidden;"/> -->
-       <div
-          class="avatar-circle d-flex align-items-center justify-content-center text-white fw-bold"
+      <div class="sidebar-header">
+        <div class="logo" v-show="!isCollapsed">Quantrium</div>
+        <button
+          v-if="!isCollapsed"
+          type="button"
+          class="sidebar-toggle"
+          aria-label="Collapse sidebar"
+          @click="toggleSidebar"
         >
-          {{ username?.charAt(0)?.toUpperCase() }}
-        </div>
-      <div>
-        <div  v-if="!isCollapsed">
-          <p class="mb-0  text-dark text-capitalize fw-bold">{{ username }}</p>
-          <p class="mb-0 fst-italic text-muted text-break">{{ email }}</p>
-          <p class="mb-0 fst-italic text-secondary fs-6 text-capitalize small">Role: {{ role }}</p>
-        </div>
+          <font-awesome-icon icon="angle-left" />
+        </button>
       </div>
-    </div>
 
-      <hr />
-      <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item" v-if="role!='admin'">
-          <a href="/home" class="nav-link active">Home</a>
+      <ul class="sidebar-nav">
+        <li v-if="role != 'admin'">
+          <a href="/home" class="nav-link active">
+            <font-awesome-icon icon="table-cells" />
+            <span v-show="!isCollapsed">Dashboard</span>
+          </a>
         </li>
-        <!-- Will be used later  -->
-        <!-- <li v-if="role!='admin'">
-          <a href="#" class="nav-link link-dark">Report</a>
+        <li v-if="role != 'admin'">
+          <a href="#" class="nav-link" @click.prevent>
+            <font-awesome-icon icon="chart-line" />
+            <span v-show="!isCollapsed">Report</span>
+          </a>
         </li>
-        <li v-if="role!='admin'">
-          <a  class="nav-link link-dark" @click="addFund">Add Fund</a>
-        </li> -->  
-        <li >
-          <a class="nav-link link-dark" v-on:click="Logout">Logout</a>
-        </li>
-        <li class="d-flex justify-content-between align-items-center">
-          <a  class="nav-link link-dark">Setting</a>
-          <font-awesome-icon class="icon rounded-circle" icon="angle-down" style="color:black" @click="toggleSetting" v-if="isSetting"/>
-          <font-awesome-icon class="icon rounded-circle" icon="angle-up" style="color:black" @click="toggleSetting" v-if="!isSetting"/>
-        </li>
-        
-        <li v-if="isSetting">
-          <a href="/reset" class="nav-link link-dark">Reset Password</a>
-        </li>
-        <li class="mt-3">
-          <button @click="toggleSidebar" class="btn btn-outline-secondary btn-sm w-100">
-            {{ isCollapsed ? 'Expand' : 'Collapse' }}
-          </button>
+        <li v-if="role != 'admin'">
+          <a class="nav-link" href="#" @click.prevent="addFund">
+            <font-awesome-icon icon="folder-plus" />
+            <span v-show="!isCollapsed">Add Fund</span>
+          </a>
         </li>
       </ul>
-    </div>
 
+      <ul class="sidebar-nav sidebar-nav-bottom">
+        <li>
+          <div class="nav-link settings-row" @click="toggleSetting">
+            <font-awesome-icon icon="gear" />
+            <span v-show="!isCollapsed">Settings</span>
+            <font-awesome-icon
+              v-if="!isCollapsed"
+              class="settings-chevron"
+              :icon="isSetting ? 'angle-up' : 'angle-down'"
+            />
+          </div>
+        </li>
+        <li v-if="isSetting && !isCollapsed">
+          <a href="/reset" class="nav-link nav-link-sub">
+            <span>Reset Password</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" href="#" @click.prevent="Logout">
+            <font-awesome-icon icon="right-from-bracket" />
+            <span v-show="!isCollapsed">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
   </div>
 </template>
-  
+
 <script setup>
 import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
-import { useToast } from 'vue-toast-notification';
+import { useToast } from 'vue-toast-notification'
 
 const userStore = useUserStore()
-const toast=useToast()
-const email = userStore.email
-const username = userStore.username
-const role=userStore.role
+const toast = useToast()
+const role = userStore.role
 
-const isCollapsed = ref(true)
-const isSetting= ref(false)
-
-// onMounted(async () => {
-//   try {
-//     const user_id=userStore.userID
-//     const result=await api_call_methods.verify_user(user_id)
-//     console.log(result)
-//   } catch (error) {
-//     toast.info('User Session Expired. Please Login Again...')
-//     console.error("Error fetching data:", error) 
-//     window.location.replace('/')
-    
-//   }
-// })
+const isCollapsed = ref(false)
+const isSetting = ref(false)
 
 const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value 
+  isCollapsed.value = !isCollapsed.value
 }
-const toggleSetting=()=>{
-  isSetting.value=!isSetting.value
+const toggleSetting = () => {
+  isSetting.value = !isSetting.value
 }
 
-async function Logout(){
+async function Logout() {
   toast.open({
-      message: `
+    message: `
         <div style="display:flex; flex-direction:column; gap:6px;">
           <strong>Logout</strong>
           <div>Are you sure you want to log out ?</div>
@@ -106,46 +108,211 @@ async function Logout(){
           </div>
         </div>
       `,
-      type: 'warning',
-      duration: 0,
-      dismissible: true,
-    })
-    
-    setTimeout(() => {
-      const logout = document.getElementById('logout')
-      const cancel = document.getElementById('cancel')
+    type: 'warning',
+    duration: 0,
+    dismissible: true,
+  })
 
-      if (logout) {
-        logout.addEventListener('click',async () => {
-            const user_id=userStore.userID
-            const current_time = new Date();
-            userStore.logout()
-            try {
-                toast.info('Logging out.....')
-                await api_call_methods.logout({
-                  user_id: user_id,
-                  logout_time: current_time.toISOString()
-                });
-            } catch (error) {
-                console.error(error);
-            } 
-            window.location.replace('/')
-          toastInstance.dismiss() 
-        })
-      }
-      if (cancel) {
-        cancel.addEventListener('click', () => {
-          toastInstance.dismiss() 
-        })
-      }
-    }, 50)
+  setTimeout(() => {
+    const logout = document.getElementById('logout')
+    const cancel = document.getElementById('cancel')
 
-
+    if (logout) {
+      logout.addEventListener('click', async () => {
+        const user_id = userStore.userID
+        const current_time = new Date()
+        userStore.logout()
+        try {
+          toast.info('Logging out.....')
+          await api_call_methods.logout({
+            user_id: user_id,
+            logout_time: current_time.toISOString(),
+          })
+        } catch (error) {
+          console.error(error)
+        }
+        window.location.replace('/')
+      })
+    }
+    if (cancel) {
+      cancel.addEventListener('click', () => {
+        toast.clear()
+      })
+    }
+  }, 50)
 }
 
 const emit = defineEmits(['add-fund'])
-function addFund(){
+function addFund() {
   emit('add-fund')
 }
 </script>
 
+<style scoped>
+.sidebar-wrap {
+  display: flex;
+  position: relative;
+  height: 100vh;
+  flex-shrink: 0;
+  width: 220px;
+  transition: width 0.3s ease;
+}
+
+.sidebar-wrap.is-collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: visible;
+}
+
+.sidebar-expand {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 100;
+  background: #1e3a8a;
+  color: #fff;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  width: 22px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 0 8px rgba(30, 58, 138, 0.25);
+  padding: 0;
+}
+
+.sidebar-expand:hover {
+  background: #1e40af;
+}
+
+.sidebar {
+  --sidebar-bg: #1e3a8a;
+  --sidebar-hover: rgba(255, 255, 255, 0.12);
+  height: 100vh;
+  background: var(--sidebar-bg);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 16px;
+  overflow: hidden;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.expanded {
+  width: 220px;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding: 0 4px;
+  min-height: 32px;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1;
+}
+
+.sidebar-toggle {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.sidebar-nav-bottom {
+  flex: 0;
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.15s;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+}
+
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff !important;
+}
+
+.nav-link.active {
+  background: #fff !important;
+  color: #1e3a8a !important;
+  font-weight: 600;
+}
+
+.nav-link.active :deep(svg) {
+  color: #1e3a8a;
+}
+
+.nav-link :deep(svg) {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.nav-link-sub {
+  padding-left: 44px;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.settings-row {
+  position: relative;
+}
+
+.settings-chevron {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+</style>

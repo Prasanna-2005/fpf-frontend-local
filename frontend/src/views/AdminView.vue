@@ -1,8 +1,6 @@
 <template>
         <div class="d-flex" >
-            <div >
-                <SideBarComponent @add-fund="openAddFundPopUp=true"/>
-            </div>
+            <SideBarComponent @add-fund="openAddFundPopUp=true"/>
             <div class="flex-grow-1 d-flex flex-column align-items-start position-relative">
                 <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
                 <AnalyticsTableComponent class="h-75" :selected-year="selectedYear" @edit-user="openUserEditor" />
