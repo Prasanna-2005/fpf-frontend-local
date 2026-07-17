@@ -13,6 +13,7 @@
     <aside
       class="sidebar flex-shrink-0"
       :class="isCollapsed ? 'collapsed' : 'expanded'"
+      aria-label="Main navigation"
     >
       <div class="sidebar-header">
         <div class="logo" v-show="!isCollapsed">Quantrium</div>
@@ -28,29 +29,39 @@
       </div>
 
       <ul class="sidebar-nav">
-        <li v-if="role != 'admin'">
-          <a href="/home" class="nav-link active">
+        <li v-if="role !== 'admin'">
+          <a
+            href="/home"
+            class="nav-link"
+            :class="{ active: isDashboardRoute }"
+            :aria-current="isDashboardRoute ? 'page' : undefined"
+          >
             <font-awesome-icon icon="table-cells" />
             <span v-show="!isCollapsed">Dashboard</span>
           </a>
         </li>
-        <li v-if="role != 'admin'">
-          <a href="#" class="nav-link" @click.prevent>
+        <li v-if="role !== 'admin'">
+          <span class="nav-link nav-link-disabled" title="Coming soon" aria-disabled="true">
             <font-awesome-icon icon="chart-line" />
             <span v-show="!isCollapsed">Report</span>
-          </a>
+          </span>
         </li>
-        <li v-if="role != 'admin'">
-          <a class="nav-link" href="#" @click.prevent="addFund">
+        <li v-if="role !== 'admin'">
+          <button type="button" class="nav-link" @click="addFund">
             <font-awesome-icon icon="folder-plus" />
             <span v-show="!isCollapsed">Add Fund</span>
-          </a>
+          </button>
         </li>
       </ul>
 
       <ul class="sidebar-nav sidebar-nav-bottom">
         <li>
-          <div class="nav-link settings-row" @click="toggleSetting">
+          <button
+            type="button"
+            class="nav-link settings-row"
+            :aria-expanded="isSetting"
+            @click="toggleSetting"
+          >
             <font-awesome-icon icon="gear" />
             <span v-show="!isCollapsed">Settings</span>
             <font-awesome-icon
@@ -58,7 +69,7 @@
               class="settings-chevron"
               :icon="isSetting ? 'angle-up' : 'angle-down'"
             />
-          </div>
+          </button>
         </li>
         <li v-if="isSetting && !isCollapsed">
           <a href="/reset" class="nav-link nav-link-sub">
@@ -66,10 +77,10 @@
           </a>
         </li>
         <li>
-          <a class="nav-link" href="#" @click.prevent="Logout">
+          <button type="button" class="nav-link" @click="Logout">
             <font-awesome-icon icon="right-from-bracket" />
             <span v-show="!isCollapsed">Logout</span>
-          </a>
+          </button>
         </li>
       </ul>
     </aside>
@@ -78,16 +89,22 @@
 
 <script setup>
 import { useUserStore } from '@/stores/userStore'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useToast } from 'vue-toast-notification'
 
 const userStore = useUserStore()
 const toast = useToast()
+const route = useRoute()
 const role = userStore.role
 
 const isCollapsed = ref(false)
 const isSetting = ref(false)
+
+const isDashboardRoute = computed(() =>
+  ['home', 'editing', 'preview'].includes(route.name)
+)
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
@@ -97,7 +114,7 @@ const toggleSetting = () => {
 }
 
 async function Logout() {
-  toast.open({
+  const toastInstance = toast.open({
     message: `
         <div style="display:flex; flex-direction:column; gap:6px;">
           <strong>Logout</strong>
@@ -131,12 +148,13 @@ async function Logout() {
         } catch (error) {
           console.error(error)
         }
+        toastInstance?.dismiss?.()
         window.location.replace('/')
       })
     }
     if (cancel) {
       cancel.addEventListener('click', () => {
-        toast.clear()
+        toastInstance?.dismiss?.()
       })
     }
   }, 50)
@@ -150,6 +168,9 @@ function addFund() {
 
 <style scoped>
 .sidebar-wrap {
+  --sidebar-bg: #1e3a8a;
+  --sidebar-hover: rgba(255, 255, 255, 0.12);
+
   display: flex;
   position: relative;
   height: 100vh;
@@ -170,7 +191,7 @@ function addFund() {
   left: 0;
   transform: translateY(-50%);
   z-index: 100;
-  background: #1e3a8a;
+  background: var(--sidebar-bg);
   color: #fff;
   border: none;
   border-radius: 0 8px 8px 0;
@@ -189,8 +210,6 @@ function addFund() {
 }
 
 .sidebar {
-  --sidebar-bg: #1e3a8a;
-  --sidebar-hover: rgba(255, 255, 255, 0.12);
   height: 100vh;
   background: var(--sidebar-bg);
   color: #fff;
@@ -277,27 +296,34 @@ function addFund() {
   background: transparent;
   border: none;
   width: 100%;
+  text-align: left;
+  font-family: inherit;
 }
 
-.nav-link:hover {
+.nav-link:hover:not(.nav-link-disabled) {
   background: var(--sidebar-hover);
   color: #fff !important;
 }
 
 .nav-link.active {
   background: #fff !important;
-  color: #1e3a8a !important;
+  color: var(--sidebar-bg) !important;
   font-weight: 600;
 }
 
 .nav-link.active :deep(svg) {
-  color: #1e3a8a;
+  color: var(--sidebar-bg);
 }
 
 .nav-link :deep(svg) {
   width: 1.1rem;
   height: 1.1rem;
   flex-shrink: 0;
+}
+
+.nav-link-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .nav-link-sub {
