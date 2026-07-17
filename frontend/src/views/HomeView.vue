@@ -1,10 +1,8 @@
 <template>
     <div class="d-flex main-div" >
-      <div >
-        <SideBarComponent @add-fund="openAddFundPopUp=true" />
-      </div>
-      <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative">
-        <div :class="['table-container custom-view', { 'blurred': showUpload }]">
+      <SideBarComponent @add-fund="openAddFundPopUp=true" />
+      <div class="flex-grow-1 dashboard-main position-relative">
+        <div :class="['dashboard-content', { 'blurred': showUpload }]">
             <TableComponent @trigger-upload="openUpload" />
         </div>
         <div v-if="showUpload" class="upload-overlay-inside">
@@ -38,6 +36,17 @@ function closeUpload(){
 .main-div{
   height: 100vh;
   overflow: hidden;
+  background: #eef1f6;
+}
+.dashboard-main {
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.dashboard-content {
+  height: 100%;
+  padding: 28px 32px 24px;
+  overflow: auto;
 }
 .blurred {
   filter: blur(4px);
