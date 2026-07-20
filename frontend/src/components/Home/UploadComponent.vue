@@ -1,96 +1,126 @@
 <template>
-  <div class="upload-container d-flex flex-column gap-2 custom-view">
-    <h3>Upload Files</h3>
+  <FilingWizardShell :step="1">
+    <label for="filing_name" class="field-label">
+      Filing Name <span class="req">*</span>
+    </label>
+    <p v-if="!newFiling || uploadMore" class="filing-name-display">{{ filingName }}</p>
+    <input
+      v-else
+      type="text"
+      class="text-input"
+      id="filing_name"
+      placeholder="Unique filing name"
+      v-model="filingName"
+      @input="validateName"
+    />
+    <p v-if="errorMessage" class="error-text" role="alert">{{ errorMessage }}</p>
 
-    <!-- Filing Name -->
-    <div>
-      <label for="filing_name" class="form-label">Filing Name*</label>
-      <p v-if="!new_filing || upload_more" class="filing-name"><b>{{ filingName }}</b></p>
-      <input 
-        v-else
-        type="text"
-        class="f-20 form-control"
-        id="filing_name"
-        placeholder="Unique Name"
-        v-model="filingName"
-        @input="validateName"
-      />
+    <div
+      v-bind="getRootProps({ 'aria-label': 'Upload files' })"
+      class="dropzone"
+    >
+      <input id="filing-file-input" v-bind="getInputProps()" />
+      <font-awesome-icon icon="cloud-arrow-up" class="dropzone-icon" aria-hidden="true" />
+      <h3>Drag &amp; Drop Files Here</h3>
+      <p>Supported formats: {{ UPLOAD_FORMATS_LABEL }}</p>
+      <button type="button" class="btn-browse" @click.stop="openFileDialog">
+        Browse Files
+      </button>
     </div>
-    <p v-if="errorMessage" class="text-danger small mb-0 mt-0">{{ errorMessage }}</p>
 
-    <!-- Dropzone -->
-    <div class="dropzone-container d-flex justify-content-center align-items-center">
+    <div v-if="files.length" class="file-list">
       <div
-        v-bind="getRootProps()"
-        class="w-100 d-flex justify-content-center align-items-center flex-column py-4"
+        v-for="(file, index) in files"
+        :key="`${file.name}-${file.size}-${index}`"
+        class="file-row"
       >
-        <input v-bind="getInputProps()" class="w-100" />
-        <font-awesome-icon icon="cloud-arrow-up" class="upload-icon mb-2" />
-        <h5 class="dropMessage">Drop files here</h5>
-        <p>Supported formats: XLSX, XLS, ZIP</p>
-        <p><b>OR</b></p>
-        <button class="btn browse-btn">Browse files</button>
-
-        <!-- File count feedback -->
-        <div v-if="files.length > 0" class="mt-3 file-count">
-          <font-awesome-icon icon="check-circle" class="me-2 text-success" />
-          
-          <span><b>{{ files.length }}</b> file<span v-if="files.length > 1">s</span> uploaded</span>
+        <div class="file-icon" aria-hidden="true">
+          <font-awesome-icon icon="file" />
         </div>
+        <div class="file-meta">
+          <div class="name" :title="file.name">{{ file.name }}</div>
+          <div class="size">{{ fileExtension(file.name) }} · {{ formatBytes(file.size) }}</div>
+        </div>
+        <button
+          type="button"
+          class="file-remove"
+          aria-label="Remove file"
+          @click.stop="removeFile(index)"
+        >
+          <font-awesome-icon icon="xmark" />
+        </button>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <div class="upload-text">
-        <font-awesome-icon icon="info-circle" class="text-primary small mt-1" />
-        Please upload the investment liquidity Excel file along with the fund’s quarterly data.
+    <template #footer>
+      <div></div>
+      <div class="footer-right">
+        <button type="button" class="btn-ghost" @click="handleCancel">Cancel</button>
+        <button
+          type="button"
+          class="btn-primary"
+          @click="submitUpload"
+          :disabled="files.length === 0 || !filingName || !isNameValid"
+        >
+          Next
+        </button>
       </div>
-
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" @click="handleCancel">Cancel</button>
-        <button class="btn btn-primary btn-sm" @click="submitUpload" :disabled="files.length === 0 || !filingName ||  !isNameValid">Next</button>
-      </div>
-    </div>
-
-
-  </div>
+    </template>
+  </FilingWizardShell>
 </template>
 
 <script setup>
-import { useDropzone } from "vue3-dropzone"
+import { useDropzone } from 'vue3-dropzone'
 import { useFileStore } from '@/stores/fileStore'
-import { ref, watch} from 'vue'
-import { useToast } from 'vue-toast-notification';
+import { ref, watch } from 'vue'
+import { useToast } from 'vue-toast-notification'
 import { useUserStore } from '@/stores/userStore'
-import api_call_methods from "@/assets/api_calls/api_calls";
-const toast = useToast();
+import api_call_methods from '@/assets/api_calls/api_calls'
+import FilingWizardShell from './FilingWizardShell.vue'
+import {
+  formatBytes,
+  fileExtension,
+  isAllowedUploadFile,
+  UPLOAD_ACCEPT,
+  UPLOAD_FORMATS_LABEL,
+} from '@/assets/utils/filingUploadUtils'
+
+const toast = useToast()
 const fileStore = useFileStore()
+const userStore = useUserStore()
+const userId = userStore.userID
 
-const new_filing=ref(fileStore.getNewFilingField())
+const newFiling = ref(fileStore.getNewFilingField())
 const filingName = ref(fileStore.getfilingName() || '')
-const upload_more=ref(fileStore.getUploadMore())
-const files = ref([])
-const emit = defineEmits(['Upload-done'])
+const uploadMore = ref(fileStore.getUploadMore())
+const files = ref([...fileStore.getFiles()])
+const errorMessage = ref('')
+const isNameValid = ref(true)
+const emit = defineEmits(['upload-done', 'close-click'])
 
-function onDrop(acceptedFiles) {
-
-  const allowedExtensions = new Set(["xlsx", "xls", "zip","pdf"])
+function onDrop(acceptedFiles, rejectReasons = []) {
   const validFiles = []
   const invalidFiles = []
 
-  acceptedFiles.forEach(file => {
-    const ext = file.name.split(".").pop().toLowerCase()
-
-    if (allowedExtensions.has(ext)) {
-      validFiles.push(file)
+  acceptedFiles.forEach((file) => {
+    if (isAllowedUploadFile(file.name)) {
+      if (!files.value.some((f) => f.name === file.name)) {
+        validFiles.push(file)
+      }
     } else {
       invalidFiles.push(file.name)
     }
   })
 
+  rejectReasons.forEach((rejection) => {
+    const name = rejection?.file?.name
+    if (name) invalidFiles.push(name)
+  })
+
   if (invalidFiles.length > 0) {
-    toast.error(`Invalid file type: ${invalidFiles.join(", ")}. Only XLSX, XLS, ZIP, PDF allowed.`)
+    toast.error(
+      `Invalid file type: ${[...new Set(invalidFiles)].join(', ')}. Only ${UPLOAD_FORMATS_LABEL} allowed.`
+    )
   }
 
   if (validFiles.length > 0) {
@@ -100,6 +130,13 @@ function onDrop(acceptedFiles) {
 }
 
 
+function removeFile(index) {
+  const filename = files.value[index]?.name
+  if (!filename) return
+  fileStore.removeFile(filename)
+  files.value = fileStore.getFiles()
+}
+
 watch(filingName, (newVal) => {
   if (newVal) {
     fileStore.add_filing_name(newVal)
@@ -108,112 +145,264 @@ watch(filingName, (newVal) => {
 
 function submitUpload() {
   if (filingName.value !== '' && files.value.length > 0) {
-    emit('Upload-done')
+    emit('upload-done')
   }
 }
-const errorMessage = ref("")
-const isNameValid = ref(true)
 
 function validateName() {
   let value = filingName.value
-
-  // 1. Allow A–Z, 0–9, space, _, -
   const allowedPattern = /^[A-Za-z0-9 _-]*$/
 
   if (!allowedPattern.test(value)) {
     isNameValid.value = false
-    errorMessage.value = "Allow only A–Z, 0–9, spaces, _ and -"
-    filingName.value = value.replace(/[^A-Za-z0-9 _-]/g, "")
+    errorMessage.value = 'Allow only A–Z, 0–9, spaces, _ and -'
+    filingName.value = value.replace(/[^A-Za-z0-9 _-]/g, '')
     return
   }
 
-  value = value.replace(/\s{2,}/g, " ")
-
-
-  value = value.replace(/^\s+/, "")
-
+  value = value.replace(/\s{2,}/g, ' ').replace(/^\s+/, '')
   filingName.value = value
 
-  // 4. Duplicate check
   if (fileStore.isNameTaken(value.trim())) {
     isNameValid.value = false
-    errorMessage.value = "Filing name already exists."
+    errorMessage.value = 'Filing name already exists.'
     return
   }
+
   isNameValid.value = true
-  errorMessage.value = ""
+  errorMessage.value = ''
 }
 
-
-
-const userStore=useUserStore()
-const user_id=userStore.userID
-async function handleCancel(){
-  try{
-    console.log("new filing field:",fileStore.getUploadMore())
-    if (fileStore.getUploadMore()){
-      console.log("cancel api call")
-      console.log(filingName.value)
-      const data={
-      "filing_name":filingName.value,
-    }
-      await api_call_methods.discard_filing(data,user_id)
-      toast.success("Filing cancelled!")
+async function handleCancel() {
+  try {
+    if (fileStore.getUploadMore()) {
+      await api_call_methods.discard_filing(
+        { filing_name: filingName.value },
+        userId
+      )
+      toast.success('Filing cancelled!')
       fileStore.clearAllData()
     }
     emit('close-click')
-  }catch(e){
-    console.log(e)
+  } catch (error) {
+    toast.error(error.response?.data?.message || 'Failed to cancel filing')
   }
 }
-const { getRootProps, getInputProps } = useDropzone({ onDrop })
+
+const { getRootProps, getInputProps, open } = useDropzone({
+  onDrop,
+  accept: UPLOAD_ACCEPT,
+  multiple: true,
+})
+
+function openFileDialog() {
+  open()
+}
 </script>
 
 <style scoped>
-.upload-container {
-  width: 70%;
-  max-width: 800px;
-  min-height: 400px;
+.field-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2937;
+  flex-shrink: 0;
+}
+
+.field-label .req {
+  color: #dc2626;
+}
+
+.text-input {
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 0.9rem;
+  outline: none;
+  margin-bottom: 20px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.text-input:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.filing-name-display {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 20px;
+  flex-shrink: 0;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin: -12px 0 16px;
+  flex-shrink: 0;
+}
+
+.dropzone {
+  border: 2px dashed #93c5fd;
+  border-radius: 12px;
+  background: #f3f7fd;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.dropzone:hover {
+  background: #e8f0fe;
+  border-color: #2563eb;
+}
+
+.dropzone-icon {
+  font-size: 2.5rem;
+  color: #2563eb;
+  margin-bottom: 12px;
+}
+
+.dropzone h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #1f2937;
+}
+
+.dropzone p {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0 0 14px;
+}
+
+.btn-browse {
+  background: #fff;
+  border: 1px solid #93c5fd;
+  color: #2563eb;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-browse:hover {
+  background: #eff6ff;
+}
+
+.file-list {
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  background-color: white;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-
-.dropzone-container {
   flex: 1;
-  min-height: 200px;
-  height: 70%;
-  border: 2px dashed grey;
-  border-radius: 10px;
-  background-color: #FAF9F6;
-  width: 100%;
-  transition: border-color 0.3s, background-color 0.3s;
+  min-height: 0;
+  overflow: auto;
+  margin-bottom: 8px;
+}
+
+.file-row {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 1rem;
-}
-.dropzone-container:hover {
-  border-color: #4a90e2;
-  background-color: #f9fcff;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.upload-icon {
-  font-size: 3rem;
-  color: #4a90e2;
+.file-row:last-child {
+  border-bottom: none;
 }
 
-.browse-btn {
-  color: #4a90e2;
+.file-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #dcfce7;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-meta .name {
+  font-size: 0.9rem;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #1f2937;
 }
 
-.file-count {
+.file-meta .size {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.file-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 4px;
+  display: flex;
   font-size: 0.95rem;
-  color: #333;
+}
+
+.file-remove:hover {
+  color: #dc2626;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.btn-ghost {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 14px;
+}
+
+.btn-ghost:hover {
+  color: #1f2937;
+}
+
+.btn-primary {
+  background: #1e3a8a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 </style>

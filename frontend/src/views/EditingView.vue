@@ -30,7 +30,7 @@
                 <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
             </div> 
             <div v-if="openUploadPopUp" class="backdrop">
-                <OverlayComponent  @close-upload="closeUpload"/>
+                <OverlayComponent @close-upload="closeUpload" @submit-success="closeUpload"/>
             </div> 
             <div v-if="openComputationLogsPopUp" class="backdrop">
                 <computationLogsPopUpComp :field="computationLogs" @close-click="openComputationLogsPopUp=false"/>
