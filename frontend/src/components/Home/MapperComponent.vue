@@ -87,7 +87,13 @@
       <button type="button" class="btn-secondary" @click="openUploader">Back</button>
       <div class="footer-right">
         <button type="button" class="btn-ghost" @click="handleCancel">Cancel</button>
-        <button type="button" class="btn-primary" @click="proceed" :disabled="isLoading">
+        <button
+          type="button"
+          class="btn-primary"
+          @click="proceed"
+          :disabled="isLoading || !hasMappedFiles"
+          :title="!hasMappedFiles ? 'Map at least one file before submitting' : undefined"
+        >
           <span
             v-if="isLoading"
             class="spinner-border spinner-border-sm me-2"
@@ -255,6 +261,10 @@ const mappedRows = computed(() =>
   })
 )
 
+const hasMappedFiles = computed(() =>
+  mappedRows.value.some((row) => Boolean(row.mappedFile))
+)
+
 function updateUnmappedFiles(fund, filename) {
   if (!localData.value.unmapped_files) {
     localData.value.unmapped_files = []
@@ -300,6 +310,11 @@ function removeFileFromFund(fund, filename) {
 }
 
 async function proceed() {
+  if (!hasMappedFiles.value) {
+    toast.error('Please map at least one file before submitting.')
+    return
+  }
+
   try {
     isLoading.value = true
     await api_call_methods.submit_files(
