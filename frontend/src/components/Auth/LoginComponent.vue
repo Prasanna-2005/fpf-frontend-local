@@ -3,7 +3,7 @@
     <div class="brand">Quantrium</div>
 
     <div class="welcome">
-      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome Back!' }}</h1>
+      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome!' }}</h1>
       <p>
         {{
           loginSuccess
@@ -70,10 +70,6 @@
 
     <OtpComponent v-else :user-id="userId" :email="email" />
 
-    <p v-if="!loginSuccess" class="signup">
-      Don't have an account?
-      <a href="#">Sign up</a>
-    </p>
   </div>
 </template>
 
