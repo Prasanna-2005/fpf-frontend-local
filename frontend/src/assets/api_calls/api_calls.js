@@ -1,7 +1,7 @@
 import api from '@/axios'
 //-----------AUTH ENDPOINT CALLS-----------------//
 async function login(data){
-    const response=await api.post('/api/v1/auth/login',data)
+    const response=await api.post('/api/v1/auth/login',data, { skipErrorToast: true })
     console.log(data)
     return response
 }
@@ -9,7 +9,8 @@ async function login(data){
 async function verify_otp(data){
     const response=await api.post('/api/v1/auth/verify_otp',data,
         {
-            withCredentials:true
+            withCredentials:true,
+            skipErrorToast: true,
         }
     )
     return response
@@ -23,14 +24,15 @@ async function refresh_token(user_id){
             withCredentials: true ,
             headers:{
                 'X-User-ID': user_id
-            }
+            },
+            skipErrorToast: true,
         }
     )
     return response
 }
 
 async function resend_otp(data){
-    const response=await api.post('/api/v1/auth/resend_otp',data)
+    const response=await api.post('/api/v1/auth/resend_otp',data, { skipErrorToast: true })
     return response
 }
 
@@ -292,8 +294,8 @@ async function verify_user(user_id){
             withCredentials: true ,
             headers:{
                 'X-User-ID': user_id
-            }
-
+            },
+            skipErrorToast: true,
         }
     )
     console.log(response)
@@ -301,7 +303,7 @@ async function verify_user(user_id){
 
 //"/history"
 
-async function get_history(user_id,data){
+async function get_history(user_id,data, options = {}){
     const response=await api.get(`/api/v1/submissions/history`, 
         {   params: {
                 filingid: data.filingId,
@@ -311,8 +313,9 @@ async function get_history(user_id,data){
             withCredentials: true ,
             headers:{
                 'X-User-ID': user_id
-            }
-
+            },
+            // Prefetch can fire many requests; skip by default, toast on explicit user open
+            skipErrorToast: options.skipErrorToast !== false,
         }
     )
     return response

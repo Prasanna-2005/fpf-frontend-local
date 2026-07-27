@@ -611,7 +611,6 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     toast.success(`Saved Question ${fieldNo}`)
   } catch(error){
     console.log(error)
-    toast.error(`Failed to save question ${fieldNo}`);
   } finally {
     making_api_call.value = false;
   }
@@ -646,7 +645,6 @@ async function restoreEdits(fieldNo) {
 
   } catch (err) {
     console.log(err)
-    toast.error(`Failed to revert question ${fieldNo}`)
   } finally {
     making_api_call.value = false
   }

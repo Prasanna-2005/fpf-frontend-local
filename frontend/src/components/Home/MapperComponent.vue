@@ -331,7 +331,6 @@ async function proceed() {
     showSuccessModal.value = true
   } catch (error) {
     console.error('Error updating mappings:', error)
-    toast.error(error.response?.data?.message || 'Submit failed')
   } finally {
     isLoading.value = false
   }
@@ -352,7 +351,7 @@ async function handleCancel() {
     }
     emit('close-click')
   } catch (error) {
-    toast.error(error.response?.data?.message || 'Failed to cancel filing')
+    console.error(error)
   }
 }
 

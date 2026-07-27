@@ -184,10 +184,14 @@ function closeUpload() {
 async function openHistory(payload) {
   fieldNo.value = payload.fieldNo
   fieldType.value = payload.fieldType
-  const result = await api_call_methods.get_history(user_id, payload)
-  history.value = result.data
-  editedFlags[payload.fieldNo] = hasHistoryEdits(result.data)
-  openhistoryPopUp.value = true
+  try {
+    const result = await api_call_methods.get_history(user_id, payload, { skipErrorToast: false })
+    history.value = result.data
+    editedFlags[payload.fieldNo] = hasHistoryEdits(result.data)
+    openhistoryPopUp.value = true
+  } catch (error) {
+    console.error('Error loading history:', error)
+  }
 }
 
 function goToPreview() {
@@ -202,8 +206,8 @@ async function downloadInput() {
     const response = await api_call_methods.download_input(user_id, filing_name)
     utils.downloadInputZip(response, filing_name)
     toast.success('Input files downloaded successfully')
-  } catch {
-    toast.error('Failed to download input files')
+  } catch (error) {
+    console.error(error)
   } finally {
     downloadInputFiles.value = false
   }

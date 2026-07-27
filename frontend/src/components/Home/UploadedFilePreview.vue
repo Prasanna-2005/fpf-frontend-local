@@ -97,7 +97,7 @@ async function uploadFiles() {
     fileStore.clearFiles()
     emit('files-mapped', payload)
   } catch (error) {
-    toast.error(error.response?.data?.message || 'Upload failed')
+    console.error(error)
   } finally {
     isUploading.value = false
     isMapping.value = false

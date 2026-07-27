@@ -203,6 +203,8 @@ async function downloadXmlFileForApprovedFiling() {
   try {
     const result = await api_call_methods.get_xml_data(user_id, props.filingId)
     utils.downloadXMLFile(result.data)
+  } catch (error) {
+    console.log(error)
   } finally {
     downloading.value = false
   }
@@ -211,13 +213,13 @@ async function downloadXmlFileForApprovedFiling() {
 async function sendForApproval(status) {
   try {
     sendingForApproval.value = true
-    responseStore.setStatus(status)
     await api_call_methods.update_status(user_id, props.filingId, status)
+    responseStore.setStatus(status)
+    sentForApproval.value = true
   } catch (error) {
     console.log(error)
   } finally {
     sendingForApproval.value = false
-    sentForApproval.value = true
   }
 }
 

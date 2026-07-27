@@ -185,7 +185,7 @@ async function handleCancel() {
     }
     emit('close-click')
   } catch (error) {
-    toast.error(error.response?.data?.message || 'Failed to cancel filing')
+    console.error(error)
   }
 }
 
