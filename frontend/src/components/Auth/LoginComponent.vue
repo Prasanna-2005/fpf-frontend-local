@@ -1,116 +1,338 @@
 <template>
-    <div class="form">
-    <form class="needs-validation" novalidate @submit.prevent="handleSubmit">
-        <div class="login-container" :class="{disabled :loginSuccess}">
-            <div class="box">
-                <h3>Login</h3>
-            </div>
-            <div class="mb-3">
-                <label for="emailInput" class="form-label">Email</label>
-                <input type="email" class="form-control" id="emailInput" name="email" autocomplete="email" aria-describedby="emailHelp" v-model="email" placeholder="user@company.com" required>
-                <div  class="invalid-feedback">
-                   Please enter a valid email address
-                </div>
+  <div class="form-card">
+    <div class="brand">Quantrium</div>
 
-            </div>
-            <div class="mb-3 position-relative">
-                <label for="passwordInput" class="form-label">Password</label>
-                <input
-                    :type="showPassword ? 'text' : 'password'"
-                    class="form-control pe-5"
-                    id="passwordInput"
-                    v-model="password"
-                    required
-                />
-                <font-awesome-icon
-                    :icon="showPassword ? 'eye-slash' : 'eye'"
-                    class="text-secondary password-toggle-icon"
-                    @click="togglePassword"
-                />
-                <div class="invalid-feedback">
-                    Please enter a valid password
-                </div>
-            </div>
-
-
-            <!-- <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="rememberMe">
-                <label class="form-check-label" for="rememberMe">Remember Me</label>
-            </div> -->
-            <div class="box">
-                <button type="submit" class="btn btn-primary button-in-box" :disabled="isLoading">
-                    <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span v-if="!isLoading">Login</span>
-                    <span v-else>Logging in...</span>
-                </button>
-            </div>
-
-        </div>
-        
-        
-    </form>
-    <div v-if="loginSuccess" class="otp-container"  >
-            <hr>
-            <OtpComponent :user_id="user_id" :email="email"/>
-        </div>
+    <div class="welcome">
+      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome Back!' }}</h1>
+      <p>
+        {{
+          loginSuccess
+            ? `Enter the verification code sent to ${email}`
+            : 'Please login to your account'
+        }}
+      </p>
     </div>
+
+    <form
+      v-if="!loginSuccess"
+      class="login-form"
+      novalidate
+      :class="{ 'was-validated': showedValidation }"
+      @submit.prevent="handleSubmit"
+    >
+      <div class="field" :class="{ invalid: showedValidation && !emailValid }">
+        <label for="emailInput">Email</label>
+        <div class="input-wrap">
+          <font-awesome-icon icon="paper-plane" class="field-icon" />
+          <input
+            id="emailInput"
+            v-model.trim="email"
+            type="email"
+            name="email"
+            placeholder="Enter email address"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <div class="error">Please enter a valid email address</div>
+      </div>
+
+      <div class="field" :class="{ invalid: showedValidation && !passwordValid }">
+        <label for="passwordInput">Password</label>
+        <div class="input-wrap">
+          <font-awesome-icon icon="lock" class="field-icon" />
+          <input
+            id="passwordInput"
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            name="password"
+            placeholder="Enter password"
+            autocomplete="current-password"
+            required
+          />
+          <button
+            type="button"
+            class="toggle-pass"
+            :aria-label="showPassword ? 'Hide password' : 'Show password'"
+            @click="togglePassword"
+          >
+            <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" />
+          </button>
+        </div>
+        <div class="error">Please enter your password</div>
+      </div>
+
+      <button type="submit" class="btn-login" :disabled="isLoading">
+        <span v-if="isLoading" class="ui-spinner" aria-hidden="true"></span>
+        {{ isLoading ? 'Logging in…' : 'Login' }}
+      </button>
+    </form>
+
+    <OtpComponent v-else :user-id="userId" :email="email" />
+
+    <p v-if="!loginSuccess" class="signup">
+      Don't have an account?
+      <a href="#">Sign up</a>
+    </p>
+  </div>
 </template>
+
 <script setup>
-import { ref } from 'vue';
-import OtpComponent from './OtpComponent.vue';
-import { useUserStore } from '@/stores/userStore';
-import { useToast } from 'vue-toast-notification';
-import api_call_methods from '@/assets/api_calls/api_calls';
+import { computed, ref } from 'vue'
+import { useToast } from 'vue-toast-notification'
+import OtpComponent from './OtpComponent.vue'
+import { useUserStore } from '@/stores/userStore'
+import api_call_methods from '@/assets/api_calls/api_calls'
 
-const toast = useToast();
+const toast = useToast()
+const userStore = useUserStore()
 
-const email = ref('');
-const password = ref('');
-const loginSuccess = ref(false);
-const user_id = ref('');
-const isLoading = ref(false); 
+const email = ref('')
+const password = ref('')
+const loginSuccess = ref(false)
+const userId = ref('')
+const isLoading = ref(false)
 const showPassword = ref(false)
+const showedValidation = ref(false)
+
+const emailValid = computed(() => {
+  const value = email.value.trim()
+  return Boolean(value) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+})
+
+const passwordValid = computed(() => Boolean(password.value.trim()))
 
 function togglePassword() {
   showPassword.value = !showPassword.value
 }
-const emit = defineEmits(['']);
 
-async function handleSubmit(event) {
-    event.preventDefault();
-    const userStore = useUserStore();
-    const form = event.target;
+async function handleSubmit() {
+  showedValidation.value = true
+  if (!emailValid.value || !passwordValid.value) return
 
-    if (!form.checkValidity()) {
-        event.stopPropagation();
+  try {
+    isLoading.value = true
+    const result = await api_call_methods.login({
+      username: email.value,
+      password: password.value,
+    })
+
+    if (result.status === 200) {
+      userId.value = result.data.user_id
+      loginSuccess.value = true
+      toast.success('Verification code sent!')
+      userStore.login({
+        email: email.value,
+        role: 'Contributor',
+        userID: userId.value,
+      })
     } else {
-        try {
-            isLoading.value = true; 
-            const result = await api_call_methods.login({
-                username: email.value,
-                password: password.value
-            });
-
-            if (result.status == '200') {
-                user_id.value = result.data['user_id'];
-                loginSuccess.value = true;
-                toast.success('Verification code sent!');
-                userStore.login({ email: email.value, role: 'Contributor', userID: user_id.value });
-            } else {
-                toast.error('Login failed!');
-                console.log(result);
-            }
-        } catch (error) {
-            if (error.status==404){
-                toast.error('Wrong username or password')
-            }
-            else{
-                toast.error('We’re having trouble processing your request. Please try again later')
-            }
-            
-        } finally {
-            isLoading.value = false; 
-        }
+      toast.error('Login failed!')
     }
+  } catch (error) {
+    const status = error.response?.status
+    if (status === 404) {
+      toast.error('Wrong username or password')
+    } else {
+      toast.error('We’re having trouble processing your request. Please try again later')
+    }
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
+
+<style scoped>
+.form-card {
+  width: 100%;
+  max-width: 400px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.brand {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+}
+
+.welcome {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.welcome h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.welcome p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #6b7280;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.input-wrap input {
+  width: 100%;
+  border: 1px solid transparent;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 13px 44px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #111827;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.input-wrap input::placeholder {
+  color: #9ca3af;
+}
+
+.input-wrap input:focus {
+  background: #fff;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+}
+
+.toggle-pass:hover {
+  color: #6b7280;
+}
+
+.error {
+  display: none;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.field.invalid .error {
+  display: block;
+}
+
+.field.invalid .input-wrap input {
+  border-color: #fca5a5;
+  background: #fff;
+}
+
+.btn-login {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #1e3a8a;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 14px 16px;
+  margin-top: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+}
+
+.btn-login:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.btn-login:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ui-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  animation: ui-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.signup {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.signup a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signup a:hover {
+  text-decoration: underline;
+  background: transparent;
+}
+
+@media (max-width: 480px) {
+  .welcome h1 {
+    font-size: 1.5rem;
+  }
+
+  .brand {
+    margin-bottom: 28px;
+  }
+}
+</style>

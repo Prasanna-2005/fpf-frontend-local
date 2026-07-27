@@ -1,10 +1,22 @@
 body{
-    color:None
+    color: inherit;
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
 }
+
+@media (min-width: 1024px) {
+  body {
+    display: block;
+    place-items: unset;
+  }
+}
+
 #app{
     margin: 0;
     padding: 0;
     width: 100%;
+    min-height: 100vh;
 }
 
 .disabled{
