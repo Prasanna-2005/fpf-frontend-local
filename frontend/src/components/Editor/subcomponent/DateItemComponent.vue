@@ -4,7 +4,7 @@
     :style="{ paddingLeft: indent + 'px' }"
   >
     <p style="max-width: 70%;">
-      <span>{{ itemNumber }}</span>)
+      <span v-if="!hideNumber && itemNumber">{{ itemNumber }})</span>
       <span>{{ itemText }}</span>:
     </p>
 
@@ -57,7 +57,11 @@ const props = defineProps({
   indent: {
     type: Number,
     default: 0
-  }
+  },
+  hideNumber: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update'])

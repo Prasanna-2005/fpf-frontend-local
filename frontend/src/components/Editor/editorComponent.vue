@@ -1,122 +1,108 @@
 <template>
-  <div class="w-100 p-2" style="height: 90vh;">
-    <div class="button-options">
-      <button class="btn btn-primary m-2 border-0" @click="goToHome">
-        <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
-      </button>
-      <button class="btn btn-primary m-2 border-0" @click="goToPreview">
-        <font-awesome-icon class="icon" icon="eye" /> PDF Preview
-      </button>
-      <button class="btn btn-primary m-2 border-0" @click="downloadInput" :disabled="downloadInputFiles">
-        <span v-if="downloadInputFiles" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        <span v-if="!downloadInputFiles"><font-awesome-icon class="icon" icon="download" /> Input Files</span>
-        <span v-else>Downloading Input Files...</span>
-      </button>
-      <button class="btn btn-primary m-2 border-0" @click="openUpload" >
-        <font-awesome-icon class="icon" icon="upload" /> Upload More Files
-      </button>
-      <button class="btn btn-primary m-2 border-0" @click="openMappedFiles" >
-        <font-awesome-icon class="icon" icon="file" /> Mapped files
-      </button>
+  <div class="editor-shell">
+    <div class="fund-header">
+      <div class="fund-header-text">
+        <h2>{{ props.fundName }}</h2>
+        <p>{{ sectionSubtitle }}</p>
+      </div>
+      <div class="fund-header-actions">
+        <button type="button" class="btn-outline" @click="openMappedFiles">
+          <font-awesome-icon icon="file" />
+          Mapped Files
+        </button>
+        <button type="button" class="btn-primary" @click="openUpload">
+          <font-awesome-icon icon="upload" />
+          Upload More Files
+        </button>
+      </div>
     </div>
 
-    <div class="max-dimensions" style="padding: 10px 30px 10px 30px; height: 80vh; overflow: scroll;">
-      <div class="d-flex w-100 mb-4" style="border: 1px solid;">
-            <div style="border: 1px solid;" class="w-50 p-2">
-              <h4>{{ props.fundName }}</h4>
-            </div>
-            <div style="border: 1px solid;" class="w-50 p-2">
-              <h4>Information about the private funds you advise</h4>
-            </div>
-          </div>
-
-      <div :key="props.fundName">
+    <div class="editor-scroll">
+      <div class="form-panel" :key="props.fundName">
         <div v-for="(fields, fieldIndex) in data" :key="fieldIndex">
-          <div v-if="getDisplayFieldNo(fields.field_no) === '5'">
-            <h5 class=" mb-3 mt-4">Item A. Reporting fund identifying information</h5>
+          <div
+            v-if="sectionHeading(fields.field_no)"
+            class="section-bar"
+          >
+            {{ sectionHeading(fields.field_no) }}
           </div>
 
-          <!-- Add heading before question 8 (i.e., after 7) -->
-          <div v-if="getDisplayFieldNo(fields.field_no) === '8'">
-            <h5 class=" mb-3 mt-4">Item B. Assets, financing and investor concentration</h5>
-          </div>
-          <!-- Add heading before question 18 (i.e., after 17) -->
-          <div v-if="getDisplayFieldNo(fields.field_no) === '17'">
-            <h5 class=" mb-3 mt-4">Item C. Reporting fund performance</h5>
-          </div>
-
-          <div v-if="getDisplayFieldNo(fields.field_no) === '18'">
-            <div class="d-flex w-100 mb-4" style="border: 1px solid;">
-              <div style="border: 1px solid;" class="w-50 p-2">
-                <h4>{{ props.fundName }}</h4>
-              </div>
-              <div style="border: 1px solid;" class="w-50 p-2">
-                <h4>Information about the hedge funds you advise</h4>
-              </div>
-            </div>
-          </div>
-          <div v-if="getDisplayFieldNo(fields.field_no) === '18'">
-            <h5 class=" mb-3 mt-4">Item A. Reporting fund identifying information </h5>
-          </div>
-          <div v-if="getDisplayFieldNo(fields.field_no) === '19'">
-            <h5 class=" mb-3 mt-4">Item B. Certain information regarding the reporting fund </h5>
-          </div>
-
-          <b><hr /></b>
-          <!-- Edit buttons -->
-          <div class="d-flex justify-content-end align-items-center">
-            
+          <div
+            v-if="getDisplayFieldNo(fields.field_no) === '18'"
+            class="fund-banner"
+          >
             <div>
-              <button
-                class="btn btn-sm me-2"
-                @click="openHistory(fields.field_no,fields.field_item_type)"
-              >
-                <font-awesome-icon class="icon" icon="clock-rotate-left" />
-              </button>
-              <button 
-              class="btn btn-sm  me-2"
-              @click="openCompLogs(fields.field_no,fields.field_text)"
-              >
-                <font-awesome-icon class="icon" icon="calculator" />
-              </button>
-              <button
-                v-if="editingFieldNo !== fields.field_no"
-                class="btn btn-sm me-2"
-                @click="startEditing(fields.field_no)"
-              >
-                <font-awesome-icon class="icon" icon="pen" />
-              </button>
-              <button
-                v-if="editingFieldNo === fields.field_no"
-                class="btn btn-sm btn-success me-2"
-                @click="saveEdits(fields.field_no, fields.value, fieldIndex)"
-                :disabled="making_api_call"
-              >
-                <font-awesome-icon class="icon" icon="floppy-disk" />
-              </button>
-              <button
-                v-if="editingFieldNo === fields.field_no" 
-                class="btn btn-sm btn-warning me-2"
-                @click="restoreEdits(fields.field_no)"
-                :disabled="making_api_call"
-              >
-                <font-awesome-icon class="icon" icon="rotate-left" />
-              </button>
-              <button
-                v-if="editingFieldNo === fields.field_no"
-                class="btn btn-sm btn-danger"
-                @click="cancelEditing(fields.field_no,fields.value, fieldIndex)"
-                :disabled="making_api_call"
-              >
-               <font-awesome-icon class="icon" icon="xmark"/>
-              </button>
+              <h3>{{ props.fundName }}</h3>
+              <p>Information about the hedge funds you advise</p>
             </div>
           </div>
 
-          <!-- Top-level field -->
-          <div class="d-flex justify-content-between align-items-center">
-            <p :style="{ marginLeft: getIndent(fields.field_no) + 'px' }" style="width: 100%;">
-              <span class="line-value">
+          <div class="q-block">
+            <div class="q-head">
+              <div class="q-head-left">
+                <span class="q-num">{{ getDisplayFieldNo(fields.field_no) }}.</span>
+                <span v-if="isEdited(fields.field_no)" class="edited-tag">Edited</span>
+              </div>
+              <div class="q-actions">
+                <button
+                  type="button"
+                  class="icon-btn"
+                  title="Change history"
+                  @click="openHistory(fields.field_no, fields.field_item_type)"
+                >
+                  <font-awesome-icon icon="clock-rotate-left" />
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn"
+                  title="Computations"
+                  @click="openCompLogs(fields.field_no, fields.field_text)"
+                >
+                  <font-awesome-icon icon="calculator" />
+                </button>
+                <button
+                  v-if="editingFieldNo !== fields.field_no"
+                  type="button"
+                  class="icon-btn"
+                  title="Edit"
+                  @click="startEditing(fields.field_no)"
+                >
+                  <font-awesome-icon icon="pen" />
+                </button>
+                <template v-else>
+                  <button
+                    type="button"
+                    class="icon-btn save"
+                    title="Save"
+                    :disabled="making_api_call"
+                    @click="saveEdits(fields.field_no, fields.value, fieldIndex)"
+                  >
+                    <font-awesome-icon icon="check" />
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn undo"
+                    title="Revert"
+                    :disabled="making_api_call"
+                    @click="restoreEdits(fields.field_no)"
+                  >
+                    <font-awesome-icon icon="rotate-left" />
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn cancel"
+                    title="Cancel"
+                    :disabled="making_api_call"
+                    @click="cancelEditing(fields.field_no, fields.value, fieldIndex)"
+                  >
+                    <font-awesome-icon icon="xmark" />
+                  </button>
+                </template>
+              </div>
+            </div>
+
+              <div class="q-body">
+              <div class="field-primary">
                 <InputItemComponent
                   v-if="fields.field_item_type === 'text' || fields.field_item_type === 'NULL'"
                   :itemNumber="getDisplayFieldNo(fields.field_no)"
@@ -126,6 +112,7 @@
                   :indent="getIndent(fields.field_no)"
                   :inputNeeded="fields.field_item_type !== 'NULL'"
                   :displayAffix="fields.display_affix"
+                  hide-number
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <BooleanItemComponent
@@ -136,6 +123,7 @@
                   :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
+                  hide-number
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <DropdownItemComponent
@@ -146,6 +134,7 @@
                   :options="fields.options"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
+                  hide-number
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
                 <TableItemComponent
@@ -158,7 +147,8 @@
                   :itemData="editedData[fields.field_no]?.table_data ?? fields.table_data"
                   :disabled="editingFieldNo !== fields.field_no"
                   :metadata="fields.table_metadata"
-                  @update="table  => updateTableValue(fields.field_no, table)"
+                  hide-number
+                  @update="table => updateTableValue(fields.field_no, table)"
                 />
                 <McqItemComponent
                   v-else-if="fields.field_item_type === 'mcq'"
@@ -169,9 +159,10 @@
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
                   :options="fields.options"
+                  hide-number
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
                 />
-                <ExpandingTableItemComp 
+                <ExpandingTableItemComp
                   v-else-if="fields.field_item_type === 'exp_table'"
                   :itemNumber="getDisplayFieldNo(fields.field_no)"
                   :itemText="fields.field_text"
@@ -180,105 +171,94 @@
                   :itemValue="editedData[fields.field_no]?.value?.[0]?.value ?? fields.value"
                   :disabled="editingFieldNo !== fields.field_no"
                   :indent="getIndent(fields.field_no)"
+                  hide-number
                   @update="val => updateValue(fields.field_no, 0, val, 'field_item_value')"
-                
                 />
+              </div>
 
-              </span>
-            </p>
-          </div>
+              <div class="field-children">
+                <div
+                  v-for="(items, itemIndex) in fields.field_data"
+                  :key="itemIndex"
+                  class="child-row"
+                  :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
+                >
+                  <InputItemComponent
+                    v-if="items.line_item_type === 'text' || items.line_item_type === 'NULL'"
+                    :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(items.line_item_no)"
+                    :inputNeeded="items.line_item_type !== 'NULL'"
+                    :displayAffix="items.display_affix"
+                    @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
+                  />
+                  <BooleanItemComponent
+                    v-else-if="items.line_item_type === 'bool'"
+                    :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :key="getFieldKey(fields.field_no)"
+                    :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(items.line_item_no)"
+                    @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
+                  />
+                  <DropdownItemComponent
+                    v-else-if="items.line_item_type === 'dropdown'"
+                    :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
+                    :options="items.options"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(items.line_item_no)"
+                    @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
+                  />
+                  <TableItemComponent
+                    v-else-if="items.line_item_type === 'table'"
+                    :indent="getIndent(items.line_item_no)"
+                    :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :itemData="editedData[fields.field_no]?.table_data ?? items.table_data"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    @update="val => updateValue(fields.field_no, val.rowIndex, val.newRow, 'table_data')"
+                  />
+                  <DateItemComponent
+                    v-else-if="items.line_item_type === 'date'"
+                    :item-number="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :item-value="items.value"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(items.line_item_no)"
+                    @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
+                  />
+                  <McqItemComponent
+                    v-else-if="items.line_item_type === 'mcq'"
+                    :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :itemValue="items.value"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(items.line_item_no)"
+                    :options="items.options"
+                    @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
+                  />
+                  <ExpandingTableItemComp
+                    v-else-if="items.line_item_type === 'exp_table'"
+                    :itemNumber="getDisplayFieldNo(items.line_item_no)"
+                    :itemText="items.line_text"
+                    :headers="items.table_headers"
+                    :metadata="items.table_metadata"
+                    :itemValue="items.value"
+                    :disabled="editingFieldNo !== fields.field_no"
+                    :indent="getIndent(items.line_item_no)"
+                    @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
+                  />
+                </div>
+              </div>
 
-          <!-- field_data items -->
-          <div class="d-flex justify-content-end">
-            <div style="width: 95%;">
-              <span
-                v-for="(items, itemIndex) in fields.field_data"
-                :key="itemIndex"
-                :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
-              >
-                <InputItemComponent
-                  v-if="items.line_item_type === 'text' || items.line_item_type === 'NULL'"
-                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(items.line_item_no)"
-                  :inputNeeded=" items.line_item_type !== 'NULL'"
-                  :displayAffix="items.display_affix"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value', items.line_item_no)"
-                />
-                <BooleanItemComponent
-                  v-else-if="items.line_item_type === 'bool'"
-                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :key="getFieldKey(fields.field_no)"
-                  :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
-                />
-                <DropdownItemComponent
-                  v-else-if="items.line_item_type === 'dropdown'"
-                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :itemValue="editedData[fields.field_no]?.value?.[itemIndex]?.value ?? items.value"
-                  :options="items.options"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
-                />
-                <TableItemComponent
-                  v-else-if="items.line_item_type === 'table'"
-                  :indent="getIndent(items.line_item_no)"
-                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :itemData="editedData[fields.field_no]?.table_data ?? items.table_data"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  @update="val => updateValue(fields.field_no, val.rowIndex, val.newRow, 'table_data')"
-                />
-                <DateItemComponent
-                  v-else-if="items.line_item_type === 'date'"
-                  :item-number="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :item-value="items.value"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
-                />
-                <McqItemComponent
-                  v-else-if="items.line_item_type === 'mcq'"
-                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :itemValue="items.value"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(items.line_item_no)"
-                  :options="items.options"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
-                />
-                <ExpandingTableItemComp 
-                  v-else-if="items.line_item_type === 'exp_table'"
-                  :itemNumber="getDisplayFieldNo(items.line_item_no)"
-                  :itemText="items.line_text"
-                  :headers="items.table_headers"
-                  :metadata="items.table_metadata"
-                  :itemValue="items.value"
-                  :disabled="editingFieldNo !== fields.field_no"
-                  :indent="getIndent(items.line_item_no)"
-                  @update="val => updateValue(fields.field_no, itemIndex, val, 'value',items.line_item_no)"
-                
-                />
-              </span>
+              <p v-if="fields.disclaimer_text" class="disclaimer">{{ fields.disclaimer_text }}</p>
             </div>
           </div>
-          <div class="d-flex justify-content-end">
-            <div style="width: 100%;">
-              <span>
-                <p class="fw-light">{{ fields.disclaimer_text }} </p>
-              </span>
-            </div>
-          </div>
-
-          <hr class="question-separator" />
         </div>
       </div>
     </div>
@@ -286,7 +266,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
@@ -295,20 +275,19 @@ import DateItemComponent from './subcomponent/DateItemComponent.vue'
 import { useEditableStore } from '@/stores/responseStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
-import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
-import utils from '@/assets/utils/utils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
 import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
 
-const router = useRouter()
 const toast = useToast()
 const userStore = useUserStore()
 const user_id = userStore.userID
 
 const props = defineProps({
   fundName: { type: String, required: true },
-  filingId: { type: String, required: true }
+  filingId: { type: String, required: true },
+  /** fieldNo -> true when history length > 1 */
+  editedFlags: { type: Object, default: () => ({}) },
 }) 
 
 const emit = defineEmits(['open-upload','refresh-data','open-computationLogs','open-history','open-mapped-files'])
@@ -318,6 +297,94 @@ const fundname=ref(props.fundName)
 const data = ref(responseStore.getFundData(fundname.value))
 const computationLogs=ref(responseStore.getFundComputation(fundname.value))
 const editingFieldNo = ref(null)
+const recentlySaved = ref(new Set())
+const editedByHistory = ref({})
+let prefetchGeneration = 0
+
+function hasHistoryEdits(historyData) {
+  if (!historyData || typeof historyData !== 'object') return false
+  return Object.values(historyData).some(
+    (entries) => Array.isArray(entries) && entries.length > 1
+  )
+}
+
+function isEdited(fieldNo) {
+  return Boolean(
+    editedByHistory.value[fieldNo] ||
+      props.editedFlags?.[fieldNo] ||
+      recentlySaved.value.has(fieldNo)
+  )
+}
+
+function markEdited(fieldNo) {
+  recentlySaved.value = new Set([...recentlySaved.value, fieldNo])
+  editedByHistory.value = { ...editedByHistory.value, [fieldNo]: true }
+  if (props.editedFlags && typeof props.editedFlags === 'object') {
+    props.editedFlags[fieldNo] = true
+  }
+}
+
+async function prefetchEditedFlags() {
+  const generation = ++prefetchGeneration
+  const list = data.value || []
+  const fund_id = responseStore.getFundId(fundname.value)
+  if (!fund_id || !list.length) return
+
+  const flags = {}
+  const chunkSize = 6
+
+  for (let i = 0; i < list.length; i += chunkSize) {
+    if (generation !== prefetchGeneration) return
+
+    const chunk = list.slice(i, i + chunkSize)
+    const settled = await Promise.allSettled(
+      chunk.map((field) =>
+        api_call_methods
+          .get_history(user_id, {
+            filingId: props.filingId,
+            fundId: fund_id,
+            fieldNo: field.field_no,
+          })
+          .then((res) => ({
+            fieldNo: field.field_no,
+            edited: hasHistoryEdits(res.data),
+          }))
+      )
+    )
+
+    if (generation !== prefetchGeneration) return
+
+    settled.forEach((result) => {
+      if (result.status === 'fulfilled') {
+        flags[result.value.fieldNo] = result.value.edited
+        if (result.value.edited && props.editedFlags) {
+          props.editedFlags[result.value.fieldNo] = true
+        }
+      }
+    })
+    editedByHistory.value = { ...flags }
+  }
+}
+
+const sectionSubtitle = computed(() => {
+  const firstNo = data.value?.[0]?.field_no
+  if (firstNo && getDisplayFieldNo(firstNo) === '18') {
+    return 'Information about the hedge funds you advise'
+  }
+  return 'Information about the private fund you advise'
+})
+
+function sectionHeading(fieldNo) {
+  const display = getDisplayFieldNo(fieldNo)
+  const map = {
+    '5': 'Item A - Reporting Fund Identifying Information',
+    '8': 'Item B - Assets, Financing and Investor Concentration',
+    '17': 'Item C - Reporting Fund Performance',
+    '18': 'Item A - Reporting Fund Identifying Information',
+    '19': 'Item B - Certain Information Regarding the Reporting Fund',
+  }
+  return map[display] || ''
+}
 
 watch(() => props.fundName, (newVal) => {
   fundname.value=newVal
@@ -326,6 +393,13 @@ watch(() => props.fundName, (newVal) => {
   computationLogs.value=responseStore.getFundComputation(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
+  recentlySaved.value = new Set()
+  editedByHistory.value = {}
+  prefetchEditedFlags()
+})
+
+onMounted(() => {
+  prefetchEditedFlags()
 })
 
 function updateTableValue(fieldNo, tableData) {
@@ -540,6 +614,7 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     
     editingFieldNo.value = null
     delete editedData[fieldNo]
+    markEdited(fieldNo)
     toast.success(`Saved Question ${fieldNo}`)
   } catch(error){
     console.log(error)
@@ -651,32 +726,6 @@ function getIndent(fieldNo) {
   return (fieldNo.match(/_/g) || []).length * 5
 }
 
-function goToPreview() {
-  router.push({ name: 'preview', query: { filing_id: props.filingId } })
-}
-
-function goToHome() {
-  window.location = '/home'
-}
-
-const downloadInputFiles=ref(false)
-async function downloadInput(){
-  try{
-      downloadInputFiles.value=true
-      toast.info("Downloading Input files....")
-      const filing_name=localStorage.getItem('filingName')
-      const response=await api_call_methods.download_input(user_id,filing_name)
-      utils.downloadInputZip(response, filing_name)
-      toast.success("Input files downloaded successfully")
-    }
-  catch{
-    toast.error("Failed to download input files")
-  }
-  finally{
-    downloadInputFiles.value=false
-  }
-}
-
 async function openHistory(field_no,fieldType){
   const fund_id = responseStore.getFundId(fundname.value)
   emit('open-history',field_no,fund_id,fieldType)
@@ -707,9 +756,228 @@ function openCompLogs(field_no,field_text){
 </script>
 
 <style scoped>
-.question-separator {
+.editor-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.fund-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 20px 28px 12px;
+  flex-shrink: 0;
+}
+
+.fund-header-text h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.fund-header-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.fund-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-outline {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-outline:hover {
+  background: #f9fafb;
+}
+
+.btn-primary {
+  background: #1e3a8a;
+  color: #fff;
   border: none;
-  border-top: 1px solid #ddd;
-  margin: 10px 0;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+.editor-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 28px 28px;
+}
+
+.form-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.section-bar {
+  background: #e8eef8;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  border-bottom: 1px solid #dbe3f0;
+  border-top: 1px solid #dbe3f0;
+}
+
+.section-bar:first-child {
+  border-top: none;
+}
+
+.fund-banner {
+  padding: 20px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f8fafc;
+}
+
+.fund-banner h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.fund-banner p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.q-block {
+  padding: 18px 20px 8px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.q-block:last-child {
+  border-bottom: none;
+}
+
+.q-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.q-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.q-num {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.edited-tag {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.q-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #1e3a8a;
+}
+
+.icon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.icon-btn.save {
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.icon-btn.undo {
+  color: #ca8a04;
+  border-color: #fde68a;
+}
+
+.icon-btn.cancel {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.q-body {
+  padding-bottom: 8px;
+}
+
+.field-children {
+  margin-top: 8px;
+}
+
+.child-row {
+  margin-bottom: 6px;
+}
+
+.disclaimer {
+  margin: 12px 0 4px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 400;
 }
 </style>

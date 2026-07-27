@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-content-between pb-4" :style="{ paddingLeft: indent + 'px' }">
     <p style="max-width: 70%;">
-      <span>{{ itemNumber }}</span>)
+      <span v-if="!hideNumber && itemNumber">{{ itemNumber }})</span>
       <span>{{ itemText }}</span>:
     </p>
 
@@ -33,7 +33,8 @@ const props = defineProps({
   itemValue: { type: String, required: true }, 
   options: { type: Array, required: true },    
   disabled: { type: Boolean, required: true },
-  indent: { type: Number, default: 0 }
+  indent: { type: Number, default: 0 },
+  hideNumber: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update'])

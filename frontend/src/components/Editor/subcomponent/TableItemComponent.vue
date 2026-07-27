@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-column" :style="{ paddingLeft: indent + 'px' }">
     <p>
-      <span>{{ props.itemNumber }}</span>)
+      <span v-if="!props.hideNumber && props.itemNumber">{{ props.itemNumber }})</span>
       <span v-if="props.itemNumber === '14'" class="formatted-text">{{ defaultText }}</span>
       <span v-else>{{ props.itemText }}</span>:
     </p>
@@ -97,6 +97,7 @@ const props = defineProps({
   isDateInput: { type: Boolean, default: false },
   dateValue: { type: String, default: '' },
   metadata:{ type: String, required: true },
+  hideNumber: { type: Boolean, default: false },
 })
 
 const date = ref('')
