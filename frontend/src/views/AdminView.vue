@@ -20,76 +20,71 @@
       </header>
 
       <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
-      <AnalyticsTableComponent
-        :selected-year="selectedYear"
-        @edit-user="openUserEditor"
-      />
+      <AnalyticsTableComponent :selected-year="selectedYear" @edit-user="openUserEditor" />
     </div>
 
     <div v-if="deletePopUp" class="admin-backdrop">
-      <popUpComponent
-        :userNameToBeDeleted="userNameToBeDeleted"
-        :userIdToBeDeleted="userIdToBeDeleted"
+      <PopUpComponent
+        :user-name-to-be-deleted="userNameToBeDeleted"
+        :user-id-to-be-deleted="userIdToBeDeleted"
         type="deleteUser"
         @remove-pop-up="deletePopUp = false"
       />
     </div>
 
-    <addUserComponent v-if="adding_user" @cancel-add-user="handleCancel" />
+    <AddUserComponent v-if="addingUser" @cancel-add-user="handleCancelAddUser" />
 
-    <editUserComponent
-      v-if="editUser"
+    <EditUserComponent
+      v-if="editUserOpen"
       :data="editUserData"
-      @cancel-edit-user="handleEditCancel"
+      @cancel-edit-user="handleCancelEditUser"
     />
 
-    <addFundComponent
-      v-if="openAddFundPopUp"
-      @cancel-add-fund="openAddFundPopUp = false"
-    />
+    <AddFundComponent v-if="openAddFundPopUp" @cancel-add-fund="openAddFundPopUp = false" />
   </div>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue'
 import AnalyticsTableComponent from '@/components/Admin/analyticsTableComponent.vue'
 import TopBarComponent from '@/components/Admin/topBarComponent.vue'
+import AddUserComponent from '@/components/Admin/addUserComponent.vue'
+import EditUserComponent from '@/components/Admin/editUserComponent.vue'
 import SideBarComponent from '@/components/Home/SideBarComponent.vue'
-import addUserComponent from '@/components/Admin/addUserComponent.vue'
-import popUpComponent from '@/components/popUps/popUpComponent.vue'
-import addFundComponent from '@/components/popUps/addFundComponent.vue'
-import editUserComponent from '@/components/Admin/editUserComponent.vue'
-import { ref, computed } from 'vue'
+import PopUpComponent from '@/components/popUps/popUpComponent.vue'
+import AddFundComponent from '@/components/popUps/addFundComponent.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
+
 const username = computed(() => userStore.username || 'Admin')
 const role = computed(() => userStore.role || 'admin')
-const userInitial = computed(() => {
-  const name = username.value || 'A'
-  return name.charAt(0).toUpperCase()
-})
+const userInitial = computed(() => (username.value || 'A').charAt(0).toUpperCase())
 
 const deletePopUp = ref(false)
 const userNameToBeDeleted = ref('')
 const userIdToBeDeleted = ref('')
 const openAddFundPopUp = ref(false)
-const editUser = ref(false)
+const editUserOpen = ref(false)
 const editUserData = ref({})
 const selectedYear = ref('2026')
-const adding_user = ref(false)
+const addingUser = ref(false)
 
 function handleAddUser() {
-  adding_user.value = true
+  addingUser.value = true
 }
-function handleCancel() {
-  adding_user.value = false
+
+function handleCancelAddUser() {
+  addingUser.value = false
 }
+
 function openUserEditor(data) {
   editUserData.value = data
-  editUser.value = true
+  editUserOpen.value = true
 }
-function handleEditCancel() {
-  editUser.value = false
+
+function handleCancelEditUser() {
+  editUserOpen.value = false
 }
 </script>
 

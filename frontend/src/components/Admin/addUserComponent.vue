@@ -17,7 +17,7 @@
             <label class="field-label" for="add-firstName">First Name</label>
             <input
               id="add-firstName"
-              v-model="firstname"
+              v-model="firstName"
               type="text"
               class="text-input"
               placeholder="Alias"
@@ -27,7 +27,7 @@
             <label class="field-label" for="add-lastName">Last Name</label>
             <input
               id="add-lastName"
-              v-model="lastname"
+              v-model="lastName"
               type="text"
               class="text-input"
               placeholder="User"
@@ -103,8 +103,8 @@ const toast = useToast()
 const userStore = useUserStore()
 const emit = defineEmits(['cancel-add-user'])
 
-const firstname = ref('')
-const lastname = ref('')
+const firstName = ref('')
+const lastName = ref('')
 const email = ref('')
 const role = ref('')
 const password = ref('')
@@ -112,13 +112,13 @@ const confirmPassword = ref('')
 const error = ref('')
 const isSubmitting = ref(false)
 
-const user_id = userStore.userID
+const userId = userStore.userID
 
 async function handleSubmit() {
   error.value = ''
   if (
-    !firstname.value.trim() ||
-    !lastname.value.trim() ||
+    !firstName.value.trim() ||
+    !lastName.value.trim() ||
     !email.value.trim() ||
     !role.value ||
     !password.value ||
@@ -136,20 +136,22 @@ async function handleSubmit() {
   try {
     isSubmitting.value = true
     const userData = {
-      username: `${firstname.value.trim()}.${lastname.value.trim()}`,
+      username: `${firstName.value.trim()}.${lastName.value.trim()}`,
       email: email.value.trim(),
       user_role: role.value,
       password: password.value,
     }
-    const data = {
-      client_code: userStore.clientCode,
-      data: userData,
-    }
-    await api_call_methods.create_user(data, user_id)
+    await api_call_methods.create_user(
+      {
+        client_code: userStore.clientCode,
+        data: userData,
+      },
+      userId
+    )
     toast.success('User added successfully')
-    location.reload()
-  } catch (err) {
-    console.log(err)
+    window.location.reload()
+  } catch (error_) {
+    console.error(error_)
   } finally {
     isSubmitting.value = false
   }

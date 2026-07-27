@@ -17,7 +17,7 @@
             <label class="field-label" for="edit-firstName">First Name</label>
             <input
               id="edit-firstName"
-              v-model="firstname"
+              v-model="firstName"
               type="text"
               class="text-input"
               placeholder="Alias"
@@ -27,7 +27,7 @@
             <label class="field-label" for="edit-lastName">Last Name</label>
             <input
               id="edit-lastName"
-              v-model="lastname"
+              v-model="lastName"
               type="text"
               class="text-input"
               placeholder="User"
@@ -94,19 +94,19 @@ const props = defineProps({
 })
 
 const names = props.data.username?.split('.') || []
-const firstname = ref(names[0] || '')
-const lastname = ref(names[1] || '')
+const firstName = ref(names[0] || '')
+const lastName = ref(names[1] || '')
 const email = ref(props.data.email || '')
 const role = ref((props.data.role || '').toLowerCase())
 const password = ref('')
 const error = ref('')
 const isSubmitting = ref(false)
 
-const user_id = userStore.userID
+const userId = userStore.userID
 
 async function handleSubmit() {
   error.value = ''
-  if (!firstname.value.trim() || !lastname.value.trim() || !email.value.trim() || !role.value) {
+  if (!firstName.value.trim() || !lastName.value.trim() || !email.value.trim() || !role.value) {
     error.value = 'Please fill out all required fields.'
     return
   }
@@ -114,20 +114,22 @@ async function handleSubmit() {
   try {
     isSubmitting.value = true
     const userData = {
-      username: `${firstname.value.trim()}.${lastname.value.trim()}`,
+      username: `${firstName.value.trim()}.${lastName.value.trim()}`,
       email: email.value.trim(),
       user_role: role.value,
       password: password.value,
     }
-    const data = {
-      client_code: userStore.clientCode,
-      data: userData,
-    }
-    await api_call_methods.edit_user(data, user_id)
+    await api_call_methods.edit_user(
+      {
+        client_code: userStore.clientCode,
+        data: userData,
+      },
+      userId
+    )
     toast.success('User updated successfully')
-    location.reload()
-  } catch (err) {
-    console.log(err)
+    window.location.reload()
+  } catch (error_) {
+    console.error(error_)
   } finally {
     isSubmitting.value = false
   }

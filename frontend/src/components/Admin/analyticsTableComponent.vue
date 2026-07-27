@@ -70,17 +70,17 @@ const props = defineProps({
 const emit = defineEmits(['delete-user', 'edit-user'])
 
 const userStore = useUserStore()
-const user_id = userStore.userID
+const userId = userStore.userID
 const data = ref([])
 const isLoading = ref(true)
 
 onMounted(async () => {
   try {
     isLoading.value = true
-    const result = await api_call_methods.get_users(user_id)
+    const result = await api_call_methods.get_users(userId)
     data.value = result.data.users || []
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching users:', error)
   } finally {
     isLoading.value = false
   }
