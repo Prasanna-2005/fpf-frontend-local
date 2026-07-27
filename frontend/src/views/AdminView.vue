@@ -17,10 +17,10 @@
                     <editUserComponent @cancel-edit-user=handleEditCancel :data="editUserData" />
                 </div>
 
-                <div v-if="openAddFundPopUp" class="backdrop">
-                    <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
-
-                </div>
+                <addFundComponent
+                    v-if="openAddFundPopUp"
+                    @cancel-add-fund="openAddFundPopUp=false"
+                />
 
             
             </div> 

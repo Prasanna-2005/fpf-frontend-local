@@ -49,9 +49,10 @@
     <div v-if="openMappedFilesPopUp">
       <mappedFilesPopUpComp @close-click="openMappedFilesPopUp = false" :userId="user_id" />
     </div>
-    <div v-if="openAddFundPopUp" class="preview-backdrop">
-      <addFundComponent @cancel-add-fund="openAddFundPopUp = false" />
-    </div>
+    <addFundComponent
+      v-if="openAddFundPopUp"
+      @cancel-add-fund="openAddFundPopUp = false"
+    />
   </div>
 </template>
 

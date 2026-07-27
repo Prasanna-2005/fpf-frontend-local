@@ -32,9 +32,10 @@
       />
     </div>
 
-    <div v-if="openAddFundPopUp" class="backdrop">
-      <addFundComponent @cancel-add-fund="openAddFundPopUp = false" />
-    </div>
+    <addFundComponent
+      v-if="openAddFundPopUp"
+      @cancel-add-fund="openAddFundPopUp = false"
+    />
     <div v-if="openUploadPopUp" class="backdrop">
       <OverlayComponent @close-upload="closeUpload" @submit-success="closeUpload" />
     </div>
