@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import VueToast from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
+import './assets/css/toast-theme.css'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -25,8 +26,10 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(VueToast, {
-    position: 'top-right',
-    duration: 10000,
-  })
+  position: 'top-right',
+  duration: 4500,
+  dismissible: true,
+  pauseOnHover: true,
+})
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.mount('#app')

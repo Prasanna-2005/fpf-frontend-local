@@ -276,6 +276,7 @@ import { useEditableStore } from '@/stores/responseStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification'
+import { openActionToast } from '@/assets/utils/toastUtils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
 import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
 
@@ -443,44 +444,36 @@ function startEditing(fieldNo) {
       const oldFieldIndex = data.value.findIndex(f => f.field_no === oldFieldNo)
 
       // Show unsaved changes toast
-      const toastInstance = toast.open({
-        message: `
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            <strong>Unsaved Changes</strong>
-            <div>You have unsaved edits in Question ${oldFieldNo}.</div>
-            <div style="margin-top:8px; display:flex; gap:8px;">
-              <button id="saveOldBtn" class="btn btn-success btn-sm">Save</button>
-              <button id="discardOldBtn" class="btn btn-danger btn-sm">Discard</button>
-            </div>
-          </div>
-        `,
+      const toastInstance = openActionToast(toast, {
+        title: 'Unsaved Changes',
+        message: `You have unsaved edits in Question ${oldFieldNo}.`,
         type: 'warning',
         duration: 0,
-        dismissible: true,
+        actions: [
+          {
+            id: 'saveOldBtn',
+            label: 'Save',
+            variant: 'success',
+            onClick: async () => {
+              await saveEdits(oldFieldNo, oldFieldValue, oldFieldIndex)
+              toastInstance.dismiss()
+              startEditing(fieldNo)
+            },
+          },
+          {
+            id: 'discardOldBtn',
+            label: 'Discard',
+            variant: 'danger',
+            onClick: () => {
+              delete editedData[oldFieldNo]
+              keyVersions.value[oldFieldNo] = (keyVersions.value[oldFieldNo] || 0) + 1
+              editingFieldNo.value = null
+              toastInstance.dismiss()
+              startEditing(fieldNo)
+            },
+          },
+        ],
       })
-
-      setTimeout(() => {
-        const saveOldBtn = document.getElementById('saveOldBtn')
-        const discardOldBtn = document.getElementById('discardOldBtn')
-
-        if (saveOldBtn) {
-          saveOldBtn.addEventListener('click', async () => {
-            await saveEdits(oldFieldNo, oldFieldValue, oldFieldIndex)
-            toastInstance.dismiss()
-            startEditing(fieldNo) // retry edit after saving
-          })
-        }
-
-        if (discardOldBtn) {
-          discardOldBtn.addEventListener('click', () => {
-            delete editedData[oldFieldNo]
-            keyVersions.value[oldFieldNo] = (keyVersions.value[oldFieldNo] || 0) + 1 //key change for re render
-            editingFieldNo.value = null
-            toastInstance.dismiss()
-            startEditing(fieldNo) // retry edit after discarding
-          })
-        }
-      }, 50)
 
       return // stop here until user decides
     }
@@ -666,41 +659,34 @@ function cancelEditing(fieldNo,value,fieldIndex) {
   const field = editedData[fieldNo]
   if (field?.changed) {
     // OR even better, handle logic below:
-    toast.open({
-      message: `
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <strong>Unsaved Changes</strong>
-          <div>You have unsaved edits for this field.</div>
-          <div style="margin-top:8px; display:flex; gap:8px;">
-            <button id="saveBtn" class="btn btn-success btn-sm">Save</button>
-            <button id="discardBtn" class="btn btn-danger btn-sm">Discard</button>
-          </div>
-        </div>
-      `,
+    const toastInstance = openActionToast(toast, {
+      title: 'Unsaved Changes',
+      message: 'You have unsaved edits for this field.',
       type: 'warning',
       duration: 0,
-      dismissible: true,
+      actions: [
+        {
+          id: 'saveBtn',
+          label: 'Save',
+          variant: 'success',
+          onClick: () => {
+            saveEdits(fieldNo, value, fieldIndex)
+            toastInstance.dismiss()
+          },
+        },
+        {
+          id: 'discardBtn',
+          label: 'Discard',
+          variant: 'danger',
+          onClick: () => {
+            delete editedData[fieldNo]
+            keyVersions.value[fieldNo] = (keyVersions.value[fieldNo] || 0) + 1
+            editingFieldNo.value = null
+            toastInstance.dismiss()
+          },
+        },
+      ],
     })
-    setTimeout(() => {
-      const saveBtn = document.getElementById('saveBtn')
-      const discardBtn = document.getElementById('discardBtn')
-
-      if (saveBtn) {
-        saveBtn.addEventListener('click', () => {
-          saveEdits(fieldNo, value, fieldIndex)
-          toastInstance.dismiss() 
-        })
-      }
-      if (discardBtn) {
-        discardBtn.addEventListener('click', () => {
-          delete editedData[fieldNo]
-          keyVersions.value[fieldNo] = (keyVersions.value[fieldNo] || 0) + 1
-          editingFieldNo.value = null
-          toastInstance.dismiss() 
-        })
-      }
-    }, 50)
-
 
     return
   }

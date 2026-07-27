@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { useToast } from 'vue-toast-notification'
 import api_call_methods from '@/assets/api_calls/api_calls'
-const toast=useToast()
+import { openActionToast } from '@/assets/utils/toastUtils'
+
+const toast = useToast()
 let sessionInterval=null   
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -27,47 +29,40 @@ export const useUserStore = defineStore('user', {
         catch{
           try {
            const user_id=this.userID
-           const toastInstance = toast.open({
-                message: `
-                  <div style="display:flex; flex-direction:column; gap:6px;">
-                    <strong>Session expired</strong>
-                    <div>You can stay logged in or log out.</div>
-                    <div style="margin-top:8px; display:flex; gap:8px;">
-                      <button id="stayBtn" class="btn btn-success btn-sm">Stay Logged In</button>
-                      <button id="logoutBtn" class="btn btn-danger btn-sm">Logout</button>
-                    </div>
-                  </div>
-                `,
+           const toastInstance = openActionToast(toast, {
+                title: 'Session expired',
+                message: 'You can stay logged in or log out.',
                 type: 'warning',
                 duration: 0,
                 dismissible: false,
-              })
-
-              setTimeout(() => {
-                const stayBtn = document.getElementById('stayBtn')
-                const logoutBtn = document.getElementById('logoutBtn')
-
-                if (stayBtn) {
-                  stayBtn.addEventListener('click', async () => {
-                    try {
-                      await api_call_methods.refresh_token(user_id)
-                      await api_call_methods.verify_user(user_id)
-                      toast.success("Session refreshed successfully!")
-                      toastInstance.dismiss()
-                    } catch (err) {
-                      toast.error("Session refresh failed. Please login again.")
+                actions: [
+                  {
+                    id: 'stayBtn',
+                    label: 'Stay Logged In',
+                    variant: 'primary',
+                    onClick: async () => {
+                      try {
+                        await api_call_methods.refresh_token(user_id)
+                        await api_call_methods.verify_user(user_id)
+                        toast.success('Session refreshed successfully')
+                        toastInstance.dismiss()
+                      } catch (err) {
+                        toast.error('Session refresh failed. Please login again.')
+                        window.location.replace('/')
+                      }
+                    },
+                  },
+                  {
+                    id: 'logoutBtn',
+                    label: 'Logout',
+                    variant: 'danger',
+                    onClick: () => {
+                      this.logout()
                       window.location.replace('/')
-                    }
-                  })
-                }
-
-                if (logoutBtn) {
-                  logoutBtn.addEventListener('click', () => {
-                    this.logout()
-                    window.location.replace('/')
-                  })
-                }
-              }, 50)
+                    },
+                  },
+                ],
+              })
 
           } catch  {
             toast.info('Session expired. Please login again.')
