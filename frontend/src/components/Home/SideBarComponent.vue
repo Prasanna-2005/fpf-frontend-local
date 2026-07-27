@@ -29,6 +29,17 @@
       </div>
 
       <ul class="sidebar-nav">
+        <li v-if="role === 'admin'">
+          <a
+            href="/admin"
+            class="nav-link"
+            :class="{ active: isAdminRoute }"
+            :aria-current="isAdminRoute ? 'page' : undefined"
+          >
+            <font-awesome-icon icon="user" />
+            <span v-show="!isCollapsed">Users</span>
+          </a>
+        </li>
         <li v-if="role !== 'admin'">
           <a
             href="/home"
@@ -106,6 +117,7 @@ const isSetting = ref(false)
 const isDashboardRoute = computed(() =>
   ['home', 'editing', 'preview'].includes(route.name)
 )
+const isAdminRoute = computed(() => route.name === 'admin')
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
