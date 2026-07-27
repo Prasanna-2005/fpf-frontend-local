@@ -2,31 +2,14 @@
   <div class="d-flex main-div preview-layout">
     <SideBarComponent @add-fund="openAddFundPopUp = true" />
 
-    <div
+    <PageStateLoader
       v-if="loading"
-      class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative"
-    >
-      <div v-if="loader" class="loader-box text-center p-4 mt-3">
-        <span
-          class="spinner-border text-primary mb-3"
-          style="width: 2.5rem; height: 2.5rem"
-          role="status"
-        ></span>
-        <h6 class="fw-semibold text-primary mb-1">Loading PDF Preview Page...</h6>
-        <p class="text-muted mb-0">Please wait while we prepare your data.</p>
-      </div>
-      <div v-else class="error-box text-center p-4 mt-3">
-        <font-awesome-icon icon="info-circle" class="text-danger fs-1 mb-3" />
-        <h5 class="fw-semibold mb-2">Failed to Load PDF Preview Page</h5>
-        <p class="text-muted mb-4">
-          Something went wrong while loading the PDF Preview. Please check your connection or return
-          to the home page.
-        </p>
-        <a href="/home" class="home-btn">
-          <font-awesome-icon class="icon me-2" icon="file-lines" /> Dashboard
-        </a>
-      </div>
-    </div>
+      :loading="loader"
+      title="Loading PDF Preview…"
+      message="Please wait while we prepare your filing preview."
+      error-title="Failed to Load PDF Preview"
+      error-message="Something went wrong while loading the PDF preview. Please check your connection or return to the dashboard."
+    />
 
     <div v-else class="preview-main">
       <previewComponent
@@ -77,6 +60,7 @@ import SideBarComponent from '@/components/Home/SideBarComponent.vue'
 import previewComponent from '@/components/Preview/previewComponent.vue'
 import popUpComponent from '@/components/popUps/popUpComponent.vue'
 import addFundComponent from '@/components/popUps/addFundComponent.vue'
+import PageStateLoader from '@/components/common/PageStateLoader.vue'
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
@@ -147,36 +131,5 @@ function openMappedFiles() {
   justify-content: center;
   z-index: 200;
   padding: 24px;
-}
-
-.error-box,
-.loader-box {
-  background-color: #ffffff;
-  border: 1px solid #e3e6ea;
-  border-radius: 1rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  max-width: 420px;
-  width: 90%;
-}
-
-.loader-box h6 {
-  color: #1e3a8a;
-}
-
-.home-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #1e3a8a;
-  color: #fff;
-  font-weight: 500;
-  padding: 0.6rem 1.4rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-}
-
-.home-btn:hover {
-  background-color: #1e40af;
-  color: #fff;
 }
 </style>
