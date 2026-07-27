@@ -451,8 +451,11 @@ async function downloadPDF() {
       toast.success("Pdf generated successfully...")
       pdf.save("preview.pdf");
     }
-    catch{
-    toast.error("Failed to download pdf preview")
+    catch (error) {
+    // PDF generation can fail for non-API reasons (canvas/render)
+    if (!error?.__toastShown) {
+      toast.error('Failed to download pdf preview')
+    }
   }
   finally{
     downloadPDFPreview.value=false
@@ -469,8 +472,8 @@ async function downloadInput(){
       utils.downloadInputZip(response, filing_name)
       toast.success("Input files downloaded successfully")
     }
-  catch{
-      toast.error("Failed to download input files")
+  catch (error) {
+      console.error(error)
     }
   finally{
       downloadInputFiles.value=false
