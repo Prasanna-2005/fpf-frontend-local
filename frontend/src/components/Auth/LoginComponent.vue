@@ -1,9 +1,12 @@
 <template>
   <div class="form-card">
+    <div class="brand-wrap" aria-hidden="true">
+      <div class="dot-grid"></div>
+    </div>
     <div class="brand">Quantrium</div>
 
     <div class="welcome">
-      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome!' }}</h1>
+      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome Back!' }}</h1>
       <p>
         {{
           loginSuccess
@@ -23,7 +26,7 @@
       <div class="field" :class="{ invalid: showedValidation && !emailValid }">
         <label for="emailInput">Email</label>
         <div class="input-wrap">
-          <font-awesome-icon icon="paper-plane" class="field-icon" />
+          <font-awesome-icon icon="envelope" class="field-icon" />
           <input
             id="emailInput"
             v-model.trim="email"
@@ -62,6 +65,14 @@
         <div class="error">Please enter your password</div>
       </div>
 
+      <div class="form-meta">
+        <label class="remember">
+          <input v-model="rememberMe" type="checkbox" />
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="forgot" @click.prevent>Forgot password?</a>
+      </div>
+
       <button type="submit" class="btn-login" :disabled="isLoading">
         <span v-if="isLoading" class="ui-spinner" aria-hidden="true"></span>
         {{ isLoading ? 'Logging in…' : 'Login' }}
@@ -70,6 +81,10 @@
 
     <OtpComponent v-else :user-id="userId" :email="email" />
 
+    <p v-if="!loginSuccess" class="signup">
+      Don't have an account?
+      <a href="#" @click.prevent>Sign up</a>
+    </p>
   </div>
 </template>
 
@@ -85,6 +100,7 @@ const userStore = useUserStore()
 
 const email = ref('')
 const password = ref('')
+const rememberMe = ref(false)
 const loginSuccess = ref(false)
 const userId = ref('')
 const isLoading = ref(false)
@@ -140,16 +156,40 @@ async function handleSubmit() {
 
 <style scoped>
 .form-card {
+  position: relative;
   width: 100%;
   max-width: 400px;
   font-family: 'Inter', system-ui, sans-serif;
 }
 
+.brand-wrap {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 90px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dot-grid {
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, #d1d5db 1.2px, transparent 1.2px);
+  background-size: 12px 12px;
+  opacity: 0.7;
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 45%, #000 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 45%, #000 20%, transparent 70%);
+}
+
 .brand {
+  position: relative;
+  z-index: 1;
   text-align: center;
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e3a8a;
+  color: #21409b;
   letter-spacing: -0.02em;
   margin-bottom: 36px;
 }
@@ -224,7 +264,7 @@ async function handleSubmit() {
 .input-wrap input:focus {
   background: #fff;
   border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(33, 64, 155, 0.12);
 }
 
 .toggle-pass {
@@ -260,17 +300,54 @@ async function handleSubmit() {
   background: #fff;
 }
 
+.form-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 18px;
+}
+
+.remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #4b5563;
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember input {
+  width: 15px;
+  height: 15px;
+  accent-color: #21409b;
+  cursor: pointer;
+}
+
+.forgot {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2563eb;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+  background: transparent;
+}
+
 .btn-login {
   width: 100%;
   border: none;
   border-radius: 10px;
-  background: #1e3a8a;
+  background: #21409b;
   color: #fff;
   font-size: 1rem;
   font-weight: 600;
   font-family: inherit;
   padding: 14px 16px;
-  margin-top: 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -280,7 +357,7 @@ async function handleSubmit() {
 }
 
 .btn-login:hover:not(:disabled) {
-  background: #1e40af;
+  background: #1a3480;
 }
 
 .btn-login:disabled {
