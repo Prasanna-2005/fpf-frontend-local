@@ -6,7 +6,7 @@
     <div class="brand">Quantrium</div>
 
     <div class="welcome">
-      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome Back!' }}</h1>
+      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome!' }}</h1>
       <p>
         {{
           loginSuccess
@@ -65,14 +65,6 @@
         <div class="error">Please enter your password</div>
       </div>
 
-      <div class="form-meta">
-        <label class="remember">
-          <input v-model="rememberMe" type="checkbox" />
-          <span>Remember me</span>
-        </label>
-        <a href="#" class="forgot" @click.prevent>Forgot password?</a>
-      </div>
-
       <button type="submit" class="btn-login" :disabled="isLoading">
         <span v-if="isLoading" class="ui-spinner" aria-hidden="true"></span>
         {{ isLoading ? 'Logging in…' : 'Login' }}
@@ -80,11 +72,6 @@
     </form>
 
     <OtpComponent v-else :user-id="userId" :email="email" />
-
-    <p v-if="!loginSuccess" class="signup">
-      Don't have an account?
-      <a href="#" @click.prevent>Sign up</a>
-    </p>
   </div>
 </template>
 
@@ -100,7 +87,6 @@ const userStore = useUserStore()
 
 const email = ref('')
 const password = ref('')
-const rememberMe = ref(false)
 const loginSuccess = ref(false)
 const userId = ref('')
 const isLoading = ref(false)
@@ -300,44 +286,6 @@ async function handleSubmit() {
   background: #fff;
 }
 
-.form-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 4px 0 18px;
-}
-
-.remember {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: #4b5563;
-  cursor: pointer;
-  user-select: none;
-}
-
-.remember input {
-  width: 15px;
-  height: 15px;
-  accent-color: #21409b;
-  cursor: pointer;
-}
-
-.forgot {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #2563eb;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.forgot:hover {
-  text-decoration: underline;
-  background: transparent;
-}
-
 .btn-login {
   width: 100%;
   border: none;
@@ -348,6 +296,7 @@ async function handleSubmit() {
   font-weight: 600;
   font-family: inherit;
   padding: 14px 16px;
+  margin-top: 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -379,24 +328,6 @@ async function handleSubmit() {
   to {
     transform: rotate(360deg);
   }
-}
-
-.signup {
-  text-align: center;
-  margin-top: 28px;
-  font-size: 0.9rem;
-  color: #6b7280;
-}
-
-.signup a {
-  color: #2563eb;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.signup a:hover {
-  text-decoration: underline;
-  background: transparent;
 }
 
 @media (max-width: 480px) {

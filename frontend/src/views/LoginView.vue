@@ -33,9 +33,13 @@ import LoginComponent from '@/components/Auth/LoginComponent.vue'
   display: grid;
   grid-template-columns: minmax(420px, 1.05fr) minmax(360px, 1fr);
   gap: 28px;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   padding: 28px;
   box-sizing: border-box;
+  overflow: hidden;
   font-family: 'Inter', system-ui, sans-serif;
   background: #fff;
   color: #111827;
@@ -50,35 +54,39 @@ import LoginComponent from '@/components/Auth/LoginComponent.vue'
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 48px 44px 0;
-  min-height: calc(100vh - 56px);
+  min-height: 0;
+  height: 100%;
+  padding: 44px 40px 0;
 }
 
 .promo-copy {
   position: relative;
   z-index: 1;
   max-width: 520px;
+  flex-shrink: 0;
 }
 
 .promo-copy h2 {
-  font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+  font-size: clamp(1.45rem, 2.2vw, 2.05rem);
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
 }
 
 .promo-copy p {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.88);
   max-width: 460px;
 }
 
 .promo-art {
   position: relative;
-  margin-top: 32px;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -87,6 +95,7 @@ import LoginComponent from '@/components/Auth/LoginComponent.vue'
 .hero-illustration {
   display: block;
   width: min(100%, 640px);
+  max-height: 100%;
   height: auto;
   object-fit: contain;
   object-position: bottom center;
@@ -98,34 +107,42 @@ import LoginComponent from '@/components/Auth/LoginComponent.vue'
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
+  min-height: 0;
+  height: 100%;
+  padding: 24px;
+  overflow: hidden;
   background: #fff;
 }
 
 @media (max-width: 960px) {
   .login-shell {
     grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
     padding: 16px;
     gap: 16px;
+    overflow: auto;
   }
 
   .promo-pane {
-    min-height: auto;
-    padding: 36px 28px 0;
+    height: auto;
+    max-height: 46vh;
+    padding: 28px 24px 0;
     border-radius: 22px;
     order: -1;
   }
 
   .promo-copy h2 {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
   }
 
   .promo-copy p {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
   }
 
-  .hero-illustration {
-    width: min(100%, 420px);
+  .form-pane {
+    height: auto;
+    overflow: visible;
+    padding: 12px 16px 20px;
   }
 }
 
@@ -135,12 +152,13 @@ import LoginComponent from '@/components/Auth/LoginComponent.vue'
   }
 
   .promo-pane {
-    padding: 28px 20px 0;
+    padding: 24px 18px 0;
     border-radius: 18px;
+    max-height: 40vh;
   }
 
   .form-pane {
-    padding: 24px 12px 32px;
+    padding: 16px 8px 24px;
   }
 }
 </style>
