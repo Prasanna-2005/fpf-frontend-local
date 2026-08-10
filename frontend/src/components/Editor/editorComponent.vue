@@ -1,6 +1,6 @@
 <template>
   <div class="w-100 p-2" style="height: 90vh;">
-    <div class="button-options">
+    <div class="button-options d-flex align-items-center flex-wrap">
       <button class="btn btn-primary m-2 border-0" @click="goToHome">
         <font-awesome-icon class="icon" icon="arrow-left" /> Dashboard
       </button>
@@ -17,6 +17,27 @@
       </button>
       <button class="btn btn-primary m-2 border-0" @click="openMappedFiles" >
         <font-awesome-icon class="icon" icon="file" /> Mapped files
+      </button>
+
+      <button
+        type="button"
+        class="changes-bell-btn ms-auto me-2 my-2"
+        :class="{ 'has-changes': latestChangesCount > 0 }"
+        :aria-label="latestChangesCount > 0
+          ? `${latestChangesCount} latest changes. Open changes list`
+          : 'No latest changes'"
+        :title="latestChangesCount > 0
+          ? `${latestChangesCount} latest change${latestChangesCount === 1 ? '' : 's'}`
+          : 'No latest changes'"
+        @click="openChangesPopUp"
+      >
+        <font-awesome-icon class="bell-icon" icon="bell" />
+        <span
+          v-if="latestChangesCount > 0"
+          class="changes-badge"
+        >
+          {{ latestChangesCount > 99 ? '99+' : latestChangesCount }}
+        </span>
       </button>
     </div>
 
@@ -282,11 +303,17 @@
         </div>
       </div>
     </div>
+
+    <ChangesPopUp
+      v-if="showChangesPopUp"
+      :data="latestChanges"
+      @close-click="closeChangesPopUp"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
@@ -300,6 +327,7 @@ import { useToast } from 'vue-toast-notification'
 import utils from '@/assets/utils/utils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
 import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
+import ChangesPopUp from '@/components/popUps/ChangesPopUp.vue'
 
 const router = useRouter()
 const toast = useToast()
@@ -528,6 +556,8 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     // Call API
     await api_call_methods.accept_data(user_id, acceptApiData, fund_id, props.filingId)
 
+    await fetchLatestChanges()
+
     // Trigger parent refresh and wait until it's done
     await new Promise(resolve => {
       emit('refresh-data', resolve)
@@ -704,6 +734,63 @@ function openCompLogs(field_no,field_text){
   emit('open-computationLogs', data)
 }
 
+const LATEST_CHANGES_POLL_MS = 5 * 60 * 1000
+const latestChanges = ref(null)
+const showChangesPopUp = ref(false)
+let latestChangesPollId = null
+
+const latestChangesCount = computed(() => {
+  const payload = latestChanges.value
+  if (!payload) return 0
+  return Number(payload.count ?? payload.changes?.length ?? 0) || 0
+})
+
+async function fetchLatestChanges() {
+  if (!props.filingId) return
+
+  try {
+    const response = await api_call_methods.latest_changes(user_id, props.filingId)
+    latestChanges.value = response?.data ?? null
+  } catch (error) {
+    console.log('Failed to fetch latest changes', error)
+  }
+}
+
+function openChangesPopUp() {
+  showChangesPopUp.value = true
+}
+
+function closeChangesPopUp() {
+  showChangesPopUp.value = false
+}
+
+function startLatestChangesPolling() {
+  stopLatestChangesPolling()
+  fetchLatestChanges()
+  latestChangesPollId = setInterval(() => {
+    fetchLatestChanges()
+  }, LATEST_CHANGES_POLL_MS)
+}
+
+function stopLatestChangesPolling() {
+  if (latestChangesPollId != null) {
+    clearInterval(latestChangesPollId)
+    latestChangesPollId = null
+  }
+}
+
+onMounted(() => {
+  startLatestChangesPolling()
+})
+
+onUnmounted(() => {
+  stopLatestChangesPolling()
+})
+
+watch(() => props.filingId, () => {
+  startLatestChangesPolling()
+})
+
 </script>
 
 <style scoped>
@@ -711,5 +798,77 @@ function openCompLogs(field_no,field_text){
   border: none;
   border-top: 1px solid #ddd;
   margin: 10px 0;
+}
+
+.changes-bell-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #dbe2ea;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.button-options {
+  width: 100%;
+}
+
+.changes-bell-btn:hover {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+  background: #f8fbff;
+}
+
+.changes-bell-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.changes-bell-btn .bell-icon {
+  font-size: 1.05rem;
+}
+
+.changes-bell-btn.has-changes {
+  color: #b45309;
+  border-color: #fbbf24;
+  background: #fffbeb;
+  animation: bell-glow 1.8s ease-in-out infinite;
+}
+
+.changes-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+@keyframes bell-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(251, 191, 36, 0.35),
+      0 0 0 0 rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(251, 191, 36, 0.18),
+      0 0 18px 2px rgba(245, 158, 11, 0.45);
+  }
 }
 </style>
