@@ -77,6 +77,13 @@
             >
               <div class="card-top">
                 <div class="identity">
+                  <p v-if="item.fundName || item.fundSeriesId" class="fund-line">
+                    <span class="identity-label">Fund</span>
+                    <span
+                      class="identity-value"
+                      :title="item.fundSeriesId || item.fundName"
+                    >{{ item.fundName || item.fundSeriesId }}</span>
+                  </p>
                   <p v-if="item.fieldNo" class="question-line">
                     <span class="identity-label">Question</span>
                     <span class="identity-value">{{ item.fieldNo }}</span>
@@ -150,6 +157,9 @@
 
 <script setup>
 import { computed, nextTick, onMounted, ref } from 'vue'
+import { useEditableStore } from '@/stores/responseStore'
+
+const responseStore = useEditableStore()
 
 const props = defineProps({
   /** Legacy: array of change groups or flat change items */
@@ -158,8 +168,8 @@ const props = defineProps({
     default: () => []
   },
   /**
-   * New latest_changes API response:
-   * { filing_id, count, cache_refreshed, changes: [...] }
+   * latest_changes API response:
+   * { filing_id, count, cache_refreshed, changes: [{ fundseriesid, formLineNo, fieldNo, value, created_at, created_by }] }
    */
   data: {
     type: Object,
@@ -221,6 +231,7 @@ const timelineItems = computed(() => {
                 entry.fieldLineNo ??
                 entry.form_line_no,
               fieldNo: change.fieldNo ?? entry.fieldNo ?? entry.field_no ?? entry.label,
+              fundseriesid: getFundSeriesId(change) ?? getFundSeriesId(entry),
               line_text: change.line_text ?? entry.line_text
             },
             `${index}-${changeIndex}`
@@ -240,16 +251,41 @@ const timelineItems = computed(() => {
   })
 })
 
+function getFundSeriesId(item) {
+  if (!item || typeof item !== 'object') return null
+  return (
+    item.fundseriesid ??
+    item.fundSeriesId ??
+    item.fund_series_id ??
+    item.fundseries_id ??
+    null
+  )
+}
+
+function resolveFundName(item, seriesId) {
+  return (
+    item?.fund_series_name ??
+    item?.fund_name ??
+    item?.fundName ??
+    responseStore.getFundLabelBySeriesId(seriesId) ??
+    null
+  )
+}
+
 function normalizeItem(item, id) {
+  const fundSeriesId = getFundSeriesId(item)
+  const fieldNo = item?.fieldNo ?? item?.field_no ?? item?.label ?? item?.title ?? null
   return {
-    id: String(item?.id ?? item?.key ?? `${item?.fieldNo || item?.field_no || 'row'}-${id}`),
+    id: String(item?.id ?? item?.key ?? `${fundSeriesId || fieldNo || 'row'}-${id}`),
+    fundSeriesId,
+    fundName: resolveFundName(item, fundSeriesId),
     formLineNo:
       item?.formLineNo ??
       item?.fieldLineNo ??
       item?.form_line_no ??
       item?.field_line_no ??
       null,
-    fieldNo: item?.fieldNo ?? item?.field_no ?? item?.label ?? item?.title ?? null,
+    fieldNo,
     value: hasOwn(item, 'value') ? item.value : null,
     oldValue: hasOwn(item, 'old_value') ? item.old_value : null,
     newValue: hasOwn(item, 'new_value') ? item.new_value : null,
@@ -263,7 +299,11 @@ function normalizeItem(item, id) {
 function isLatestChangeItem(item) {
   if (!item || typeof item !== 'object') return false
   return (
-    (hasOwn(item, 'formLineNo') || hasOwn(item, 'fieldNo')) &&
+    (hasOwn(item, 'formLineNo') ||
+      hasOwn(item, 'fieldNo') ||
+      hasOwn(item, 'fundseriesid') ||
+      hasOwn(item, 'fundSeriesId') ||
+      hasOwn(item, 'fund_series_id')) &&
     hasOwn(item, 'value')
   )
 }
@@ -545,6 +585,7 @@ function formatRelative(date) {
   min-width: 0;
 }
 
+.fund-line,
 .question-line,
 .subquestion-line {
   display: flex;
@@ -556,7 +597,7 @@ function formatRelative(date) {
 
 .identity-label {
   flex-shrink: 0;
-  min-width: 84px;
+  min-width: 92px;
   color: #64748b;
   font-size: 0.72rem;
   font-weight: 650;
