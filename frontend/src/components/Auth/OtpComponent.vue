@@ -6,7 +6,7 @@
     @submit.prevent="submitOtp"
   >
     <div class="field" :class="{ invalid: showedValidation && !otpValid }">
-      <label for="otpInput">Verification code</label>
+      <label for="otpInput">Login code</label>
       <div class="input-wrap">
         <font-awesome-icon icon="lock" class="field-icon" />
         <input
@@ -15,23 +15,23 @@
           type="text"
           inputmode="numeric"
           autocomplete="one-time-code"
-          placeholder="Enter verification code"
+          placeholder="Enter login code"
           required
         />
       </div>
-      <div class="error">Please enter a valid verification code</div>
+      <div class="error">Please enter a valid login code</div>
     </div>
 
     <button type="submit" class="btn-login" :disabled="isLoading">
       <span v-if="isLoading" class="ui-spinner" aria-hidden="true"></span>
-      {{ isLoading ? 'Verifying…' : 'Verify code' }}
+      {{ isLoading ? 'Verifying login code…' : 'Verify login code' }}
     </button>
 
     <div class="resend">
       <span v-if="timer > 0">
-        Resend verification code in <strong>{{ timer }}</strong> sec
+        Resend login code in <strong>{{ timer }}</strong> sec
       </span>
-      <a v-else href="#" @click.prevent="resendOtp">Resend verification code</a>
+      <a v-else href="#" @click.prevent="resendOtp">Resend login code</a>
     </div>
   </form>
 </template>
@@ -96,7 +96,7 @@ async function submitOtp() {
     })
 
     if (result.status === 200) {
-      toast.success('Code verified successfully')
+      toast.success('Login code verified successfully')
       const expiryHours = Number.parseInt(result.data.response.expiry_time[0], 10)
       const expiryTimestamp = Date.now() + expiryHours * 60 * 60 * 1000
 
@@ -110,12 +110,12 @@ async function submitOtp() {
       })
       window.location.replace('/home')
     } else {
-      toast.error('Invalid verification code')
+      toast.error('Invalid login code')
     }
   } catch (error) {
     const status = error.response?.status
     if (status === 401) {
-      toast.error('Incorrect code. Please re-enter the correct verification code.')
+      toast.error('Incorrect code. Please re-enter the correct login code.')
     } else {
       toast.error('We’re having trouble processing your request. Please try again later')
     }
@@ -126,13 +126,13 @@ async function submitOtp() {
 
 async function resendOtp() {
   try {
-    toast.info('Resending verification code...')
+    toast.info('Resending login code...')
     await api_call_methods.resend_otp({ user_id: props.userId })
-    toast.success('Verification code sent successfully')
+    toast.success('Login code sent successfully')
     startTimer()
   } catch (error) {
     console.error(error)
-    toast.error('Failed to resend verification code')
+    toast.error('Failed to resend login code')
   }
 }
 </script>

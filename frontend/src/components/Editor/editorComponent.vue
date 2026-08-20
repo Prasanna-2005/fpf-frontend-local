@@ -835,7 +835,7 @@ function openCompLogs(field_no,field_text){
   background: #e8eef8;
   padding: 14px 20px;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #1e3a8a;
   border-bottom: 1px solid #dbe3f0;
   border-top: 1px solid #dbe3f0;

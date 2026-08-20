@@ -79,7 +79,7 @@ const STATUS_MESSAGES = {
 const ACTION_MESSAGES = [
   { test: /\/auth\/login/i, message: 'Unable to sign in. Please check your credentials and try again.' },
   { test: /\/auth\/verify_otp/i, message: 'Unable to verify the code. Please try again.' },
-  { test: /\/auth\/resend_otp/i, message: 'Unable to resend the verification code. Please try again.' },
+  { test: /\/auth\/resend_otp/i, message: 'Unable to resend the login code. Please try again.' },
   { test: /\/auth\/logout/i, message: 'Unable to complete logout. Please try again.' },
   { test: /\/profile\/reset_password/i, message: 'Unable to update your password. Please try again.' },
   { test: /\/filings_list/i, message: 'Unable to load filings. Please refresh and try again.' },
@@ -145,7 +145,7 @@ function softenApiMessage(message) {
     [/duplicate/i, 'This item already exists. Please use a different value.'],
     [/already exists/i, 'This item already exists. Please use a different value.'],
     [/invalid credentials|wrong password|incorrect password/i, 'Wrong username or password.'],
-    [/invalid otp|incorrect otp|otp.*(invalid|incorrect|expired)/i, 'Incorrect verification code. Please try again.'],
+    [/invalid otp|incorrect otp|otp.*(invalid|incorrect|expired)/i, 'Incorrect login code. Please try again.'],
   ]
 
   for (const [pattern, friendly] of replacements) {

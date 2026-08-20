@@ -3,14 +3,16 @@
     <div class="brand-wrap" aria-hidden="true">
       <div class="dot-grid"></div>
     </div>
-    <div class="brand">Quantrium</div>
+    <div class="brand">
+      <BrandLogo />
+    </div>
 
     <div class="welcome">
-      <h1>{{ loginSuccess ? 'Verify your email' : 'Welcome!' }}</h1>
+      <h1>{{ loginSuccess ? 'Login code' : 'Welcome!' }}</h1>
       <p>
         {{
           loginSuccess
-            ? `Enter the verification code sent to ${email}`
+            ? `Enter the login code sent to ${email}`
             : 'Please login to your account'
         }}
       </p>
@@ -79,6 +81,7 @@
 import { computed, ref } from 'vue'
 import { useToast } from 'vue-toast-notification'
 import OtpComponent from './OtpComponent.vue'
+import BrandLogo from '@/components/BrandLogo.vue'
 import { useUserStore } from '@/stores/userStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
 
@@ -118,7 +121,7 @@ async function handleSubmit() {
     if (result.status === 200) {
       userId.value = result.data.user_id
       loginSuccess.value = true
-      toast.success('Verification code sent!')
+      toast.success('Login code sent!')
       userStore.login({
         email: email.value,
         role: 'Contributor',
@@ -172,11 +175,8 @@ async function handleSubmit() {
 .brand {
   position: relative;
   z-index: 1;
-  text-align: center;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #21409b;
-  letter-spacing: -0.02em;
+  display: flex;
+  justify-content: center;
   margin-bottom: 36px;
 }
 

@@ -16,7 +16,9 @@
       aria-label="Main navigation"
     >
       <div class="sidebar-header">
-        <div class="logo" v-show="!isCollapsed">Quantrium</div>
+        <div class="logo" v-show="!isCollapsed">
+          <BrandLogo variant="light" />
+        </div>
         <button
           v-if="!isCollapsed"
           type="button"
@@ -105,6 +107,7 @@ import { useRoute } from 'vue-router'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useToast } from 'vue-toast-notification'
 import { openActionToast } from '@/assets/utils/toastUtils'
+import BrandLogo from '@/components/BrandLogo.vue'
 
 const userStore = useUserStore()
 const toast = useToast()
@@ -245,10 +248,6 @@ function addFund() {
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #fff;
   line-height: 1;
 }
 
@@ -291,10 +290,10 @@ function addFund() {
   gap: 12px;
   padding: 12px 14px;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: #ffffff !important;
   text-decoration: none;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: background 0.15s;
   cursor: pointer;
   background: transparent;

@@ -1,6 +1,6 @@
 <template>
   <div class="filing-panel" :class="{ wide }">
-    <h1 class="page-title">Create New Filings</h1>
+    <h1 class="page-title">Create a new filing</h1>
     <p class="page-subtitle">Upload Files and Configure Mappings</p>
 
     <div class="stepper" aria-label="Filing setup progress">

@@ -2,7 +2,9 @@
   <div class="reset-page">
     <div class="reset-shell">
       <header class="reset-brand">
-        <div class="brand-mark">Quantrium</div>
+        <div class="brand-mark">
+          <BrandLogo />
+        </div>
         <p class="brand-note">Account security</p>
       </header>
 
@@ -13,6 +15,7 @@
 
 <script setup>
 import ResetComponent from '@/components/Auth/ResetComponent.vue'
+import BrandLogo from '@/components/BrandLogo.vue'
 </script>
 
 <style scoped>
@@ -40,10 +43,8 @@ import ResetComponent from '@/components/Auth/ResetComponent.vue'
 }
 
 .brand-mark {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e3a8a;
-  letter-spacing: -0.02em;
+  display: flex;
+  justify-content: center;
 }
 
 .brand-note {

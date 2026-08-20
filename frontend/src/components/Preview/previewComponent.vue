@@ -41,7 +41,7 @@
           ></span>
           <template v-else>
             <font-awesome-icon icon="download" />
-            Input Files
+            Download input files
           </template>
         </button>
 
@@ -830,6 +830,7 @@ function openMappedFiles(){
 .pdf-heading {
   font-size: 1.15rem;
   font-weight: 700;
+  color: #1e3a8a;
   margin: 0 0 8px;
 }
 

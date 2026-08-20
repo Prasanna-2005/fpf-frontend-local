@@ -38,7 +38,9 @@
             <td v-if="series === 'Curio'">{{ row.fund.period }}</td>
             <td>
               <div v-if="row.mappedFile" class="mapped-cell">
-                <font-awesome-icon icon="file" class="mapped-file-icon" aria-hidden="true" />
+                <span class="mapped-indicator" title="Mapped successfully" aria-label="Mapped successfully">
+                  <font-awesome-icon icon="check" />
+                </span>
                 <span class="fname" :title="row.mappedFile">{{ row.mappedFile }}</span>
                 <button
                   type="button"
@@ -404,7 +406,7 @@ watch(showSuccessModal, async (open) => {
   font-size: 1.15rem;
   font-weight: 700;
   margin: 0;
-  color: #111827;
+  color: #1e3a8a;
 }
 
 .btn-outline {
@@ -512,8 +514,16 @@ tbody tr:hover {
   min-width: 0;
 }
 
-.mapped-file-icon {
-  color: #16a34a;
+.mapped-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.7rem;
   flex-shrink: 0;
 }
 

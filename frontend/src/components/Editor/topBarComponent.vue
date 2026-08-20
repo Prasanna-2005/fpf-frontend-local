@@ -27,7 +27,7 @@
         ></span>
         <template v-else>
           <font-awesome-icon icon="download" />
-          Input Files
+          Download input files
         </template>
       </button>
 

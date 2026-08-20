@@ -30,14 +30,14 @@
               @input="currentPage = 1"
             />
           </div>
-          <label class="visually-hidden" for="filings-status">Filter by status</label>
+          <label class="visually-hidden" for="filings-status">Select status</label>
           <select
             id="filings-status"
             class="select"
             v-model="selectedStatus"
             @change="currentPage = 1"
           >
-            <option value="all">Filter: All Status</option>
+            <option value="all">Select status</option>
             <option value="Review">Review</option>
             <option value="Approved">Approved</option>
             <option value="Draft">Draft</option>
