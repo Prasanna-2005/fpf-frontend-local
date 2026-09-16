@@ -1,9 +1,22 @@
 <template>
   <div class="modal-backdrop" @click.self="$emit('close-click')">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="history-title">
-      <div class="modal-header">
+    <div
+      class="modal-card"
+      :class="{ dragging }"
+      :style="{ transform: `translate(${offset.x}px, ${offset.y}px)` }"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="history-title"
+    >
+      <div class="modal-header drag-handle" @pointerdown="onPointerDown">
         <h2 id="history-title">Change History</h2>
-        <button type="button" class="modal-close" aria-label="Close" @click="$emit('close-click')">
+        <button
+          type="button"
+          class="modal-close"
+          aria-label="Close"
+          @click="$emit('close-click')"
+          @pointerdown.stop
+        >
           <font-awesome-icon icon="xmark" />
         </button>
       </div>
@@ -33,7 +46,12 @@
               {{ activeTabLabel }} · Question {{ displayFieldNo }}
             </div>
             <div class="label">{{ activeLabel }}</div>
-            <div class="value">{{ currentValue || '—' }}</div>
+            <div
+              class="value value-preview"
+              :title="currentValue || '—'"
+            >
+              {{ currentValue || '—' }}
+            </div>
             <div class="meta">
               <span>{{ editCountLabel }}</span>
               <span v-if="currentEntry?.created_by">· Last edits by {{ currentEntry.created_by }}</span>
@@ -53,7 +71,12 @@
                 <span class="value-label">Value:</span>
                 <span v-if="item.is_current_value" class="current-badge">Current Value</span>
               </div>
-              <div class="timeline-value">{{ item.value || '—' }}</div>
+              <div
+                class="timeline-value value-preview"
+                :title="item.value || '—'"
+              >
+                {{ item.value || '—' }}
+              </div>
               <div class="timeline-meta">
                 <span v-if="item.created_by" class="avatar">{{ initials(item.created_by) }}</span>
                 <span>{{ item.created_by || '—' }}</span>
@@ -68,7 +91,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { getInitials } from '@/assets/utils/filingDashboardUtils'
 
 const props = defineProps({
@@ -89,6 +112,9 @@ const props = defineProps({
 defineEmits(['close-click'])
 
 const activeKey = ref('')
+const dragging = ref(false)
+const offset = ref({ x: 0, y: 0 })
+const dragStart = ref({ x: 0, y: 0, ox: 0, oy: 0 })
 
 const tabs = computed(() => {
   if (!props.fieldData || typeof props.fieldData !== 'object') return []
@@ -148,6 +174,38 @@ watch(
   },
   { immediate: true }
 )
+
+function onPointerDown(event) {
+  if (event.button !== 0) return
+  dragging.value = true
+  dragStart.value = {
+    x: event.clientX,
+    y: event.clientY,
+    ox: offset.value.x,
+    oy: offset.value.y,
+  }
+  window.addEventListener('pointermove', onPointerMove)
+  window.addEventListener('pointerup', onPointerUp)
+}
+
+function onPointerMove(event) {
+  if (!dragging.value) return
+  offset.value = {
+    x: dragStart.value.ox + (event.clientX - dragStart.value.x),
+    y: dragStart.value.oy + (event.clientY - dragStart.value.y),
+  }
+}
+
+function onPointerUp() {
+  dragging.value = false
+  window.removeEventListener('pointermove', onPointerMove)
+  window.removeEventListener('pointerup', onPointerUp)
+}
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pointermove', onPointerMove)
+  window.removeEventListener('pointerup', onPointerUp)
+})
 
 function tabLabel(key) {
   const display = getDisplayFieldNo(key)
@@ -229,6 +287,12 @@ function initials(name) {
   overflow: auto;
   border-radius: 14px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  will-change: transform;
+}
+
+.modal-card.dragging {
+  user-select: none;
+  cursor: grabbing;
 }
 
 .modal-header {
@@ -238,6 +302,15 @@ function initials(name) {
   gap: 12px;
   padding: 18px 22px;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+
+.modal-card.dragging .drag-handle {
+  cursor: grabbing;
 }
 
 .modal-header h2 {
@@ -402,6 +475,33 @@ function initials(name) {
   margin-bottom: 8px;
   color: #111827;
   word-break: break-word;
+}
+
+.value-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  word-break: break-word;
+  transition: background-color 0.15s ease;
+}
+
+.value-preview:hover {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+  white-space: pre-wrap;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin: -4px -6px 8px;
+}
+
+.history-summary .value-preview:hover {
+  background: #eff6ff;
+  margin-bottom: 8px;
 }
 
 .timeline-meta {
