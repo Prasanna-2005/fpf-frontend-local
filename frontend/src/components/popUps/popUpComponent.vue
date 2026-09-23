@@ -133,8 +133,11 @@ import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 import { useEditableStore } from '@/stores/responseStore'
 import utils from '@/assets/utils/utils'
+import { useToast } from 'vue-toast-notification'
+import { validateSectionA } from '@/assets/utils/sectionAValidation'
 
 const responseStore = useEditableStore()
+const toast = useToast()
 const emit = defineEmits(['removePopUp', 'filingName', 'downloadPdf', 'createCopy'])
 
 const userStore = useUserStore()
@@ -211,6 +214,13 @@ async function downloadXmlFileForApprovedFiling() {
 }
 
 async function sendForApproval(status) {
+  const errors = validateSectionA(responseStore.getAllData())
+  if (errors.length) {
+    toast.error(errors[0])
+    emit('removePopUp')
+    return
+  }
+
   try {
     sendingForApproval.value = true
     await api_call_methods.update_status(user_id, props.filingId, status)
