@@ -134,6 +134,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useEditableStore } from '@/stores/responseStore'
 import utils from '@/assets/utils/utils'
 import { useToast } from 'vue-toast-notification'
+import { toastApiError } from '@/assets/utils/toastUtils'
 import { validateSectionA } from '@/assets/utils/sectionAValidation'
 
 const responseStore = useEditableStore()
@@ -196,6 +197,7 @@ async function approveFiling(status) {
     dataForXML.value = result.data
   } catch (error) {
     console.log(error)
+    toastApiError(error, 'Unable to download the XML file. Please try again.')
   } finally {
     approving.value = false
   }
@@ -206,8 +208,10 @@ async function downloadXmlFileForApprovedFiling() {
   try {
     const result = await api_call_methods.get_xml_data(user_id, props.filingId)
     utils.downloadXMLFile(result.data)
+    toast.success('XML file downloaded')
   } catch (error) {
     console.log(error)
+    toastApiError(error, 'Unable to download the XML file. Please try again.')
   } finally {
     downloading.value = false
   }
@@ -228,6 +232,7 @@ async function sendForApproval(status) {
     sentForApproval.value = true
   } catch (error) {
     console.log(error)
+    toastApiError(error)
   } finally {
     sendingForApproval.value = false
   }
@@ -238,6 +243,7 @@ async function deleteUser() {
     await api_call_methods.delete_user(props.userIdToBeDeleted, user_id)
   } catch (error) {
     console.log(error)
+    toastApiError(error, 'Unable to delete the user. Please try again.')
   }
 }
 </script>
