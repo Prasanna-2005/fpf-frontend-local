@@ -94,35 +94,53 @@ const ACTION_MESSAGES = [
   { test: /\/files\/download_input/i, message: 'Unable to download input files. Please try again.' },
   { test: /\/edit\/response/i, message: 'Unable to load the filing. Please refresh and try again.' },
   { test: /\/edit\/computation/i, message: 'Unable to load computation logs. Please try again.' },
-  { test: /\/edit\/approved/i, message: 'Unable to load the approved filing data. Please try again.' },
+  { test: /\/edit\/approved/i, message: 'Unable to download the XML file. Please try again.' },
   { test: /\/edit\/update_status/i, message: 'Unable to update the filing status. Please try again.' },
   { test: /\/submissions\/revert/i, message: 'Unable to revert this question. Please try again.' },
   { test: /\/submissions\/history/i, message: 'Unable to load change history. Please try again.' },
   { test: /\/submissions\//i, message: 'Unable to save your changes. Please try again.' },
 ]
 
+function firstText(value) {
+  if (typeof value === 'string' && value.trim()) return value.trim()
+  if (typeof value?.msg === 'string' && value.msg.trim()) return value.msg.trim()
+  if (typeof value?.message === 'string' && value.message.trim()) return value.message.trim()
+  if (Array.isArray(value) && value.length) return firstText(value[0])
+  return ''
+}
+
 function extractRawApiMessage(data) {
   if (!data) return ''
   if (typeof data === 'string') return data.trim()
   if (typeof data !== 'object') return ''
 
-  const candidates = [data.message, data.error, data.detail, data.msg, data.title]
+  const candidates = [data.message, data.error, data.detail, data.msg, data.title, data.errors]
   for (const candidate of candidates) {
-    if (typeof candidate === 'string' && candidate.trim()) return candidate.trim()
-  }
-
-  if (Array.isArray(data.detail) && data.detail.length) {
-    const first = data.detail[0]
-    if (typeof first === 'string' && first.trim()) return first.trim()
-    if (typeof first?.msg === 'string' && first.msg.trim()) return first.msg.trim()
+    const text = firstText(candidate)
+    if (text) return text
   }
 
   return ''
 }
 
+function isValidationMessage(message) {
+  return /fieldno\s*\d+:/i.test(message) || /\d+[_./][A-Za-z].*compulsory/i.test(message)
+}
+
+function prettifyValidationMessage(message) {
+  if (/0[_./]C/i.test(message) && /reporting period end date/i.test(message) && /compulsory/i.test(message)) {
+    return 'Reporting period end date (0.C) is compulsory.'
+  }
+
+  return message
+    .replace(/^fieldno\s*\d+:\s*/i, '')
+    .replace(/\b(\d+)_([A-Za-z])\b/g, (_, number, letter) => `${number}.${letter.toUpperCase()}`)
+}
+
 function isUserFriendlyMessage(message) {
   if (!message) return false
   const text = message.trim()
+  if (isValidationMessage(text)) return true
   if (text.length < 3 || text.length > 180) return false
   if (/^<!doctype html|<html|<pre|<title/i.test(text)) return false
   if (/traceback|exception|stack trace|at\s+\w+\(|\.py:\d+|sqlalchemy|psycopg|null pointer/i.test(text)) {
@@ -160,6 +178,16 @@ function getActionMessage(error) {
   return match?.message || ''
 }
 
+function combineActionAndReason(actionMessage, reason) {
+  if (!reason) return actionMessage
+  if (!actionMessage) return reason
+
+  const actionBase = actionMessage.replace(/\s*Please try again\.?\s*$/i, '').trim()
+  if (!actionBase) return reason
+  if (reason.toLowerCase().startsWith(actionBase.toLowerCase())) return reason
+  return `${actionBase} ${reason}`
+}
+
 export function getApiErrorMessage(error, fallback = 'Something went wrong. Please try again.') {
   if (!error) return fallback
 
@@ -174,11 +202,12 @@ export function getApiErrorMessage(error, fallback = 'Something went wrong. Plea
   const status = error.response?.status
   const rawMessage = extractRawApiMessage(error.response?.data)
   const actionMessage = getActionMessage(error)
+  const reason = isUserFriendlyMessage(rawMessage)
+    ? softenApiMessage(prettifyValidationMessage(rawMessage))
+    : ''
 
-  if (isUserFriendlyMessage(rawMessage)) {
-    return softenApiMessage(rawMessage)
-  }
-
+  if (actionMessage && reason) return combineActionAndReason(actionMessage, reason)
+  if (reason) return reason
   if (actionMessage) return actionMessage
   if (status && STATUS_MESSAGES[status]) return STATUS_MESSAGES[status]
   if (status >= 500) return STATUS_MESSAGES[500]
