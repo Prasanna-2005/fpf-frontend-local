@@ -10,9 +10,30 @@
           <font-awesome-icon icon="file" />
           Mapped Files
         </button>
+        <button type="button" class="btn-outline" @click="openCompareSelector">
+          <font-awesome-icon icon="code-compare" />
+          Compare
+        </button>
         <button type="button" class="btn-primary" @click="openUpload">
           <font-awesome-icon icon="upload" />
           Upload More Files
+        </button>
+        <button
+          type="button"
+          class="changes-bell-btn"
+          :class="{ 'has-changes': latestChangesCount > 0 }"
+          :aria-label="latestChangesCount > 0
+            ? `${latestChangesCount} latest changes. Open changes list`
+            : 'No latest changes'"
+          :title="latestChangesCount > 0
+            ? `${latestChangesCount} latest change${latestChangesCount === 1 ? '' : 's'}`
+            : 'No latest changes'"
+          @click="openChangesPopUp"
+        >
+          <font-awesome-icon class="bell-icon" icon="bell" />
+          <span v-if="latestChangesCount > 0" class="changes-badge">
+            {{ latestChangesCount > 99 ? '99+' : latestChangesCount }}
+          </span>
         </button>
       </div>
     </div>
@@ -262,11 +283,25 @@
         </div>
       </div>
     </div>
+
+    <compareSelectorPopUp
+      v-if="openComparePopUp"
+      :filingId="filingId"
+      @close-click="openComparePopUp = false"
+      @compare-selected="onCompareSelected"
+    />
+
+    <ChangesPopUp
+      v-if="showChangesPopUp"
+      :data="latestChanges"
+      @close-click="closeChangesPopUp"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed, onMounted } from 'vue'
+import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
@@ -279,8 +314,11 @@ import { useToast } from 'vue-toast-notification'
 import { openActionToast } from '@/assets/utils/toastUtils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
 import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
+import ChangesPopUp from '@/components/popUps/ChangesPopUp.vue'
+import compareSelectorPopUp from '@/components/popUps/compareSelectorPopUp.vue'
 
 const toast = useToast()
+const router = useRouter()
 const userStore = useUserStore()
 const user_id = userStore.userID
 
@@ -401,6 +439,11 @@ watch(() => props.fundName, (newVal) => {
 
 onMounted(() => {
   prefetchEditedFlags()
+  startLatestChangesPolling()
+})
+
+onUnmounted(() => {
+  stopLatestChangesPolling()
 })
 
 function updateTableValue(fieldNo, tableData) {
@@ -701,6 +744,74 @@ function openUpload() {
 function openMappedFiles(){
   emit('open-mapped-files')
 }
+
+const openComparePopUp = ref(false)
+
+function openCompareSelector(){
+  openComparePopUp.value = true
+}
+
+function onCompareSelected(relatedFiling){
+  openComparePopUp.value = false
+  router.push({
+    name: 'compare',
+    query: {
+      filing_id_a: props.filingId,
+      filing_id_b: relatedFiling.id,
+      name_a: localStorage.getItem('filingName') || '',
+      name_b: relatedFiling.filing_name || '',
+    }
+  })
+}
+
+const LATEST_CHANGES_POLL_MS = 5 * 60 * 1000
+const latestChanges = ref(null)
+const showChangesPopUp = ref(false)
+let latestChangesPollId = null
+
+const latestChangesCount = computed(() => {
+  const payload = latestChanges.value
+  if (!payload) return 0
+  return Number(payload.count ?? payload.changes?.length ?? 0) || 0
+})
+
+async function fetchLatestChanges() {
+  if (!props.filingId) return
+
+  try {
+    const response = await api_call_methods.latest_changes(user_id, props.filingId)
+    latestChanges.value = response?.data ?? null
+  } catch (error) {
+    console.log('Failed to fetch latest changes', error)
+  }
+}
+
+function openChangesPopUp() {
+  showChangesPopUp.value = true
+}
+
+function closeChangesPopUp() {
+  showChangesPopUp.value = false
+}
+
+function startLatestChangesPolling() {
+  stopLatestChangesPolling()
+  fetchLatestChanges()
+  latestChangesPollId = setInterval(() => {
+    fetchLatestChanges()
+  }, LATEST_CHANGES_POLL_MS)
+}
+
+function stopLatestChangesPolling() {
+  if (latestChangesPollId != null) {
+    clearInterval(latestChangesPollId)
+    latestChangesPollId = null
+  }
+}
+
+watch(() => props.filingId, () => {
+  startLatestChangesPolling()
+})
 function getDisplayFieldNo(fieldNo) {
   const parts = fieldNo.split('_')
   return parts[parts.length - 1]
@@ -963,5 +1074,47 @@ function openCompLogs(field_no,field_text){
   font-size: 0.85rem;
   color: #6b7280;
   font-weight: 400;
+}
+
+.changes-bell-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #dbe2ea;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.changes-bell-btn:hover {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+  background: #f8fbff;
+}
+
+.changes-bell-btn.has-changes {
+  color: #b45309;
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.changes-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
 }
 </style>

@@ -50,6 +50,11 @@
           Mapped Files
         </button>
 
+        <button type="button" class="btn-outline" @click="openCompareSelector">
+          <font-awesome-icon icon="code-compare" />
+          Compare
+        </button>
+
         <button
           v-if="status !== 'Approved'"
           type="button"
@@ -91,6 +96,13 @@
         </button>
       </div>
     </header>
+
+    <compareSelectorPopUp
+      v-if="openComparePopUp"
+      :filingId="filingId"
+      @close-click="openComparePopUp = false"
+      @compare-selected="onCompareSelected"
+    />
 
     <section class="viewer-shell">
       <div class="viewer-toolbar">
@@ -263,6 +275,7 @@ import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
 import { useUserStore } from '@/stores/userStore';
 import expandingTableComponent from './subComponent/expandingTableComponent.vue';
+import compareSelectorPopUp from '@/components/popUps/compareSelectorPopUp.vue';
 import { validateSectionA } from '@/assets/utils/sectionAValidation';
 const userStore=useUserStore()
 const role=userStore.role
@@ -283,6 +296,7 @@ const responseStore = useEditableStore();
 const status=ref(responseStore.getStatus())
 const downloadPDFPreview=ref(false)
 const downloadInputFiles=ref(false)
+const openComparePopUp=ref(false)
 
 watch(() => responseStore.status, (v) =>{
  console.log('store.status changed ->', v)
@@ -578,6 +592,21 @@ function formatValue(value,symbol,field='') {
 }
 function openMappedFiles(){
   emit('open-mapped-files')
+}
+function openCompareSelector(){
+  openComparePopUp.value=true
+}
+function onCompareSelected(relatedFiling){
+  openComparePopUp.value=false
+  router.push({
+    name: 'compare',
+    query: {
+      filing_id_a: props.filingId,
+      filing_id_b: relatedFiling.id,
+      name_a: localStorage.getItem('filingName') || '',
+      name_b: relatedFiling.filing_name || '',
+    }
+  })
 }
 
 </script>

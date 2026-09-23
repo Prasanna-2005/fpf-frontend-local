@@ -5,6 +5,7 @@ import HomeView from '@/views/HomeView.vue'
 import EditingView from '@/views/EditingView.vue'
 import AdminView from '@/views/AdminView.vue'
 import PreviewView from '@/views/PreviewView.vue'
+import CompareView from '@/views/CompareView.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
@@ -62,6 +63,16 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Preview-FormPf',
+        roles: ['contributor','approver'],
+       }
+    },
+    {
+      path:'/compare',
+      name:'compare',
+      component: CompareView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Compare-FormPf',
         roles: ['contributor','approver'],
        }
     }
