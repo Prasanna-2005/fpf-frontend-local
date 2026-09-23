@@ -263,6 +263,7 @@ import html2canvas from 'html2canvas';
 import { useToast } from 'vue-toast-notification';
 import { useUserStore } from '@/stores/userStore';
 import expandingTableComponent from './subComponent/expandingTableComponent.vue';
+import { validateSectionA } from '@/assets/utils/sectionAValidation';
 const userStore=useUserStore()
 const role=userStore.role
 import api_call_methods from '@/assets/api_calls/api_calls';
@@ -505,60 +506,22 @@ function getIndent(fieldNo) {
 function createCopyPopUp() {
   emit('create-copy');
 }
-function isEmpty(value) {
-  return (
-    value === null ||
-    value === undefined ||
-    String(value).trim() === ''
-  );
+function getSectionAErrors() {
+  return validateSectionA(data)
 }
 
-function isQuestionIncomplete(field) {
-  const allowedTypes = ['text', 'mcq', 'date'];
-
-  if (
-    allowedTypes.includes(field.field_item_type) &&
-    field.has_field_item_text
-  ) {
-    return isEmpty(field.value);
-  }
-
-  if (Array.isArray(field.field_data) && field.field_data.length) {
-    const answerableItems = field.field_data.filter((item) =>
-      allowedTypes.includes(item.line_item_type)
-    );
-
-    // Incomplete only if ALL sub-questions are empty
-    return answerableItems.every((item) => isEmpty(item.value));
-  }
-
-  return false;
+function showSectionAErrors(errors) {
+  if (!errors.length) return false
+  toast.error(errors[0])
+  return true
 }
 
 function approvePopUp() {
-  const hasMandatoryQuestionMissing = Object.values(data).some((seriesData) => {
-    return seriesData.some((field) => {
-      const fieldNo = getDisplayFieldNo(field.field_no);
-
-      // Validate mandatory questions
-      if (['0', '1'].includes(fieldNo)) {
-        return isQuestionIncomplete(field);
-      }
-
-      return false;
-    });
-  });
-
-  if (hasMandatoryQuestionMissing) {
-    toast.error(
-      'Mandatory questions (Q0, Q1) are incomplete. Please answer all required fields before approval.'
-    );
-    return;
-  }
-
+  if (showSectionAErrors(getSectionAErrors())) return
   emit('approve');
 }
 function sendForApprovalPopUp(){
+  if (showSectionAErrors(getSectionAErrors())) return
   emit('send-for-approval')
 }
 
