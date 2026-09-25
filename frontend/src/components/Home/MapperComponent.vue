@@ -2,7 +2,21 @@
   <div class="mapper-root">
   <FilingWizardShell v-if="!uploaderFlag" :step="2" wide>
     <div class="section-bar">
-      <h2>Mapped Files</h2>
+      <div class="section-title">
+        <h2>Mapped Files</h2>
+        <button
+          v-if="leftoverReason"
+          type="button"
+          class="unmap-info"
+          aria-label="Why some uploaded files are not mapped"
+          @mouseenter="showUnmappedReason($event, leftoverReasonRow)"
+          @mouseleave="scheduleHideUnmappedReason"
+          @focus="showUnmappedReason($event, leftoverReasonRow)"
+          @blur="scheduleHideUnmappedReason"
+        >
+          <font-awesome-icon icon="info-circle" />
+        </button>
+      </div>
       <button type="button" class="btn-outline" @click="openUploader">
         <font-awesome-icon icon="cloud-arrow-up" />
         Upload More Files
@@ -50,7 +64,8 @@
                 </button>
               </div>
 
-              <div v-else class="select-file-wrap dropdown">
+              <div v-else class="unmapped-cell">
+                <div class="select-file-wrap dropdown">
                 <button
                   class="btn-select dropdown-toggle"
                   type="button"
@@ -76,6 +91,18 @@
                     </button>
                   </li>
                 </ul>
+                </div>
+                <button
+                  type="button"
+                  class="unmap-info"
+                  :aria-label="`Why ${row.fund.fundname || 'this file'} is not mapped`"
+                  @mouseenter="showUnmappedReason($event, row)"
+                  @mouseleave="scheduleHideUnmappedReason"
+                  @focus="showUnmappedReason($event, row)"
+                  @blur="scheduleHideUnmappedReason"
+                >
+                  <font-awesome-icon icon="info-circle" />
+                </button>
               </div>
             </td>
           </tr>
@@ -134,16 +161,29 @@
     </div>
   </div>
   </div>
+  <Teleport to="body">
+    <div
+      v-if="reasonPopover.open"
+      class="unmap-popover"
+      role="tooltip"
+      :style="{ top: `${reasonPopover.top}px`, left: `${reasonPopover.left}px` }"
+      @mouseenter="cancelHideUnmappedReason"
+      @mouseleave="scheduleHideUnmappedReason"
+    >
+      {{ reasonPopover.text }}
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
 import api_call_methods from '@/assets/api_calls/api_calls'
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useFileStore } from '@/stores/fileStore'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification'
 import FilingWizardShell from './FilingWizardShell.vue'
 import { fundRowKey } from '@/assets/utils/filingUploadUtils'
+import { describeUnmappedSlot, manualUnmapReason } from '@/assets/utils/unmappedReason'
 
 const toast = useToast()
 const emit = defineEmits(['open-uploader', 'close-click', 'submit-success'])
@@ -257,9 +297,76 @@ const mappedRows = computed(() =>
       mappedFile,
       isQuarter: isQuarterLabel(fund.quarter),
       quarterClass: quarterClass(fund.quarter),
+      unmappedReason: mappedFile
+        ? ''
+        : describeUnmappedSlot(fund, localData.value.unmapped_files, series),
     }
   })
 )
+
+const reasonPopover = ref({
+  open: false,
+  text: '',
+  top: 0,
+  left: 0,
+})
+let hideReasonTimer = null
+
+function placeUnmappedReason(event, row) {
+  const rect = event.currentTarget.getBoundingClientRect()
+  const width = 320
+  const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 12))
+  let top = rect.bottom + 8
+  const estimatedHeight = 180
+  if (top + estimatedHeight > window.innerHeight) {
+    top = Math.max(8, rect.top - estimatedHeight - 8)
+  }
+  reasonPopover.value = {
+    open: true,
+    text: row.unmappedReason,
+    top,
+    left,
+  }
+}
+
+function showUnmappedReason(event, row) {
+  cancelHideUnmappedReason()
+  placeUnmappedReason(event, row)
+}
+
+function cancelHideUnmappedReason() {
+  if (hideReasonTimer) {
+    clearTimeout(hideReasonTimer)
+    hideReasonTimer = null
+  }
+}
+
+function scheduleHideUnmappedReason() {
+  cancelHideUnmappedReason()
+  hideReasonTimer = setTimeout(() => {
+    reasonPopover.value = { ...reasonPopover.value, open: false }
+  }, 150)
+}
+
+onBeforeUnmount(() => {
+  cancelHideUnmappedReason()
+})
+
+const leftoverReason = computed(() => {
+  if (mappedRows.value.some((row) => !row.mappedFile)) return ''
+  const files = (localData.value.unmapped_files || []).filter((file) => file?.reason)
+  if (!files.length) return ''
+  const lines = ['These uploaded files were not mapped:']
+  for (const file of files) {
+    lines.push(`${file.filename || 'Uploaded file'}: ${file.reason}`)
+  }
+  return lines.join('\n')
+})
+
+const leftoverReasonRow = computed(() => ({
+  key: 'leftover',
+  unmappedReason: leftoverReason.value,
+}))
 
 const hasMappedFiles = computed(() =>
   mappedRows.value.some((row) => Boolean(row.mappedFile))
@@ -305,6 +412,12 @@ function removeFileFromFund(fund, filename) {
     localData.value.unmapped_files.push({
       filename: fileObj.filename,
       filepath: fileObj.filepath,
+      shortcode: fund.shortcode,
+      fundname: fund.fundname,
+      quarter: fund.quarter,
+      period: normalizePeriod(fund.period),
+      manuallyUnmapped: true,
+      reason: manualUnmapReason(fund, series),
     })
   }
 }
@@ -405,6 +518,12 @@ watch(showSuccessModal, async (open) => {
   font-weight: 700;
   margin: 0;
   color: #111827;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-outline {
@@ -538,6 +657,52 @@ tbody tr:hover {
 
 .file-remove:hover {
   color: #dc2626;
+}
+
+.unmapped-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unmap-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #1e3a8a;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.unmap-info:hover,
+.unmap-info:focus-visible {
+  background: #eff6ff;
+  outline: none;
+}
+
+.unmap-popover {
+  position: fixed;
+  z-index: 10000;
+  width: min(320px, calc(100vw - 16px));
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #1f2937;
+  color: #f9fafb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  font-weight: 500;
+  text-align: left;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 }
 
 .select-file-wrap {
