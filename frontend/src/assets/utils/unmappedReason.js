@@ -1,14 +1,43 @@
+const storagePrefix =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_quantrium_/i
+
+export function displayFileName(name) {
+  const base = String(name || '')
+    .split(/[/\\]/)
+    .pop()
+  return base.replace(storagePrefix, '')
+}
+
+export function dedupeStoredFiles(files) {
+  const seen = new Map()
+  for (const file of files || []) {
+    const record = typeof file === 'string' ? { filename: file } : { ...file }
+    const filename = displayFileName(record.filename || record.volfilename || '')
+    const key = filename.toLowerCase()
+    if (!key) continue
+    record.filename = filename
+    seen.set(key, record)
+  }
+  return [...seen.values()]
+}
+
+export function dedupeMappings(files) {
+  const seen = new Map()
+  for (const file of files || []) {
+    const filename = displayFileName(file.filename || file.volfilename || '')
+    const key = [file.shortcode || '', file.quarter || '', file.period ?? '', filename.toLowerCase()].join('|')
+    if (!filename) continue
+    seen.set(key, { ...file, filename })
+  }
+  return [...seen.values()]
+}
+
 export function slotLabel(fund, series) {
   const typeOrQuarter = fund?.quarter || 'this file type'
   if (series === 'Curio' && fund?.period) {
     return `${typeOrQuarter} (${fund.period})`
   }
   return typeOrQuarter
-}
-
-export function manualUnmapReason(fund, series) {
-  const fundName = fund?.fundname || 'this fund'
-  return `This file was removed from the ${fundName} (${slotLabel(fund, series)}) mapping. Select it again to map the file.`
 }
 
 function fileLabel(file) {

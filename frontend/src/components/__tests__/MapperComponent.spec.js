@@ -51,24 +51,27 @@ function mountMapper() {
   })
 }
 
-describe('MapperComponent unmapped reason', () => {
-  it('shows an info indicator only for files that are not mapped', async () => {
+describe('MapperComponent unmapped files', () => {
+  it('lists unmapped files and reasons beside the mapped files view', async () => {
     const wrapper = mountMapper()
-    const infoButtons = wrapper.findAll('.unmap-info')
 
-    expect(infoButtons).toHaveLength(1)
+    expect(wrapper.find('.unmap-info').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Mapped Files')
+    expect(wrapper.text()).toContain('Unmapped Files')
     expect(wrapper.text()).toContain('alpha-q1.xlsx')
-    expect(wrapper.find('.mapped-cell').find('.unmap-info').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain(quarterReason)
 
-    await infoButtons[0].trigger('mouseenter')
+    await wrapper.get('[data-testid="unmapped-tab"]').trigger('click')
 
-    expect(document.body.textContent).toContain('alpha-misc.xlsx was not mapped to Fund Alpha (Q2).')
-    expect(document.body.textContent).toContain(quarterReason)
+    const panel = wrapper.get('[data-testid="unmapped-panel"]')
+    expect(panel.text()).toContain('alpha-misc.xlsx')
+    expect(panel.text()).toContain(quarterReason)
+    expect(panel.text()).not.toContain('alpha-q1.xlsx')
 
     wrapper.unmount()
   })
 
-  it('explains leftover files when every expected slot is already mapped', async () => {
+  it('lists leftover files when every expected slot is already mapped', async () => {
     const pinia = createPinia()
     setActivePinia(pinia)
     const wrapper = mount(MapperComponent, {
@@ -101,10 +104,47 @@ describe('MapperComponent unmapped reason', () => {
       },
     })
 
-    const info = wrapper.get('.section-title .unmap-info')
-    await info.trigger('mouseenter')
-    expect(document.body.textContent).toContain('notes.xlsx')
-    expect(document.body.textContent).toContain('recognized fund short code')
+    await wrapper.get('[data-testid="unmapped-tab"]').trigger('click')
+    const panel = wrapper.get('[data-testid="unmapped-panel"]')
+    expect(panel.text()).toContain('notes.xlsx')
+    expect(panel.text()).toContain('recognized fund short code')
+    wrapper.unmount()
+  })
+
+  it('lists one row when stored copies share an original filename', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const org = '1. FSAAEM-FSAAEM~^investors20251231 capital register_palbreakout~.xls'
+    const wrapper = mount(MapperComponent, {
+      props: {
+        data: {
+          series: 'Curio',
+          fund_details: [],
+          file_mappings: [],
+          unmapped_files: [
+            {
+              filename: `ee1fd554-cb6b-4201-b109-f4c9a0938d0f_quantrium_${org}`,
+              reason: 'It does not match an expected file type.',
+            },
+            {
+              filename: `4259c335-fc4d-4e21-b28d-8d87250cdb05_quantrium_${org}`,
+              reason: 'It does not match an expected file type.',
+            },
+          ],
+        },
+      },
+      global: {
+        plugins: [pinia],
+        stubs: { FontAwesomeIcon: { template: '<i />' } },
+      },
+    })
+
+    await wrapper.get('[data-testid="unmapped-tab"]').trigger('click')
+    const panel = wrapper.get('[data-testid="unmapped-panel"]')
+    expect(panel.text()).toContain(org)
+    expect(panel.text()).not.toContain('4259c335')
+    expect(panel.text()).not.toContain('_quantrium_')
+    expect(panel.findAll('tbody tr')).toHaveLength(1)
     wrapper.unmount()
   })
 })
