@@ -50,6 +50,7 @@
         :fieldData="history"
         :fieldNo="fieldNo"
         :fieldType="fieldType"
+        :hasTableData="hasTableData"
         @close-click="openhistoryPopUp = false"
       />
     </div>
@@ -95,6 +96,7 @@ const fileStore = useFileStore()
 const history = ref({})
 const fieldNo = ref('')
 const fieldType = ref('')
+const hasTableData = ref(false)
 const openMappedFilesPopUp = ref(false)
 const downloadInputFiles = ref(false)
 /** fieldNo -> true when history length > 1 */
@@ -184,6 +186,7 @@ function closeUpload() {
 async function openHistory(payload) {
   fieldNo.value = payload.fieldNo
   fieldType.value = payload.fieldType
+  hasTableData.value = Boolean(payload.hasTableData)
   try {
     const result = await api_call_methods.get_history(user_id, payload, { skipErrorToast: false })
     history.value = result.data

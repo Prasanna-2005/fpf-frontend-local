@@ -33,6 +33,9 @@ defineProps({
 }
 
 .brand-logo.light .brand-logo-img {
-  filter: brightness(0) invert(1);
+  /* Inverts dark text to white while making the white background black */
+  filter: invert(1) grayscale(1) contrast(200%);
+  /* Blends out the pure black background on dark sidebars */
+  mix-blend-mode: screen;
 }
 </style>
