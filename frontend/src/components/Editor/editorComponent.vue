@@ -89,7 +89,7 @@
                   type="button"
                   class="icon-btn"
                   title="Change history"
-                  @click="openHistory(fields.field_no, fields.field_item_type)"
+                  @click="openHistory(fields.field_no, fields.field_item_type, fields.has_table_data)"
                 >
                   <font-awesome-icon icon="clock-rotate-left" />
                 </button>
@@ -843,9 +843,9 @@ function getIndent(fieldNo) {
   return (fieldNo.match(/_/g) || []).length * 5
 }
 
-async function openHistory(field_no,fieldType){
+async function openHistory(field_no, fieldType, hasTableData){
   const fund_id = responseStore.getFundId(fundname.value)
-  emit('open-history',field_no,fund_id,fieldType)
+  emit('open-history', field_no, fund_id, fieldType, hasTableData)
 }
 function openCompLogs(field_no,field_text){
   const field = computationLogs.value.find(

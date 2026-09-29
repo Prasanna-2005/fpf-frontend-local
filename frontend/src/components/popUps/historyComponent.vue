@@ -13,18 +13,33 @@
       </div>
 
       <template v-else>
-        <div class="history-tabs">
-          <button
-            v-for="tab in tabs"
-            :key="tab.key"
-            type="button"
-            class="history-tab"
-            :class="{ active: tab.key === activeKey }"
-            @click="activeKey = tab.key"
-          >
-            {{ tab.label }}
-            <span class="count">{{ tab.count }}</span>
-          </button>
+        <div class="selector-grid" :class="{ single: !showTableSelectors }">
+          <template v-if="showTableSelectors">
+            <label class="selector">
+              <span class="selector-label">Row</span>
+              <select v-model="selectedRow" class="selector-control" :title="selectedRowLabel">
+                <option v-for="row in rowOptions" :key="row.value" :value="row.value">
+                  {{ row.label }}
+                </option>
+              </select>
+            </label>
+            <label class="selector">
+              <span class="selector-label">Column</span>
+              <select v-model="selectedColumn" class="selector-control" :title="selectedColumnLabel">
+                <option v-for="col in columnOptions" :key="col.value" :value="col.value">
+                  {{ col.label }}
+                </option>
+              </select>
+            </label>
+          </template>
+          <label v-else class="selector">
+            <span class="selector-label">Question</span>
+            <select v-model="activeKey" class="selector-control">
+              <option v-for="tab in questionOptions" :key="tab.key" :value="tab.key">
+                {{ tab.label }}
+              </option>
+            </select>
+          </label>
         </div>
 
         <div class="modal-body">
@@ -84,24 +99,79 @@ const props = defineProps({
     type: [String, Object],
     default: '',
   },
+  hasTableData: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 defineEmits(['close-click'])
 
 const activeKey = ref('')
+const selectedRow = ref('')
+const selectedColumn = ref('')
 
 const tabs = computed(() => {
   if (!props.fieldData || typeof props.fieldData !== 'object') return []
-  return Object.keys(props.fieldData).map((key) => {
-    const entries = Array.isArray(props.fieldData[key]) ? props.fieldData[key] : []
-    return {
-      key,
-      label: tabLabel(key),
-      count: entries.length,
-      lineText: entries[0]?.line_text || '',
-    }
-  })
+  return Object.keys(props.fieldData)
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+    .map((key) => {
+      const entries = Array.isArray(props.fieldData[key]) ? props.fieldData[key] : []
+      return {
+        key,
+        label: tabLabel(key),
+        lineText: entries[0]?.line_text || '',
+      }
+    })
 })
+
+const isTable = computed(() => {
+  if (props.fieldType === 'table' || props.hasTableData) return true
+  return tabs.value.some((tab) => /_\([^)]+\)_/.test(tab.key))
+})
+
+const cells = computed(() => {
+  if (!isTable.value) return []
+  return tabs.value
+    .map((tab) => {
+      const parsed = parseTableCell(tab.key)
+      if (!parsed) return null
+      return {
+        ...tab,
+        ...parsed,
+        rowLabel: formatRowLabel(parsed.rowRaw),
+        colLabel: formatColumnLabel(parsed.colRaw),
+      }
+    })
+    .filter(Boolean)
+})
+
+const showTableSelectors = computed(() => isTable.value && cells.value.length > 0)
+
+const rowOptions = computed(() => uniqueOptions(cells.value, 'rowRaw', 'rowLabel'))
+
+const columnOptions = computed(() => {
+  const forRow = cells.value.filter((cell) => cell.rowRaw === selectedRow.value)
+  return uniqueOptions(forRow, 'colRaw', 'colLabel')
+})
+
+const questionOptions = computed(() => tabs.value)
+
+const effectiveKey = computed(() => {
+  if (!showTableSelectors.value) return activeKey.value
+  const match = cells.value.find(
+    (cell) => cell.rowRaw === selectedRow.value && cell.colRaw === selectedColumn.value
+  )
+  return match?.key || ''
+})
+
+const selectedRowLabel = computed(
+  () => rowOptions.value.find((row) => row.value === selectedRow.value)?.label || ''
+)
+
+const selectedColumnLabel = computed(
+  () => columnOptions.value.find((col) => col.value === selectedColumn.value)?.label || ''
+)
 
 const displayFieldNo = computed(() => {
   const parts = String(props.fieldNo || '').split('_')
@@ -109,18 +179,22 @@ const displayFieldNo = computed(() => {
 })
 
 const activeTabLabel = computed(() => {
-  const tab = tabs.value.find((t) => t.key === activeKey.value)
+  if (showTableSelectors.value) {
+    const cell = cells.value.find((item) => item.key === effectiveKey.value)
+    if (cell) return `${cell.rowLabel} · ${cell.colLabel}`
+  }
+  const tab = tabs.value.find((t) => t.key === effectiveKey.value)
   return tab?.label || `Q${displayFieldNo.value}`
 })
 
 const activeLabel = computed(() => {
-  const tab = tabs.value.find((t) => t.key === activeKey.value)
+  const tab = tabs.value.find((t) => t.key === effectiveKey.value)
   const text = tab?.lineText || ''
   return text ? toTitleCase(text) : activeTabLabel.value
 })
 
 const activeEntries = computed(() => {
-  const raw = props.fieldData?.[activeKey.value]
+  const raw = props.fieldData?.[effectiveKey.value]
   if (!Array.isArray(raw)) return []
   return [...raw].sort((a, b) => Number(b.is_current_value) - Number(a.is_current_value))
 })
@@ -148,6 +222,69 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  rowOptions,
+  (rows) => {
+    if (!rows.some((row) => row.value === selectedRow.value)) {
+      selectedRow.value = rows[0]?.value || ''
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  columnOptions,
+  (cols) => {
+    if (!cols.some((col) => col.value === selectedColumn.value)) {
+      selectedColumn.value = cols[0]?.value || ''
+    }
+  },
+  { immediate: true }
+)
+
+function uniqueOptions(list, valueKey, labelKey) {
+  const seen = new Map()
+  for (const item of list) {
+    if (!seen.has(item[valueKey])) seen.set(item[valueKey], item[labelKey])
+  }
+  return [...seen.entries()].map(([value, label]) => ({ value, label }))
+}
+
+function parseTableCell(key) {
+  const text = String(key)
+  const first = text.indexOf('_')
+  if (first <= 0) return null
+  const second = text.indexOf('_', first + 1)
+  if (second < 0) return null
+  const rowRaw = text.slice(first + 1, second)
+  const colRaw = text.slice(second + 1)
+  if (!rowRaw || !colRaw) return null
+  return { rowRaw, colRaw }
+}
+
+function formatRowLabel(raw) {
+  const cleaned = String(raw).replaceAll(/[()]/g, '')
+  if (/^[a-z]$/i.test(cleaned)) return cleaned.toUpperCase()
+  return formatColumnLabel(cleaned)
+}
+
+function formatColumnLabel(raw) {
+  const text = String(raw)
+    .replaceAll('_', ' ')
+    .replace(/\blevel(\d+)\b/gi, 'level $1')
+    .replace(/\bcostbased\b/gi, 'cost-based')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text
+    .split(' ')
+    .map((word) => {
+      if (!word) return word
+      if (word === word.toUpperCase() && /[A-Z]/.test(word)) return word
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    })
+    .join(' ')
+}
 
 function tabLabel(key) {
   const display = getDisplayFieldNo(key)
@@ -270,45 +407,58 @@ function initials(name) {
   color: #6b7280;
 }
 
-.history-tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.selector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   padding: 16px 22px 0;
 }
 
-.history-tab {
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  color: #6b7280;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.selector-grid.single {
+  grid-template-columns: 1fr;
 }
 
-.history-tab.active {
-  border-color: #93c5fd;
-  color: #2563eb;
-  background: #eff6ff;
+@media (max-width: 640px) {
+  .selector-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.history-tab .count {
-  background: #2563eb;
-  color: #fff;
-  border-radius: 999px;
-  min-width: 18px;
-  height: 18px;
+.selector {
+  min-width: 0;
+}
+
+.selector-label {
+  display: block;
+  margin-bottom: 6px;
   font-size: 0.7rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.selector-control {
+  width: 100%;
+  appearance: none;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%236b7280' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 36px 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #111827;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+.selector-control:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .modal-body {
