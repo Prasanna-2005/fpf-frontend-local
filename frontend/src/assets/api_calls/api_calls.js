@@ -335,6 +335,23 @@ async function get_mapped_files(user_id,filing_name) {
     return response
 }
 
+async function latest_changes(user_id,filing_id) {
+    const data={
+        "filing_id":filing_id
+    }
+    
+    const response=await api.post(`/api/v1/submissions/latest_changes`,data,
+        {
+            withCredentials: true ,
+            headers:{
+                'X-User-ID': user_id
+            }
+        }
+    )
+    console.log(response)
+    return response
+}
+
 const api_call_methods={
     login,
     verify_otp,
@@ -360,7 +377,8 @@ const api_call_methods={
     get_computations,
     get_history,
     get_mapped_files,
-    edit_user
+    edit_user,
+    latest_changes
 
 }
 
