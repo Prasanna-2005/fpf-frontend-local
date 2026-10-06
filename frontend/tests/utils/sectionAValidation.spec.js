@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { validateSectionA } from '../sectionAValidation'
+import { validateSectionA } from '../../src/assets/utils/sectionAValidation'
 
 function sectionAFund(overrides = {}) {
   return {

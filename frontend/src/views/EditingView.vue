@@ -51,6 +51,7 @@
         :fieldNo="fieldNo"
         :fieldType="fieldType"
         :hasTableData="hasTableData"
+        :loading="historyLoading"
         @close-click="openhistoryPopUp = false"
       />
     </div>
@@ -94,6 +95,8 @@ const responseStore = useEditableStore()
 const openhistoryPopUp = ref(false)
 const fileStore = useFileStore()
 const history = ref({})
+const historyLoading = ref(false)
+let historyRequest = 0
 const fieldNo = ref('')
 const fieldType = ref('')
 const hasTableData = ref(false)
@@ -184,16 +187,24 @@ function closeUpload() {
 }
 
 async function openHistory(payload) {
+  const request = ++historyRequest
   fieldNo.value = payload.fieldNo
   fieldType.value = payload.fieldType
   hasTableData.value = Boolean(payload.hasTableData)
+  history.value = {}
+  historyLoading.value = true
+  openhistoryPopUp.value = true
   try {
     const result = await api_call_methods.get_history(user_id, payload, { skipErrorToast: false })
+    if (request !== historyRequest) return
     history.value = result.data
     editedFlags[payload.fieldNo] = hasHistoryEdits(result.data)
-    openhistoryPopUp.value = true
   } catch (error) {
+    if (request !== historyRequest) return
     console.error('Error loading history:', error)
+    history.value = {}
+  } finally {
+    if (request === historyRequest) historyLoading.value = false
   }
 }
 

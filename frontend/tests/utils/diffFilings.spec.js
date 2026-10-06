@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffFilings, diffValue, matchFunds, matchTableRows } from '../diffFilings'
+import { diffFilings, diffValue, matchFunds, matchTableRows } from '../../src/assets/utils/diffFilings'
 
 describe('diffValue', () => {
   it('treats null, undefined, and blank as equivalent', () => {
