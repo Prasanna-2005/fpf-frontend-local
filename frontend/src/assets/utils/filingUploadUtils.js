@@ -1,8 +1,8 @@
-export const ALLOWED_UPLOAD_EXTENSIONS = new Set(['xlsx', 'xls', 'zip'])
+export const ALLOWED_UPLOAD_EXTENSIONS = new Set(['xlsx', 'xls', 'pdf', 'zip'])
 
-export const UPLOAD_ACCEPT = '.xlsx,.xls,.zip'
+export const UPLOAD_ACCEPT = '.xlsx,.xls,.pdf,.zip'
 
-export const UPLOAD_FORMATS_LABEL = 'XLSX, XLS, ZIP'
+export const UPLOAD_FORMATS_LABEL = 'XLSX, XLS, PDF, ZIP'
 
 export function formatBytes(bytes) {
   if (!bytes && bytes !== 0) return ''

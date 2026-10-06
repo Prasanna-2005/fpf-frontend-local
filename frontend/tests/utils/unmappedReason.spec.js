@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dedupeStoredFiles, describeUnmappedSlot, displayFileName } from '../unmappedReason'
+import { dedupeStoredFiles, describeUnmappedSlot, displayFileName } from '../../src/assets/utils/unmappedReason'
 
 const quarterReason =
   'The file name matches Fund Alpha (FSAE), but it does not include a recognizable reporting quarter (use a year and month such as 2024-03).'

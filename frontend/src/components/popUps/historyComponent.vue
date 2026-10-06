@@ -21,7 +21,11 @@
         </button>
       </div>
 
-      <div v-if="!tabs.length" class="empty-state">
+      <div v-if="loading" class="empty-state">
+        <p>Loading history…</p>
+      </div>
+
+      <div v-else-if="!tabs.length" class="empty-state">
         <p>No records found.</p>
       </div>
 
@@ -55,7 +59,7 @@
           </label>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" @click="openFilesIndex = -1">
           <div class="history-summary">
             <div class="path">
               {{ activeTabLabel }} · Question {{ displayFieldNo }}
@@ -96,6 +100,28 @@
                 <span v-if="item.created_by" class="avatar">{{ initials(item.created_by) }}</span>
                 <span>{{ item.created_by || '—' }}</span>
                 <span>· {{ formatDate(item.created_at) }}</span>
+                <span v-if="item.manually_edited" class="edited-manually">Edited manually</span>
+                <span v-else-if="fileNames(item).length" class="files-anchor">
+                  <span v-if="item.updated_by" class="reverted-by">Reverted by {{ item.updated_by }}</span>
+                  <button
+                    type="button"
+                    class="files-btn"
+                    @click.stop="toggleFiles(index, $event)"
+                  >
+                    Files
+                  </button>
+                  <div
+                    v-if="openFilesIndex === index"
+                    class="files-popover"
+                    :class="{ up: filesOpenUp }"
+                    @click.stop
+                  >
+                    <p class="files-popover-title">Source files</p>
+                    <ul>
+                      <li v-for="name in fileNames(item)" :key="name" :title="name">{{ name }}</li>
+                    </ul>
+                  </div>
+                </span>
               </div>
             </div>
           </div>
@@ -126,10 +152,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 defineEmits(['close-click'])
 
+const openFilesIndex = ref(-1)
+const filesOpenUp = ref(false)
 const activeKey = ref('')
 const selectedRow = ref('')
 const selectedColumn = ref('')
@@ -259,6 +291,10 @@ watch(
   { immediate: true }
 )
 
+watch(effectiveKey, () => {
+  openFilesIndex.value = -1
+})
+
 watch(
   columnOptions,
   (cols) => {
@@ -342,6 +378,31 @@ function formatColumnLabel(raw) {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     })
     .join(' ')
+}
+
+function fileNames(item) {
+  const raw = item?.source_files ?? item?.sourceFiles
+  if (!Array.isArray(raw)) return []
+  return raw.map((name) => String(name || '').trim()).filter(Boolean)
+}
+
+function toggleFiles(index, event) {
+  if (openFilesIndex.value === index) {
+    openFilesIndex.value = -1
+    return
+  }
+  const button = event?.currentTarget
+  const card = button?.closest?.('.modal-card')
+  if (button && card) {
+    const buttonRect = button.getBoundingClientRect()
+    const cardRect = card.getBoundingClientRect()
+    const spaceBelow = cardRect.bottom - buttonRect.bottom
+    const spaceAbove = buttonRect.top - cardRect.top
+    filesOpenUp.value = spaceBelow < 180 && spaceAbove > spaceBelow
+  } else {
+    filesOpenUp.value = true
+  }
+  openFilesIndex.value = index
 }
 
 function tabLabel(key) {
@@ -586,6 +647,7 @@ function initials(name) {
 }
 
 .timeline-item {
+  position: relative;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 14px 16px;
@@ -661,6 +723,92 @@ function initials(name) {
   font-size: 0.75rem;
   color: #6b7280;
   flex-wrap: wrap;
+}
+
+.edited-manually {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.reverted-by {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.files-anchor {
+  position: relative;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.files-btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.files-btn:hover {
+  background: #f8fafc;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.files-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 5;
+  width: min(280px, 70vw);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  padding: 10px 12px;
+}
+
+.files-popover.up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.files-popover-title {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.files-popover ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.files-popover li {
+  font-size: 0.8rem;
+  color: #111827;
+  padding: 4px 0;
+  word-break: break-word;
+}
+
+.files-popover li + li {
+  border-top: 1px solid #f3f4f6;
 }
 
 .avatar {

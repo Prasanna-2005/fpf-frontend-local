@@ -6,7 +6,7 @@ vi.mock('vue-toast-notification', () => ({
   useToast: () => ({ error: vi.fn(), success: vi.fn(), open: vi.fn() }),
 }))
 
-import MapperComponent from '../Home/MapperComponent.vue'
+import MapperComponent from '../../src/components/Home/MapperComponent.vue'
 
 const quarterReason =
   'The file name matches Fund Alpha (FSAE), but it does not include a recognizable reporting quarter (use a year and month such as 2024-03).'
