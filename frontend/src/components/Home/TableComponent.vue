@@ -258,7 +258,6 @@ async function downloadXML(filingId) {
     toast.success('XML file downloaded')
   } catch (error) {
     console.error(error)
-    toast.error('Failed to download XML')
   }
 }
 
@@ -275,7 +274,6 @@ async function deleteFiling(filingId) {
     toast.success('Filing archived successfully')
   } catch (error) {
     console.error(error)
-    toast.error('Failed to archive filing')
   }
 }
 
@@ -289,7 +287,6 @@ onMounted(async () => {
     fileStore.setExistingNames(names)
   } catch (error) {
     console.error('Error fetching data:', error)
-    toast.error('Failed to load filings')
   } finally {
     isLoading.value = false
   }

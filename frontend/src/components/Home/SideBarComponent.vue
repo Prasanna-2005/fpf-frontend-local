@@ -93,6 +93,7 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useToast } from 'vue-toast-notification'
+import { openActionToast } from '@/assets/utils/toastUtils'
 
 const userStore = useUserStore()
 const toast = useToast()
@@ -114,50 +115,41 @@ const toggleSetting = () => {
 }
 
 async function Logout() {
-  const toastInstance = toast.open({
-    message: `
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <strong>Logout</strong>
-          <div>Are you sure you want to log out ?</div>
-          <div style="margin-top:8px; display:flex; gap:8px;">
-            <button id="cancel" class="btn btn-danger btn-sm">Cancel</button>
-            <button id="logout" class="btn btn-success btn-sm">Logout </button>
-          </div>
-        </div>
-      `,
+  const toastInstance = openActionToast(toast, {
+    title: 'Logout',
+    message: 'Are you sure you want to log out?',
     type: 'warning',
     duration: 0,
-    dismissible: true,
+    actions: [
+      {
+        id: 'cancel',
+        label: 'Cancel',
+        variant: 'secondary',
+        onClick: () => toastInstance.dismiss(),
+      },
+      {
+        id: 'logout',
+        label: 'Logout',
+        variant: 'primary',
+        onClick: async () => {
+          const user_id = userStore.userID
+          const current_time = new Date()
+          userStore.logout()
+          try {
+            toast.info('Logging out…')
+            await api_call_methods.logout({
+              user_id: user_id,
+              logout_time: current_time.toISOString(),
+            })
+          } catch (error) {
+            console.error(error)
+          }
+          toastInstance?.dismiss?.()
+          window.location.replace('/')
+        },
+      },
+    ],
   })
-
-  setTimeout(() => {
-    const logout = document.getElementById('logout')
-    const cancel = document.getElementById('cancel')
-
-    if (logout) {
-      logout.addEventListener('click', async () => {
-        const user_id = userStore.userID
-        const current_time = new Date()
-        userStore.logout()
-        try {
-          toast.info('Logging out.....')
-          await api_call_methods.logout({
-            user_id: user_id,
-            logout_time: current_time.toISOString(),
-          })
-        } catch (error) {
-          console.error(error)
-        }
-        toastInstance?.dismiss?.()
-        window.location.replace('/')
-      })
-    }
-    if (cancel) {
-      cancel.addEventListener('click', () => {
-        toastInstance?.dismiss?.()
-      })
-    }
-  }, 50)
 }
 
 const emit = defineEmits(['add-fund'])

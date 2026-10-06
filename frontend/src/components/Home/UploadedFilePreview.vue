@@ -159,6 +159,7 @@ async function uploadFiles() {
     fileStore.clearFiles()
     emit('files-mapped', payload)
   } catch (error) {
+    console.error(error)
     if (error.response?.status === 409) {
       duplicateMessage.value =
         error.response.data?.message ||

@@ -13,7 +13,7 @@
 
       <div class="modal-body">
         <div v-if="loading" class="state-box">
-          <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+          <span class="ui-spinner" role="status" aria-hidden="true"></span>
           <p>Loading file mappings…</p>
         </div>
 
@@ -206,6 +206,22 @@ onMounted(async () => {
 .state-box p {
   margin: 0;
   font-size: 0.9rem;
+}
+
+.ui-spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(30, 58, 138, 0.18);
+  border-top-color: #1e3a8a;
+  animation: ui-spin 0.75s linear infinite;
+  display: inline-block;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .summary-bar {

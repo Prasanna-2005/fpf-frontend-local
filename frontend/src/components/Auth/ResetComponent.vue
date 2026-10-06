@@ -105,7 +105,6 @@ async function handleSubmit(event){
                 toast.error('Password change Unsuccesful! Please try again');
             }
         } catch (error) {
-            toast.error('Something went wrong!');
             console.error(error);
         } finally {
             isLoading.value = false; 

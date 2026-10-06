@@ -9,9 +9,10 @@
           <OverlayComponent @close-upload="closeUpload" @submit-success="onSubmitSuccess"/>
         </div>
       </div> 
-      <div v-if="openAddFundPopUp" class="backdrop">
-            <addFundComponent @cancel-add-fund="openAddFundPopUp=false"/>
-      </div>
+      <addFundComponent
+        v-if="openAddFundPopUp"
+        @cancel-add-fund="openAddFundPopUp=false"
+      />
     </div>
 </template>
   

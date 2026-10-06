@@ -112,7 +112,6 @@ async function handleSubmit() {
     location.reload()
   } catch(err){
     console.log(err)
-    toast.error('Failed to add User')
   }
 }
 const emit=defineEmits(['cancel-add-user'])

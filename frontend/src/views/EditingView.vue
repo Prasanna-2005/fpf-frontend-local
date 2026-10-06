@@ -2,31 +2,14 @@
   <div class="d-flex main-div editing-layout">
     <SideBarComponent @add-fund="openAddFundPopUp = true" />
 
-    <div
+    <PageStateLoader
       v-if="loading"
-      class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative"
-    >
-      <div v-if="loader" class="loader-box text-center p-4 mt-3">
-        <span
-          class="spinner-border text-primary mb-3"
-          style="width: 2.5rem; height: 2.5rem"
-          role="status"
-        ></span>
-        <h6 class="fw-semibold text-primary mb-1">Loading Editor Page...</h6>
-        <p class="text-muted mb-0">Please wait while we prepare your data.</p>
-      </div>
-      <div v-else class="error-box text-center p-4 mt-3">
-        <font-awesome-icon icon="triangle-exclamation" class="text-danger fs-1 mb-3" />
-        <h5 class="fw-semibold mb-2">Failed to Load Editor Page</h5>
-        <p class="text-muted mb-4">
-          Something went wrong while loading the editor. Please check your connection or return to
-          the home page.
-        </p>
-        <a href="/home" class="home-btn">
-          <font-awesome-icon class="icon me-2" icon="file-lines" /> Dashboard
-        </a>
-      </div>
-    </div>
+      :loading="loader"
+      title="Loading Editor…"
+      message="Please wait while we prepare your filing data."
+      error-title="Failed to Load Editor"
+      error-message="Something went wrong while loading the editor. Please check your connection or return to the dashboard."
+    />
 
     <div v-else class="editor-main">
       <topBarComponent
@@ -49,9 +32,10 @@
       />
     </div>
 
-    <div v-if="openAddFundPopUp" class="backdrop">
-      <addFundComponent @cancel-add-fund="openAddFundPopUp = false" />
-    </div>
+    <addFundComponent
+      v-if="openAddFundPopUp"
+      @cancel-add-fund="openAddFundPopUp = false"
+    />
     <div v-if="openUploadPopUp" class="backdrop">
       <OverlayComponent @close-upload="closeUpload" @submit-success="closeUpload" />
     </div>
@@ -82,6 +66,7 @@ import EditSectionComponent from '@/components/Editor/EditSectionComponent.vue'
 import addFundComponent from '@/components/popUps/addFundComponent.vue'
 import computationLogsPopUpComp from '@/components/popUps/computationLogsPopUpComp.vue'
 import OverlayComponent from '@/components/Home/OverlayComponent.vue'
+import PageStateLoader from '@/components/common/PageStateLoader.vue'
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
@@ -199,10 +184,14 @@ function closeUpload() {
 async function openHistory(payload) {
   fieldNo.value = payload.fieldNo
   fieldType.value = payload.fieldType
-  const result = await api_call_methods.get_history(user_id, payload)
-  history.value = result.data
-  editedFlags[payload.fieldNo] = hasHistoryEdits(result.data)
-  openhistoryPopUp.value = true
+  try {
+    const result = await api_call_methods.get_history(user_id, payload, { skipErrorToast: false })
+    history.value = result.data
+    editedFlags[payload.fieldNo] = hasHistoryEdits(result.data)
+    openhistoryPopUp.value = true
+  } catch (error) {
+    console.error('Error loading history:', error)
+  }
 }
 
 function goToPreview() {
@@ -217,8 +206,8 @@ async function downloadInput() {
     const response = await api_call_methods.download_input(user_id, filing_name)
     utils.downloadInputZip(response, filing_name)
     toast.success('Input files downloaded successfully')
-  } catch {
-    toast.error('Failed to download input files')
+  } catch (error) {
+    console.error(error)
   } finally {
     downloadInputFiles.value = false
   }
@@ -239,57 +228,5 @@ async function downloadInput() {
   max-height: 100vh;
   overflow: hidden;
   background: #eef1f6;
-}
-
-.error-box,
-.loader-box {
-  background-color: #ffffff;
-  border: 1px solid #e3e6ea;
-  border-radius: 1rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  max-width: 420px;
-  width: 90%;
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-.loader-box h6 {
-  color: #0d6efd;
-  letter-spacing: 0.3px;
-}
-
-.loader-box p {
-  font-size: 0.9rem;
-  color: #6c757d;
-}
-
-.home-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #1e3a8a;
-  color: #fff;
-  font-weight: 500;
-  padding: 0.6rem 1.4rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 3px 6px rgba(30, 58, 138, 0.15);
-}
-
-.home-btn:hover {
-  background-color: #1e40af;
-  box-shadow: 0 5px 12px rgba(30, 58, 138, 0.3);
-  transform: translateY(-1px);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 </style>

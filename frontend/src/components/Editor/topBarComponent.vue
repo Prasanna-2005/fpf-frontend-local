@@ -21,7 +21,7 @@
       >
         <span
           v-if="downloading"
-          class="spinner-border spinner-border-sm"
+          class="ui-spinner"
           role="status"
           aria-hidden="true"
         ></span>
@@ -247,6 +247,23 @@ watch(
 .btn-outline:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.ui-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(30, 58, 138, 0.2);
+  border-top-color: #1e3a8a;
+  animation: ui-spin 0.7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .fund-select-wrap {

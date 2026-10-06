@@ -41,7 +41,7 @@
           <button type="button" class="btn-yes" :disabled="approving" @click="approveFiling('Approved')">
             <span
               v-if="approving"
-              class="spinner-border spinner-border-sm me-2"
+              class="ui-spinner"
               role="status"
               aria-hidden="true"
             ></span>
@@ -81,7 +81,7 @@
           >
             <span
               v-if="sendingForApproval"
-              class="spinner-border spinner-border-sm me-2"
+              class="ui-spinner"
               role="status"
               aria-hidden="true"
             ></span>
@@ -116,7 +116,7 @@
         >
           <span
             v-if="downloading"
-            class="spinner-border spinner-border-sm me-2"
+            class="ui-spinner light"
             role="status"
             aria-hidden="true"
           ></span>
@@ -203,6 +203,8 @@ async function downloadXmlFileForApprovedFiling() {
   try {
     const result = await api_call_methods.get_xml_data(user_id, props.filingId)
     utils.downloadXMLFile(result.data)
+  } catch (error) {
+    console.log(error)
   } finally {
     downloading.value = false
   }
@@ -211,13 +213,13 @@ async function downloadXmlFileForApprovedFiling() {
 async function sendForApproval(status) {
   try {
     sendingForApproval.value = true
-    responseStore.setStatus(status)
     await api_call_methods.update_status(user_id, props.filingId, status)
+    responseStore.setStatus(status)
+    sentForApproval.value = true
   } catch (error) {
     console.log(error)
   } finally {
     sendingForApproval.value = false
-    sentForApproval.value = true
   }
 }
 
@@ -314,6 +316,7 @@ async function deleteUser() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
 .btn-no {
@@ -364,5 +367,27 @@ async function deleteUser() {
   justify-content: center;
   margin: 0 auto 18px;
   font-size: 1.5rem;
+}
+
+.ui-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(22, 163, 74, 0.25);
+  border-top-color: #16a34a;
+  animation: ui-spin 0.7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ui-spinner.light {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
