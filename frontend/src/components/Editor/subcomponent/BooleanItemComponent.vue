@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }" >
         <p style="max-width: 70%;"> 
-            <span>{{ props.itemNumber }}</span>)
+            <span v-if="!props.hideNumber && props.itemNumber">{{ props.itemNumber }})</span>
             <span>{{ props.itemText }}</span>:
         </p>
         <p>
@@ -37,7 +37,11 @@ const props=defineProps({
     indent: { 
         type: Number,
         default: 0 
-    }
+    },
+    hideNumber: {
+        type: Boolean,
+        default: false,
+    },
 })
 const checked = ref(props.itemValue === 'true')
 watch(

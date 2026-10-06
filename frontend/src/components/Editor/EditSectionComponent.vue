@@ -1,85 +1,76 @@
 <template>
-    <div class="w-100 d-flex justify-content-center">
-        <div class="main-container d-flex" style="max-width: 100%;border: 1px solid grey;">
-            <div class="w-100 editor" >
-                <editorComponent :fundName="fundName"   @open-upload="openUpload" :filingId="filingId" @refresh-data="handleRefreshData" @open-computation-logs="openComputationLogs" @open-history="openHistory" @open-mapped-files="openMappedFiles"/>
-            </div>
-            <!-- <div class="series-selector w-10 d-flex justify-content-end" >
-                <div class="w-100 d-flex flex-column align-items-end">
-                    <button class="btn btn-outline-secondary selector-button" :class="{ selected: selected_series === 'series1' }" @click="select_series('series1')">Series1</button>
-                    <button class="btn btn-outline-secondary selector-button" :class="{ selected: selected_series === 'series2' }" @click="select_series('series2')">Series2</button>
-                    <button class="btn btn-outline-secondary selector-button" :class="{ selected: selected_series === 'series3' }" @click="select_series('series3')">Series3</button>
-                    <button class="btn btn-outline-secondary selector-button" :class="{ selected: selected_series === 'series4' }" @click="select_series('series4')">Series4</button>
-                </div>
-            </div> -->
-        </div>   
-    </div>
-   
+  <div class="editor-section">
+    <editorComponent
+      :fundName="fundName"
+      :filingId="filingId"
+      :editedFlags="editedFlags"
+      @open-upload="openUpload"
+      @refresh-data="handleRefreshData"
+      @open-computation-logs="openComputationLogs"
+      @open-history="openHistory"
+      @open-mapped-files="openMappedFiles"
+    />
+  </div>
 </template>
 
 <script setup>
-import {ref} from 'vue'
-import editorComponent from './editorComponent.vue';
-const props=defineProps({
-    fundName:{
-        type:String,
-        required:true
-    },
-    filingId:{
-        type:String,
-        required:true
-    },
+import editorComponent from './editorComponent.vue'
+
+const props = defineProps({
+  fundName: {
+    type: String,
+    required: true,
+  },
+  filingId: {
+    type: String,
+    required: true,
+  },
+  editedFlags: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 
+const emit = defineEmits([
+  'open-upload',
+  'refresh-data',
+  'open-computationLogs',
+  'open-history',
+  'open-mapped-files',
+])
 
-const selected_series=ref('series1')
-const emit=defineEmits(['open-upload','refresh-data','open-computationLogs','open-history','open-mapped-files'])
-function select_series(series){
-    selected_series.value=series
+function openUpload() {
+  emit('open-upload')
 }
-function openUpload(){
-    emit('open-upload')
+
+function openMappedFiles() {
+  emit('open-mapped-files')
 }
-function openMappedFiles(){
-    emit('open-mapped-files')
-}
+
 async function handleRefreshData(done) {
   emit('refresh-data', done)
 }
 
-async function openHistory(fieldNo,fundId,fieldType){
-    const data={
-        'fieldNo':fieldNo,
-        'filingId':props.filingId,
-        'fundId':fundId,
-        'fieldType':fieldType,
-    }
-    emit('open-history',data)
-}
-  function openComputationLogs(data){
-  emit("open-computationLogs",data)
+async function openHistory(fieldNo, fundId, fieldType) {
+  emit('open-history', {
+    fieldNo,
+    filingId: props.filingId,
+    fundId,
+    fieldType,
+  })
 }
 
+function openComputationLogs(data) {
+  emit('open-computationLogs', data)
+}
 </script>
 
 <style scoped>
-.w-90{
-    width: 90%;
-}
-.w-10{
-    width: 10%;
-}
-.main-container{
-    width: 95%;
-}
-.selected{
-    width: 100% !important;
-    border-radius: 0 !important;
-    background-color: blue;
-    color: white;
-}
-.selector-button{
-    width:75%;
-    border-radius: 0 !important;
+.editor-section {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>

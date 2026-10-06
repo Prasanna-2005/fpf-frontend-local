@@ -2,7 +2,7 @@
   <div class="w-100 d-flex justify-content-between" :style="{ paddingLeft: indent + 'px' }">
 
     <p style="max-width: 70%;">
-      <span>{{ itemNumber }}</span>)
+      <span v-if="!hideNumber && itemNumber">{{ itemNumber }})</span>
       <span>{{ itemText }}</span>
     </p>
 
@@ -35,6 +35,7 @@ const props = defineProps({
         default:true
     },
   displayAffix: { type: String, default: '' },
+  hideNumber: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update'])

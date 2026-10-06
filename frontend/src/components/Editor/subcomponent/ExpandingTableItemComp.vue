@@ -4,7 +4,7 @@
     :style="{ paddingLeft: indent + 'px' }"
   >
     <p class="table-title">
-      <span>{{ props.itemNumber }}</span>)
+      <span v-if="!props.hideNumber && props.itemNumber">{{ props.itemNumber }})</span>
       <span
         v-if="props.itemNumber === '14'"
         class="formatted-text"
@@ -128,7 +128,11 @@ const props = defineProps({
   indent: {
     type: Number,
     default: 0
-  }
+  },
+  hideNumber: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const resizeAll = () => {

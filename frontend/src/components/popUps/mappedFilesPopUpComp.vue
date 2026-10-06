@@ -1,135 +1,341 @@
 <template>
-  <div class="modal-backdrop">
-    <div class="modal-card">
-
-      <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5>
-          File Mapping Details
-        </h5>
-
-        <button
-          class="btn btn-sm btn-danger"
-          @click="$emit('close-click')"
-        >
-          ✕
+  <div class="modal-backdrop" @click.self="$emit('close-click')">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mapped-title">
+      <div class="modal-header">
+        <div>
+          <h2 id="mapped-title">Mapped Files</h2>
+          <p class="subtitle">{{ filingName || 'File mapping details for this filing' }}</p>
+        </div>
+        <button type="button" class="modal-close" aria-label="Close" @click="$emit('close-click')">
+          <font-awesome-icon icon="xmark" />
         </button>
       </div>
-      <!-- Loader -->
-        <div v-if="loading" class="text-center py-4">
-            <div class="spinner-border" role="status"></div>
-            <p class="mt-2">Loading file mappings...</p>
+
+      <div class="modal-body">
+        <div v-if="loading" class="state-box">
+          <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+          <p>Loading file mappings…</p>
         </div>
 
-        <div v-else>
+        <div v-else-if="error" class="state-box error">
+          <font-awesome-icon icon="info-circle" />
+          <p>{{ error }}</p>
+        </div>
 
+        <div v-else-if="!rows.length" class="state-box">
+          <p>No mapped files found for this filing.</p>
+        </div>
 
-        <table class="table table-bordered w-100">
-            <thead>
+        <template v-else>
+          <div class="summary-bar">
+            <span class="summary-label">Total mappings</span>
+            <span class="summary-count">{{ rows.length }}</span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                <th>File Name</th>
-                <th>Quarter</th>
-                <th>Fund Name</th>
+                  <th>S/N</th>
+                  <th>Fund Name</th>
+                  <th>Quarter</th>
+                  <th>Mapped File</th>
                 </tr>
-            </thead>
-
-            <tbody>
-                <tr v-for="(file, index) in mapper_data" :key="index">
-                <td>{{ file.filename }}</td>
-                <td>{{ file.quarter }}</td>
-                <td>{{ file.fundname }}</td>
+              </thead>
+              <tbody>
+                <tr v-for="(file, index) in rows" :key="index">
+                  <td class="sn">{{ String(index + 1).padStart(2, '0') }}</td>
+                  <td>{{ file.fundname || '—' }}</td>
+                  <td>
+                    <span class="quarter" :class="quarterClass(file.quarter)">
+                      {{ file.quarter || '—' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="file-cell">
+                      <font-awesome-icon icon="file" class="file-icon" />
+                      <span class="filename" :title="file.filename">
+                        {{ file.filename || '—' }}
+                      </span>
+                    </div>
+                  </td>
                 </tr>
-            </tbody>
+              </tbody>
             </table>
-
-        </div>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import api_call_methods from '@/assets/api_calls/api_calls';
-import { useFileStore } from '@/stores/fileStore';
-const fileStore=useFileStore()
+import { computed, onMounted, ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls'
+import { useFileStore } from '@/stores/fileStore'
 
-const filingName=fileStore.getfilingName()
+const fileStore = useFileStore()
+const filingName = fileStore.getfilingName()
 
 const props = defineProps({
   userId: {
     type: String,
-    required: true
+    required: true,
   },
 })
-const mapper_data=ref({})
-const loading=ref(false)
+
+defineEmits(['close-click'])
+
+const mapper_data = ref([])
+const loading = ref(false)
+const error = ref('')
+
+const rows = computed(() => {
+  const data = mapper_data.value
+  if (Array.isArray(data)) return data
+  if (data && typeof data === 'object') return Object.values(data)
+  return []
+})
+
+function quarterClass(quarter) {
+  const q = String(quarter || '')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+  if (q.includes('q1') || q === '1') return 'q1'
+  if (q.includes('q2') || q === '2') return 'q2'
+  if (q.includes('q3') || q === '3') return 'q3'
+  if (q.includes('q4') || q === '4') return 'q4'
+  return ''
+}
+
 onMounted(async () => {
   loading.value = true
+  error.value = ''
   try {
-    const result = await api_call_methods.get_mapped_files(props.userId, filingName);
-    mapper_data.value = result.data.file_mappings
+    const result = await api_call_methods.get_mapped_files(props.userId, filingName)
+    mapper_data.value = result.data?.file_mappings || []
   } catch (err) {
     console.error(err)
+    error.value = 'Failed to load file mappings. Please try again.'
   } finally {
     loading.value = false
   }
 })
-
-
-
-
-
-
 </script>
 
 <style scoped>
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(15, 23, 42, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  padding: 24px;
 }
 
 .modal-card {
-  background: white;
-  width: 700px;
-  max-height: 80vh;
+  background: #fff;
+  width: min(860px, 100%);
+  max-height: calc(100vh - 48px);
   overflow: auto;
-  padding: 20px;
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
-.subfield-header {
+.modal-header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.modal-close {
+  background: none;
+  border: none;
   cursor: pointer;
-  padding: 8px 0;
-  border-bottom: 1px solid #dee2e6;
+  color: #6b7280;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.history-block {
-  border-radius: 6px;
-  position: relative;
+.modal-close:hover {
+  background: #f3f4f6;
 }
 
-.current-block {
-  background: #e9f7ef;
-  border-left: 4px solid #28a745;
+.modal-body {
+  padding: 16px 22px 22px;
 }
 
-.previous-block {
-  background: #f8f9fa;
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 16px;
+  color: #6b7280;
+  text-align: center;
 }
 
-.current-label {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 12px;
-  color: #28a745;
+.state-box.error {
+  color: #dc2626;
+}
+
+.state-box p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.summary-label {
+  font-size: 0.85rem;
   font-weight: 600;
+  color: #374151;
+}
+
+.summary-count {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #e8eef8;
+  color: #6b7280;
+  font-weight: 600;
+  text-align: left;
+  padding: 14px 16px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #dbe3f0;
+}
+
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+  color: #374151;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: #fafbfc;
+}
+
+.sn {
+  color: #6b7280;
+  font-weight: 500;
+  width: 56px;
+}
+
+.quarter {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.quarter.q1 {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.quarter.q2 {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.quarter.q3 {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.quarter.q4 {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.file-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.file-icon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #111827;
 }
 </style>
