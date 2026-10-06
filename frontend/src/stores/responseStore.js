@@ -18,7 +18,9 @@ export const useEditableStore = defineStore('response', () => {
         ...q,
         isRestoreAvailable: false,
         restoreValue: null,
-        fund_id: fund.fund_id
+        fund_id: fund.fund_id,
+        fund_series_id: fund.fund_series_id ?? fund.fundseriesid ?? fund.fund_id,
+        fund_series_name: fund.fund_series_name ?? fund.fund_name
       }))
     })
   }
@@ -66,6 +68,36 @@ export const useEditableStore = defineStore('response', () => {
     return fundData[0].fund_id || null
   }
 
+  function idsMatch(a, b) {
+    if (a == null || b == null || a === '' || b === '') return false
+    return String(a).trim() === String(b).trim()
+  }
+
+  function getFundLabelBySeriesId(seriesId) {
+    if (seriesId == null || seriesId === '') return null
+
+    const funds = Array.isArray(response.value?.funds) ? response.value.funds : []
+    const match = funds.find(fund =>
+      idsMatch(fund.fund_series_id, seriesId) ||
+      idsMatch(fund.fundseriesid, seriesId) ||
+      idsMatch(fund.fund_seriesid, seriesId) ||
+      idsMatch(fund.fund_id, seriesId)
+    )
+    if (match) {
+      return match.fund_series_name || match.fund_name || null
+    }
+
+    for (const [name, rows] of Object.entries(fund_mapper.value)) {
+      const row = rows?.[0]
+      if (!row) continue
+      if (idsMatch(row.fund_series_id, seriesId) || idsMatch(row.fund_id, seriesId)) {
+        return row.fund_series_name || name
+      }
+    }
+
+    return null
+  }
+
   function updateItem(fundName, field_no, item_obj, fieldIndex) {
     const target = fund_mapper.value[fundName]
     if (!target) return
@@ -110,6 +142,7 @@ export const useEditableStore = defineStore('response', () => {
     restoreItem,
     getAllData,
     getFundId,
+    getFundLabelBySeriesId,
     setStatus,
     getStatus,
     status,
