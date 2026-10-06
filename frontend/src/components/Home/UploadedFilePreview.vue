@@ -3,29 +3,69 @@
     <p class="field-label">Filing Name <span class="req">*</span></p>
     <p class="filing-name-display">{{ filingName }}</p>
 
-    <div class="file-list">
-      <div
-        v-for="(file, index) in files"
-        :key="`${file.name}-${file.size}-${index}`"
-        class="file-row"
-      >
-        <div class="file-icon" aria-hidden="true">
-          <font-awesome-icon icon="file" />
-        </div>
-        <div class="file-meta">
-          <div class="name" :title="file.name">{{ file.name }}</div>
-          <div class="size">{{ fileExtension(file.name) }} · {{ formatBytes(file.size) }}</div>
-        </div>
-        <button
-          type="button"
-          class="file-remove"
-          aria-label="Remove file"
-          @click="removeFile(file.name)"
+    <div class="file-list-wrap">
+      <div class="file-list">
+        <div
+          v-for="(file, index) in files"
+          :key="`${file.name}-${file.size}-${index}`"
+          class="file-row"
+          :class="{ 'duplicate-highlight': isDuplicate(file.name) }"
         >
-          <font-awesome-icon icon="xmark" />
-        </button>
+          <div class="file-icon" aria-hidden="true">
+            <font-awesome-icon icon="file" />
+          </div>
+          <div class="file-meta">
+            <div class="name" :title="file.name">{{ file.name }}</div>
+            <div class="size">{{ fileExtension(file.name) }} · {{ formatBytes(file.size) }}</div>
+          </div>
+          <button
+            type="button"
+            class="file-remove"
+            aria-label="Remove file"
+            @click="removeFile(file.name)"
+          >
+            <font-awesome-icon icon="xmark" />
+          </button>
+        </div>
+        <p v-if="files.length === 0" class="empty-state">No files selected</p>
       </div>
-      <p v-if="files.length === 0" class="empty-state">No files selected</p>
+
+      <div
+        v-if="skippedFiles.length"
+        class="duplicate-files-container"
+      >
+        <div
+          class="duplicate-header"
+          @click="showDuplicates = !showDuplicates"
+        >
+          <div>
+            <strong>{{ duplicateMessage }}</strong>
+            <span class="duplicate-count">
+              ({{ skippedFiles.length }} file(s))
+            </span>
+          </div>
+
+          <span
+            class="duplicate-arrow"
+            :class="{ open: showDuplicates }"
+          >
+            ▼
+          </span>
+        </div>
+
+        <div
+          v-if="showDuplicates"
+          class="duplicate-files-list"
+        >
+          <div
+            v-for="file in skippedFiles"
+            :key="file"
+            class="duplicate-file-item"
+          >
+            ⚠ {{ getFileName(file) }}
+          </div>
+        </div>
+      </div>
     </div>
 
     <template #footer>
@@ -71,6 +111,10 @@ const filingName = fileStore.getfilingName()
 const isUploading = ref(false)
 const isMapping = ref(false)
 
+const skippedFiles = ref([])
+const duplicateMessage = ref('')
+const showDuplicates = ref(false)
+
 const emit = defineEmits(['files-mapped', 'open-uploader', 'close-preview', 'close-click'])
 
 function removeFile(filename) {
@@ -78,8 +122,26 @@ function removeFile(filename) {
   files.value = fileStore.getFiles()
 }
 
+function getFileName(path) {
+  if (!path) return ''
+
+  return path
+    .split('\\')
+    .filter(Boolean)
+    .pop()
+}
+
+function isDuplicate(fileName) {
+  return skippedFiles.value.some(
+    path => getFileName(path) === fileName
+  )
+}
+
 async function uploadFiles() {
   try {
+    skippedFiles.value = []
+    duplicateMessage.value = ''
+
     isUploading.value = true
     const formData = fileStore.getFormData()
     formData.append('user_id', userId)
@@ -98,6 +160,19 @@ async function uploadFiles() {
     emit('files-mapped', payload)
   } catch (error) {
     console.error(error)
+    if (error.response?.status === 409) {
+      duplicateMessage.value =
+        error.response.data?.message ||
+        'Duplicate files found'
+
+      skippedFiles.value =
+        error.response.data?.skipped_files || []
+
+      toast.warning(duplicateMessage.value)
+      return
+    }
+
+    toast.error(error.response?.data?.message || 'Upload failed')
   } finally {
     isUploading.value = false
     isMapping.value = false
@@ -127,6 +202,14 @@ async function uploadFiles() {
   flex-shrink: 0;
 }
 
+.file-list-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
 .file-list {
   display: flex;
   flex-direction: column;
@@ -148,6 +231,10 @@ async function uploadFiles() {
 
 .file-row:last-child {
   border-bottom: none;
+}
+
+.file-row.duplicate-highlight {
+  background: #fff8e1;
 }
 
 .file-icon {
@@ -244,5 +331,60 @@ async function uploadFiles() {
 .btn-primary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.duplicate-files-container {
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  background: #fff8e1;
+  margin-top: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.duplicate-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  min-height: 52px;
+}
+
+.duplicate-header:hover {
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.duplicate-count {
+  margin-left: 8px;
+  color: #666;
+}
+
+.duplicate-arrow {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.duplicate-arrow.open {
+  transform: rotate(180deg);
+}
+
+.duplicate-files-list {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+}
+
+.duplicate-file-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.duplicate-file-item:last-child {
+  border-bottom: none;
 }
 </style>
