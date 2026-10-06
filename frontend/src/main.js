@@ -9,9 +9,9 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Import specific icons (example: user and cog)
-import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFilePdf,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload,faUserPlus,faPen,faRotateLeft,faFloppyDisk,faFileExcel,faFileArchive,faCopy,faCheckCircle,faEye,faArrowDown,faArrowUp,faEyeSlash,faInfoCircle,faCalculator,faClockRotateLeft, faFile, faBell} from '@fortawesome/free-solid-svg-icons'
+import { faUser, faFileLines, faTrash, faSearch, faBars, faAngleDown,faAngleUp,faCloudArrowUp,faFilePdf,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload,faUserPlus,faPen,faRotateLeft,faFloppyDisk,faFileExcel,faFileArchive,faCopy,faCheckCircle,faEye,faArrowDown,faArrowUp,faEyeSlash,faInfoCircle,faCalculator,faClockRotateLeft, faFile, faTableCells, faChartLine, faFolderPlus, faGear, faRightFromBracket, faAngleLeft, faAngleRight, faBell} from '@fortawesome/free-solid-svg-icons'
 
-library.add(faUser,faFileLines,faTrash,faSearch,faBars,faAngleDown,faAngleUp,faCloudArrowUp,faFilePdf,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload,faUserPlus,faPen,faRotateLeft,faFloppyDisk,faFileExcel,faFileArchive,faCopy,faCheckCircle,faEye,faArrowDown,faArrowUp,faEyeSlash,faInfoCircle,faCalculator,faClockRotateLeft, faFile, faBell)
+library.add(faUser,faFileLines,faTrash,faSearch,faBars,faAngleDown,faAngleUp,faCloudArrowUp,faFilePdf,faXmark,faDownload,faCheckDouble,faArrowLeft,faUpload,faUserPlus,faPen,faRotateLeft,faFloppyDisk,faFileExcel,faFileArchive,faCopy,faCheckCircle,faEye,faArrowDown,faArrowUp,faEyeSlash,faInfoCircle,faCalculator,faClockRotateLeft, faFile, faTableCells, faChartLine, faFolderPlus, faGear, faRightFromBracket, faAngleLeft, faAngleRight, faBell)
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

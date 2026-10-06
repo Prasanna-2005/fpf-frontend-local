@@ -1,8 +1,6 @@
 <template>
         <div class="d-flex main-div" >
-            <div >
-                <SideBarComponent @add-fund="openAddFundPopUp=true" />
-            </div>
+            <SideBarComponent @add-fund="openAddFundPopUp=true" />
             <div v-if="loading" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative">
                     <div v-if="loader" class="loader-box text-center p-4 mt-3">
                         <span class="spinner-border text-primary mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></span>
