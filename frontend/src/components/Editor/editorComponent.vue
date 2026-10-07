@@ -786,54 +786,6 @@ function onCompareSelected(relatedFiling){
   })
 }
 
-const LATEST_CHANGES_POLL_MS = 5 * 60 * 1000
-const latestChanges = ref(null)
-const showChangesPopUp = ref(false)
-let latestChangesPollId = null
-
-const latestChangesCount = computed(() => {
-  const payload = latestChanges.value
-  if (!payload) return 0
-  return Number(payload.count ?? payload.changes?.length ?? 0) || 0
-})
-
-async function fetchLatestChanges() {
-  if (!props.filingId) return
-
-  try {
-    const response = await api_call_methods.latest_changes(user_id, props.filingId)
-    latestChanges.value = response?.data ?? null
-  } catch (error) {
-    console.log('Failed to fetch latest changes', error)
-  }
-}
-
-function openChangesPopUp() {
-  showChangesPopUp.value = true
-}
-
-function closeChangesPopUp() {
-  showChangesPopUp.value = false
-}
-
-function startLatestChangesPolling() {
-  stopLatestChangesPolling()
-  fetchLatestChanges()
-  latestChangesPollId = setInterval(() => {
-    fetchLatestChanges()
-  }, LATEST_CHANGES_POLL_MS)
-}
-
-function stopLatestChangesPolling() {
-  if (latestChangesPollId != null) {
-    clearInterval(latestChangesPollId)
-    latestChangesPollId = null
-  }
-}
-
-watch(() => props.filingId, () => {
-  startLatestChangesPolling()
-})
 function getDisplayFieldNo(fieldNo) {
   const parts = fieldNo.split('_')
   return parts[parts.length - 1]
