@@ -88,4 +88,49 @@ describe('diffFilings', () => {
     expect(matched.fields.find((field) => field.field_no === '9').status).toBe('added')
     expect(result.funds.some((fund) => fund.presence === 'onlyInB')).toBe(true)
   })
+
+  it('compares columns that appear on a later row or only on the other filing', () => {
+    const result = diffFilings(
+      [
+        {
+          fund_id: '1',
+          fund_name: 'Fund A',
+          fund_data: [
+            {
+              field_no: '1',
+              has_table_data: true,
+              table_data: [
+                { 's.name': 'cash', amount: '100' },
+                { 's.name': 'equity', amount: '50', cost: '40' },
+              ],
+            },
+          ],
+        },
+      ],
+      [
+        {
+          fund_id: '1',
+          fund_name: 'Fund A',
+          fund_data: [
+            {
+              field_no: '1',
+              has_table_data: true,
+              table_data: [
+                { 's.name': 'cash', amount: '100', currency: 'USD' },
+                { 's.name': 'equity', amount: '50', cost: '45' },
+              ],
+            },
+          ],
+        },
+      ]
+    )
+
+    const table = result.funds[0].fields[0].table
+    expect(table.columns).toEqual(['amount', 'cost', 'currency'])
+    const cash = table.rows.find((row) => row.name === 'cash')
+    const equity = table.rows.find((row) => row.name === 'equity')
+    expect(cash.cells.currency.status).toBe('added')
+    expect(equity.cells.cost.status).toBe('changed')
+    expect(table.status).toBe('changed')
+  })
 })

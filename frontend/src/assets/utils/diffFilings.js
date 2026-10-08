@@ -285,10 +285,27 @@ function diffLineItem(itemA, itemB, forceStatus) {
   }
 }
 
+function tableColumns(tableA, tableB) {
+  const rows = [
+    ...(Array.isArray(tableA) ? tableA : []),
+    ...(Array.isArray(tableB) ? tableB : []),
+  ]
+  const columns = []
+  const seen = new Set()
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue
+    for (const key of Object.keys(row)) {
+      if (HIDDEN_TABLE_KEYS.has(key) || seen.has(key)) continue
+      seen.add(key)
+      columns.push(key)
+    }
+  }
+  return columns
+}
+
 function diffTable(tableA, tableB, metadata, forceStatus) {
   const { matched, onlyInA, onlyInB } = matchTableRows(tableA, tableB)
-  const sample = [...(Array.isArray(tableA) ? tableA : []), ...(Array.isArray(tableB) ? tableB : [])][0] || {}
-  const columns = Object.keys(sample).filter((key) => !HIDDEN_TABLE_KEYS.has(key))
+  const columns = tableColumns(tableA, tableB)
   const rows = []
 
   for (const pair of matched) {
