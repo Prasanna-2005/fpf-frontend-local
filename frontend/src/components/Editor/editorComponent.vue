@@ -85,6 +85,57 @@
                 <span v-if="isEdited(fields.field_no)" class="edited-tag">Edited</span>
               </div>
               <div class="q-actions">
+                <div class="review-control" @click.stop>
+                  <button
+                    v-if="!isReviewedByMe(fields.field_no)"
+                    type="button"
+                    class="review-accept"
+                    @click="acceptReview(fields.field_no)"
+                  >
+                    Accept
+                  </button>
+                  <div v-else class="review-done">
+                    <button
+                      type="button"
+                      class="review-done-label"
+                      @click="toggleReviewers(fields.field_no)"
+                    >
+                      <font-awesome-icon icon="check" />
+                      Reviewed
+                    </button>
+                    <button
+                      type="button"
+                      class="review-undo"
+                      title="Undo my review"
+                      @click="undoReview(fields.field_no)"
+                    >
+                      <font-awesome-icon icon="xmark" />
+                    </button>
+                  </div>
+                  <button
+                    v-if="reviewerCount(fields.field_no) > 0"
+                    type="button"
+                    class="review-count"
+                    :title="`${reviewerCount(fields.field_no)} reviewer${reviewerCount(fields.field_no) === 1 ? '' : 's'}`"
+                    @click="toggleReviewers(fields.field_no)"
+                  >
+                    {{ reviewerCount(fields.field_no) }}
+                  </button>
+                  <div
+                    v-if="openReviewField === fields.field_no"
+                    class="review-popover"
+                    role="dialog"
+                    aria-label="Reviewers"
+                  >
+                    <p class="review-popover-title">Reviewed by</p>
+                    <ul>
+                      <li v-for="person in reviewersFor(fields.field_no)" :key="person.user_id">
+                        <span class="review-name">{{ reviewDisplayName(person) }}</span>
+                        <span class="review-when">{{ formatReviewedAt(person.reviewed_at) }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
                 <button
                   type="button"
                   class="icon-btn"
@@ -357,6 +408,12 @@ const data = ref(responseStore.getFundData(fundname.value))
 const computationLogs=ref(responseStore.getFundComputation(fundname.value))
 const editingFieldNo = ref(null)
 const recentlySaved = ref(new Set())
+const reviewsByField = ref({})
+const openReviewField = ref(null)
+let reviewRequest = 0
+const reviewIntent = {}
+const reviewBusy = {}
+const reviewEpoch = {}
 const editedByHistory = ref({})
 let prefetchGeneration = 0
 
@@ -454,15 +511,20 @@ watch(() => props.fundName, (newVal) => {
   editingFieldNo.value = null
   recentlySaved.value = new Set()
   editedByHistory.value = {}
+  openReviewField.value = null
   prefetchEditedFlags()
+  fetchReviews()
 })
 
 onMounted(() => {
   prefetchEditedFlags()
+  fetchReviews()
+  document.addEventListener('click', closeReviewPopover)
   startLatestChangesPolling()
 })
 
 onUnmounted(() => {
+  document.removeEventListener('click', closeReviewPopover)
   stopLatestChangesPolling()
 })
 
@@ -799,6 +861,162 @@ async function openHistory(field_no, fieldType, hasTableData){
   const fund_id = responseStore.getFundId(fundname.value)
   emit('open-history', field_no, fund_id, fieldType, hasTableData)
 }
+
+function reviewersFor(fieldNo) {
+  return reviewsByField.value[fieldNo]?.reviewers ?? []
+}
+
+function reviewerCount(fieldNo) {
+  return reviewersFor(fieldNo).length
+}
+
+function isReviewedByMe(fieldNo) {
+  return Boolean(reviewsByField.value[fieldNo]?.reviewed_by_me)
+}
+
+function reviewDisplayName(person) {
+  if (String(person.user_id) === String(user_id)) return 'You'
+  return person.user_name
+}
+
+function formatReviewedAt(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+function closeReviewPopover() {
+  openReviewField.value = null
+}
+
+function toggleReviewers(fieldNo) {
+  openReviewField.value = openReviewField.value === fieldNo ? null : fieldNo
+}
+
+function applyReviewItem(item) {
+  if (!item?.field_no) return
+  if (!item.reviewers?.length) {
+    const next = { ...reviewsByField.value }
+    delete next[item.field_no]
+    reviewsByField.value = next
+    if (openReviewField.value === item.field_no) openReviewField.value = null
+    return
+  }
+  reviewsByField.value = { ...reviewsByField.value, [item.field_no]: item }
+}
+
+async function fetchReviews() {
+  const fundId = responseStore.getFundId(fundname.value)
+  if (!props.filingId || !fundId) {
+    reviewsByField.value = {}
+    return
+  }
+  const request = ++reviewRequest
+  try {
+    const response = await api_call_methods.get_reviews(user_id, props.filingId, fundId)
+    if (request !== reviewRequest) return
+    const next = {}
+    for (const item of response?.data?.reviews ?? []) {
+      if (item?.field_no) next[item.field_no] = item
+    }
+    reviewsByField.value = next
+  } catch (error) {
+    if (request !== reviewRequest) return
+    console.error('Failed to load reviews', error)
+  }
+}
+
+function setMyReview(fieldNo, reviewed) {
+  const others = reviewersFor(fieldNo).filter((person) => String(person.user_id) !== String(user_id))
+  const reviewers = reviewed
+    ? [...others, {
+        user_id,
+        user_name: userStore.username || 'You',
+        reviewed_at: new Date().toISOString(),
+      }]
+    : others
+  applyReviewItem({
+    field_no: fieldNo,
+    reviewed_by_me: reviewed,
+    reviewers,
+  })
+}
+
+function markReviewClick(fieldNo) {
+  reviewEpoch[fieldNo] = (reviewEpoch[fieldNo] || 0) + 1
+}
+
+async function applyServerReview(fieldNo) {
+  const epoch = reviewEpoch[fieldNo]
+  const fundId = responseStore.getFundId(fundname.value)
+  if (!props.filingId || !fundId) return
+  const response = await api_call_methods.get_reviews(user_id, props.filingId, fundId)
+  if (reviewEpoch[fieldNo] !== epoch || reviewIntent[fieldNo] !== undefined) return
+  const item = (response?.data?.reviews ?? []).find((row) => row?.field_no === fieldNo)
+  if (item) {
+    applyReviewItem(item)
+    return
+  }
+  applyReviewItem({ field_no: fieldNo, reviewed_by_me: false, reviewers: [] })
+}
+
+async function flushReview(fieldNo, fundId) {
+  if (reviewBusy[fieldNo]) return
+  reviewBusy[fieldNo] = true
+  try {
+    while (reviewIntent[fieldNo] !== undefined) {
+      const wantReviewed = reviewIntent[fieldNo]
+      delete reviewIntent[fieldNo]
+      try {
+        const response = wantReviewed
+          ? await api_call_methods.accept_review(user_id, props.filingId, fundId, fieldNo)
+          : await api_call_methods.undo_review(user_id, props.filingId, fundId, fieldNo)
+        const newerIntent = reviewIntent[fieldNo]
+        if (newerIntent !== undefined && newerIntent !== wantReviewed) continue
+        applyReviewItem(response?.data)
+        if (newerIntent === wantReviewed) delete reviewIntent[fieldNo]
+      } catch (error) {
+        console.error('Failed to update review', error)
+        if (reviewIntent[fieldNo] !== undefined) continue
+        try {
+          await applyServerReview(fieldNo)
+        } catch (syncError) {
+          console.error('Failed to refresh review state', syncError)
+        }
+        if (reviewIntent[fieldNo] !== undefined) continue
+        toast.error('Unable to update the review. Please try again.')
+        break
+      }
+    }
+  } finally {
+    reviewBusy[fieldNo] = false
+    if (reviewIntent[fieldNo] !== undefined) await flushReview(fieldNo, fundId)
+  }
+}
+
+async function acceptReview(fieldNo) {
+  const fundId = responseStore.getFundId(fundname.value)
+  if (!fundId || isReviewedByMe(fieldNo)) return
+  markReviewClick(fieldNo)
+  setMyReview(fieldNo, true)
+  reviewIntent[fieldNo] = true
+  await flushReview(fieldNo, fundId)
+}
+
+async function undoReview(fieldNo) {
+  const fundId = responseStore.getFundId(fundname.value)
+  if (!fundId || !isReviewedByMe(fieldNo)) return
+  markReviewClick(fieldNo)
+  setMyReview(fieldNo, false)
+  reviewIntent[fieldNo] = false
+  await flushReview(fieldNo, fundId)
+}
 function openCompLogs(field_no,field_text){
   const field = computationLogs.value.find(
     item => item.field_no === field_no
@@ -1048,6 +1266,144 @@ watch(() => props.filingId, () => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.review-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.review-accept,
+.review-done-label,
+.review-count {
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.review-accept {
+  padding: 0 10px;
+}
+
+.review-accept:hover:not(:disabled),
+.review-count:hover {
+  background: #f8fafc;
+  color: #1e3a8a;
+}
+
+.review-accept:disabled,
+.review-undo:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.review-done {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  overflow: hidden;
+  animation: review-in 160ms ease;
+}
+
+@keyframes review-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.review-done-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: #15803d;
+}
+
+.review-undo {
+  width: 28px;
+  height: 100%;
+  border: 0;
+  border-left: 1px solid #86efac;
+  background: transparent;
+  color: #15803d;
+  cursor: pointer;
+}
+
+.review-undo:hover:not(:disabled) {
+  background: #dcfce7;
+}
+
+.review-count {
+  min-width: 32px;
+  padding: 0 8px;
+}
+
+.review-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 5;
+  width: min(260px, 70vw);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  padding: 10px 12px;
+}
+
+.review-popover-title {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.review-popover ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review-popover li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #111827;
+  padding: 4px 0;
+}
+
+.review-popover li + li {
+  border-top: 1px solid #f3f4f6;
+}
+
+.review-name {
+  font-weight: 600;
+}
+
+.review-when {
+  color: #6b7280;
+  white-space: nowrap;
 }
 
 .icon-btn {

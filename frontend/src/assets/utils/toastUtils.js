@@ -98,6 +98,7 @@ const ACTION_MESSAGES = [
   { test: /\/edit\/update_status/i, message: 'Unable to update the filing status. Please try again.' },
   { test: /\/submissions\/revert/i, message: 'Unable to revert this question. Please try again.' },
   { test: /\/submissions\/history/i, message: 'Unable to load change history. Please try again.' },
+  { test: /\/submissions\/[^/]+\/reviews/i, message: 'Unable to update the review. Please try again.' },
   { test: /\/submissions\//i, message: 'Unable to save your changes. Please try again.' },
 ]
 
