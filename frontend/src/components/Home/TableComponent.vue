@@ -192,6 +192,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useEditableStore } from '@/stores/responseStore'
 import { useToast } from 'vue-toast-notification'
 import utils from '@/assets/utils/utils'
+import { toastApiError } from '@/assets/utils/toastUtils'
 import { useFileStore } from '@/stores/fileStore'
 import FilingStatsCards from '@/components/Home/FilingStatsCards.vue'
 import {
@@ -258,6 +259,7 @@ async function downloadXML(filingId) {
     toast.success('XML file downloaded')
   } catch (error) {
     console.error(error)
+    toastApiError(error, 'Unable to download the XML file. Please try again.')
   }
 }
 

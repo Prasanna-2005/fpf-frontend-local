@@ -133,8 +133,12 @@ import api_call_methods from '@/assets/api_calls/api_calls'
 import { useUserStore } from '@/stores/userStore'
 import { useEditableStore } from '@/stores/responseStore'
 import utils from '@/assets/utils/utils'
+import { useToast } from 'vue-toast-notification'
+import { toastApiError } from '@/assets/utils/toastUtils'
+import { validateSectionA } from '@/assets/utils/sectionAValidation'
 
 const responseStore = useEditableStore()
+const toast = useToast()
 const emit = defineEmits(['removePopUp', 'filingName', 'downloadPdf', 'createCopy'])
 
 const userStore = useUserStore()
@@ -193,6 +197,7 @@ async function approveFiling(status) {
     dataForXML.value = result.data
   } catch (error) {
     console.log(error)
+    toastApiError(error, 'Unable to download the XML file. Please try again.')
   } finally {
     approving.value = false
   }
@@ -203,14 +208,23 @@ async function downloadXmlFileForApprovedFiling() {
   try {
     const result = await api_call_methods.get_xml_data(user_id, props.filingId)
     utils.downloadXMLFile(result.data)
+    toast.success('XML file downloaded')
   } catch (error) {
     console.log(error)
+    toastApiError(error, 'Unable to download the XML file. Please try again.')
   } finally {
     downloading.value = false
   }
 }
 
 async function sendForApproval(status) {
+  const errors = validateSectionA(responseStore.getAllData())
+  if (errors.length) {
+    toast.error(errors[0])
+    emit('removePopUp')
+    return
+  }
+
   try {
     sendingForApproval.value = true
     await api_call_methods.update_status(user_id, props.filingId, status)
@@ -218,6 +232,7 @@ async function sendForApproval(status) {
     sentForApproval.value = true
   } catch (error) {
     console.log(error)
+    toastApiError(error)
   } finally {
     sendingForApproval.value = false
   }
@@ -228,6 +243,7 @@ async function deleteUser() {
     await api_call_methods.delete_user(props.userIdToBeDeleted, user_id)
   } catch (error) {
     console.log(error)
+    toastApiError(error, 'Unable to delete the user. Please try again.')
   }
 }
 </script>

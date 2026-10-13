@@ -51,12 +51,13 @@ async function handleRefreshData(done) {
   emit('refresh-data', done)
 }
 
-async function openHistory(fieldNo, fundId, fieldType) {
+async function openHistory(fieldNo, fundId, fieldType, hasTableData) {
   emit('open-history', {
     fieldNo,
     filingId: props.filingId,
     fundId,
     fieldType,
+    hasTableData: Boolean(hasTableData),
   })
 }
 

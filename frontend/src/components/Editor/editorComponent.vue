@@ -30,9 +30,30 @@
           <font-awesome-icon icon="file" />
           Mapped Files
         </button>
+        <button type="button" class="btn-outline" @click="openCompareSelector">
+          <font-awesome-icon icon="code-compare" />
+          Compare
+        </button>
         <button type="button" class="btn-primary" @click="openUpload">
           <font-awesome-icon icon="upload" />
           Upload More Files
+        </button>
+        <button
+          type="button"
+          class="changes-bell-btn"
+          :class="{ 'has-changes': latestChangesCount > 0 }"
+          :aria-label="latestChangesCount > 0
+            ? `${latestChangesCount} latest changes. Open changes list`
+            : 'No latest changes'"
+          :title="latestChangesCount > 0
+            ? `${latestChangesCount} latest change${latestChangesCount === 1 ? '' : 's'}`
+            : 'No latest changes'"
+          @click="openChangesPopUp"
+        >
+          <font-awesome-icon class="bell-icon" icon="bell" />
+          <span v-if="latestChangesCount > 0" class="changes-badge">
+            {{ latestChangesCount > 99 ? '99+' : latestChangesCount }}
+          </span>
         </button>
       </div>
     </div>
@@ -68,7 +89,7 @@
                   type="button"
                   class="icon-btn"
                   title="Change history"
-                  @click="openHistory(fields.field_no, fields.field_item_type)"
+                  @click="openHistory(fields.field_no, fields.field_item_type, fields.has_table_data)"
                 >
                   <font-awesome-icon icon="clock-rotate-left" />
                 </button>
@@ -283,6 +304,13 @@
       </div>
     </div>
 
+    <compareSelectorPopUp
+      v-if="openComparePopUp"
+      :filingId="filingId"
+      @close-click="openComparePopUp = false"
+      @compare-selected="onCompareSelected"
+    />
+
     <ChangesPopUp
       v-if="showChangesPopUp"
       :data="latestChanges"
@@ -293,6 +321,7 @@
 
 <script setup>
 import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import InputItemComponent from './subcomponent/InputItemComponent.vue'
 import BooleanItemComponent from './subcomponent/BooleanItemComponent.vue'
 import DropdownItemComponent from './subcomponent/DropdownItemComponent.vue'
@@ -306,8 +335,10 @@ import { openActionToast } from '@/assets/utils/toastUtils'
 import McqItemComponent from './subcomponent/McqItemComponent.vue'
 import ExpandingTableItemComp from './subcomponent/ExpandingTableItemComp.vue'
 import ChangesPopUp from '@/components/popUps/ChangesPopUp.vue'
+import compareSelectorPopUp from '@/components/popUps/compareSelectorPopUp.vue'
 
 const toast = useToast()
+const router = useRouter()
 const userStore = useUserStore()
 const user_id = userStore.userID
 
@@ -428,6 +459,11 @@ watch(() => props.fundName, (newVal) => {
 
 onMounted(() => {
   prefetchEditedFlags()
+  startLatestChangesPolling()
+})
+
+onUnmounted(() => {
+  stopLatestChangesPolling()
 })
 
 function updateTableValue(fieldNo, tableData) {
@@ -730,6 +766,26 @@ function openUpload() {
 function openMappedFiles(){
   emit('open-mapped-files')
 }
+
+const openComparePopUp = ref(false)
+
+function openCompareSelector(){
+  openComparePopUp.value = true
+}
+
+function onCompareSelected(relatedFiling){
+  openComparePopUp.value = false
+  router.push({
+    name: 'compare',
+    query: {
+      filing_id_a: props.filingId,
+      filing_id_b: relatedFiling.id,
+      name_a: localStorage.getItem('filingName') || '',
+      name_b: relatedFiling.filing_name || '',
+    }
+  })
+}
+
 function getDisplayFieldNo(fieldNo) {
   const parts = fieldNo.split('_')
   return parts[parts.length - 1]
@@ -739,9 +795,9 @@ function getIndent(fieldNo) {
   return (fieldNo.match(/_/g) || []).length * 5
 }
 
-async function openHistory(field_no,fieldType){
+async function openHistory(field_no, fieldType, hasTableData){
   const fund_id = responseStore.getFundId(fundname.value)
-  emit('open-history',field_no,fund_id,fieldType)
+  emit('open-history', field_no, fund_id, fieldType, hasTableData)
 }
 function openCompLogs(field_no,field_text){
   const field = computationLogs.value.find(

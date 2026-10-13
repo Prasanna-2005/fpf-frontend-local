@@ -2,14 +2,37 @@
   <div class="mapper-root">
   <FilingWizardShell v-if="!uploaderFlag" :step="2" wide>
     <div class="section-bar">
-      <h2>Mapped Files</h2>
+      <div class="section-tabs" role="tablist" aria-label="File mapping views">
+        <button
+          type="button"
+          role="tab"
+          class="section-tab"
+          :class="{ active: mappingView === 'mapped' }"
+          :aria-selected="mappingView === 'mapped'"
+          @click="mappingView = 'mapped'"
+        >
+          Mapped Files
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="section-tab"
+          data-testid="unmapped-tab"
+          :class="{ active: mappingView === 'unmapped' }"
+          :aria-selected="mappingView === 'unmapped'"
+          @click="mappingView = 'unmapped'"
+        >
+          Unmapped Files
+          <span v-if="unmappedCount" class="tab-count">{{ unmappedCount }}</span>
+        </button>
+      </div>
       <button type="button" class="btn-outline" @click="openUploader">
         <font-awesome-icon icon="cloud-arrow-up" />
         Upload More Files
       </button>
     </div>
 
-    <div class="table-wrap">
+    <div v-if="mappingView === 'mapped'" class="table-wrap" role="tabpanel">
       <table>
         <thead>
           <tr>
@@ -38,8 +61,10 @@
             <td v-if="series === 'Curio'">{{ row.fund.period }}</td>
             <td>
               <div v-if="row.mappedFile" class="mapped-cell">
-                <font-awesome-icon icon="file" class="mapped-file-icon" aria-hidden="true" />
-                <span class="fname" :title="row.mappedFile">{{ row.mappedFile }}</span>
+                <span class="mapped-indicator" title="Mapped successfully" aria-label="Mapped successfully">
+                  <font-awesome-icon icon="check" />
+                </span>
+                <span class="fname" :title="displayFileName(row.mappedFile)">{{ displayFileName(row.mappedFile) }}</span>
                 <button
                   type="button"
                   class="file-remove"
@@ -50,7 +75,8 @@
                 </button>
               </div>
 
-              <div v-else class="select-file-wrap dropdown">
+              <div v-else class="unmapped-cell">
+                <div class="select-file-wrap dropdown">
                 <button
                   class="btn-select dropdown-toggle"
                   type="button"
@@ -67,7 +93,7 @@
                       class="dropdown-item"
                       @click="updateUnmappedFiles(row.fund, item.filename)"
                     >
-                      {{ item.filename }}
+                      {{ displayFileName(item.filename) }}
                     </button>
                   </li>
                   <li v-if="!localData.unmapped_files?.length">
@@ -76,8 +102,31 @@
                     </button>
                   </li>
                 </ul>
+                </div>
               </div>
             </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-else class="table-wrap" role="tabpanel" data-testid="unmapped-panel">
+      <div v-if="!unmappedCount" class="empty-unmapped">
+        All uploaded files are mapped.
+      </div>
+      <table v-else>
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>File</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, idx) in localData.unmapped_files" :key="item.filename || idx">
+            <td class="sn">{{ String(idx + 1).padStart(2, '0') }}</td>
+            <td class="fname" :title="displayFileName(item.filename)">{{ displayFileName(item.filename) }}</td>
+            <td class="reason">{{ item.reason || 'No reason recorded.' }}</td>
           </tr>
         </tbody>
       </table>
@@ -144,6 +193,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification'
 import FilingWizardShell from './FilingWizardShell.vue'
 import { fundRowKey } from '@/assets/utils/filingUploadUtils'
+import { dedupeMappings, dedupeStoredFiles, displayFileName } from '@/assets/utils/unmappedReason'
 
 const toast = useToast()
 const emit = defineEmits(['open-uploader', 'close-click', 'submit-success'])
@@ -176,14 +226,26 @@ function cloneData(source) {
   return JSON.parse(JSON.stringify(source))
 }
 
+const fileMappings = dedupeMappings(props.data.file_mappings)
+const mappedNames = new Set(
+  fileMappings.map((file) => displayFileName(file.filename).toLowerCase())
+)
+const unmappedFiles = dedupeStoredFiles(props.data.unmapped_files).filter(
+  (file) => !mappedNames.has(displayFileName(file.filename).toLowerCase())
+)
+const reasonByFilename = new Map(
+  dedupeStoredFiles(props.data.unmapped_files)
+    .filter((file) => file.reason)
+    .map((file) => [displayFileName(file.filename).toLowerCase(), file.reason])
+)
 const localData = ref({
   ...cloneData(props.data),
-  unmapped_files: (props.data.unmapped_files || []).map((file) =>
-    typeof file === 'string' ? { filename: file } : file
-  ),
+  file_mappings: fileMappings,
+  unmapped_files: unmappedFiles,
 })
 
 const series = localData.value.series
+const mappingView = ref('mapped')
 
 const periodOrder = {
   q1: 1,
@@ -261,6 +323,8 @@ const mappedRows = computed(() =>
   })
 )
 
+const unmappedCount = computed(() => localData.value.unmapped_files?.length || 0)
+
 const hasMappedFiles = computed(() =>
   mappedRows.value.some((row) => Boolean(row.mappedFile))
 )
@@ -284,6 +348,7 @@ function updateUnmappedFiles(fund, filename) {
     quarter: fund.quarter,
     fundname: fund.fundname,
     period: normalizePeriod(fileObj?.period ?? fund.period),
+    reason: fileObj?.reason || reasonByFilename.get(displayFileName(filename).toLowerCase()) || '',
   })
 }
 
@@ -302,9 +367,18 @@ function removeFileFromFund(fund, filename) {
 
   const exists = localData.value.unmapped_files.some((f) => f.filename === filename)
   if (!exists) {
+    const reason =
+      fileObj.reason ||
+      reasonByFilename.get(displayFileName(filename).toLowerCase()) ||
+      ''
     localData.value.unmapped_files.push({
       filename: fileObj.filename,
       filepath: fileObj.filepath,
+      shortcode: fileObj.shortcode || fund.shortcode,
+      fundname: fileObj.fundname || fund.fundname,
+      quarter: fileObj.quarter || fund.quarter,
+      period: normalizePeriod(fileObj.period ?? fund.period),
+      reason,
     })
   }
 }
@@ -400,11 +474,66 @@ watch(showSuccessModal, async (open) => {
   flex-shrink: 0;
 }
 
-.section-bar h2 {
-  font-size: 1.15rem;
+.section-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-tab {
+  background: #fff;
+  border: 1px solid #dbe3f0;
+  color: #6b7280;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-tab.active {
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  color: #fff;
+}
+
+.section-tab:hover:not(.active) {
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.tab-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.7rem;
   font-weight: 700;
-  margin: 0;
-  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-tab.active .tab-count {
+  background: #fff;
+  color: #1e3a8a;
+}
+
+.empty-unmapped {
+  padding: 28px 16px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.reason {
+  white-space: normal;
+  line-height: 1.45;
+  max-width: 560px;
 }
 
 .btn-outline {
@@ -512,12 +641,21 @@ tbody tr:hover {
   min-width: 0;
 }
 
-.mapped-file-icon {
-  color: #16a34a;
+.mapped-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.7rem;
   flex-shrink: 0;
 }
 
-.mapped-cell .fname {
+.mapped-cell .fname,
+td.fname {
   flex: 1;
   min-width: 0;
   white-space: nowrap;
@@ -538,6 +676,12 @@ tbody tr:hover {
 
 .file-remove:hover {
   color: #dc2626;
+}
+
+.unmapped-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .select-file-wrap {
