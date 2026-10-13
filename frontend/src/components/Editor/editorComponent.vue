@@ -92,7 +92,7 @@
                     class="review-accept"
                     @click="acceptReview(fields.field_no)"
                   >
-                    Accept
+                    Mark Review
                   </button>
                   <div v-else class="review-done">
                     <button
