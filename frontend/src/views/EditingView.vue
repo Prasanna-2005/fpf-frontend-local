@@ -56,7 +56,7 @@
       />
     </div>
     <div v-if="openMappedFilesPopUp">
-      <mappedFilesPopUpComp @close-click="openMappedFilesPopUp = false" :userId="user_id" />
+      <mappedFilesPopUpComp @close-click="openMappedFilesPopUp = false" :userId="user_id" :filing-id="filing_id" />
     </div>
   </div>
 </template>
