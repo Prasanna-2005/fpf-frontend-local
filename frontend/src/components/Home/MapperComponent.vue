@@ -87,11 +87,11 @@
                   Select File
                 </button>
                 <ul class="dropdown-menu">
-                  <li v-for="(item, idx) in localData.unmapped_files" :key="item.filename || idx">
+                  <li v-for="(item, idx) in localData.unmapped_files" :key="item.filepath || item.volfilename || item.filename || idx">
                     <button
                       type="button"
                       class="dropdown-item"
-                      @click="updateUnmappedFiles(row.fund, item.filename)"
+                      @click="updateUnmappedFiles(row.fund, item)"
                     >
                       {{ displayFileName(item.filename) }}
                     </button>
@@ -123,7 +123,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, idx) in localData.unmapped_files" :key="item.filename || idx">
+          <tr v-for="(item, idx) in localData.unmapped_files" :key="item.filepath || item.volfilename || item.filename || idx">
             <td class="sn">{{ String(idx + 1).padStart(2, '0') }}</td>
             <td class="fname" :title="displayFileName(item.filename)">{{ displayFileName(item.filename) }}</td>
             <td class="reason">{{ item.reason || 'No reason recorded.' }}</td>
@@ -294,11 +294,13 @@ function isSameMapping(fm, fund) {
   )
 }
 
+function getMappedEntry(fund) {
+  return (localData.value.file_mappings || []).find((fm) => isSameMapping(fm, fund)) || null
+}
+
 function getMappedFile(fund) {
-  const mapping = (localData.value.file_mappings || []).find((fm) =>
-    isSameMapping(fm, fund)
-  )
-  return mapping ? mapping.filename : ''
+  const entry = getMappedEntry(fund)
+  return entry ? entry.filename : ''
 }
 
 function isQuarterLabel(value) {
@@ -311,7 +313,8 @@ function quarterClass(value) {
 
 const mappedRows = computed(() =>
   sortedFundDetails.value.map((fund, index) => {
-    const mappedFile = getMappedFile(fund)
+    const entry = getMappedEntry(fund)
+    const mappedFile = entry ? entry.filename : ''
     return {
       fund,
       key: fundRowKey(fund, index),
@@ -329,19 +332,25 @@ const hasMappedFiles = computed(() =>
   mappedRows.value.some((row) => Boolean(row.mappedFile))
 )
 
-function updateUnmappedFiles(fund, filename) {
+function updateUnmappedFiles(fund, file) {
   if (!localData.value.unmapped_files) {
     localData.value.unmapped_files = []
   }
 
+  const filename = typeof file === 'string' ? file : file?.filename
   const idx = localData.value.unmapped_files.findIndex((f) => f.filename === filename)
   let fileObj = null
   if (idx !== -1) {
     fileObj = localData.value.unmapped_files[idx]
     localData.value.unmapped_files.splice(idx, 1)
+  } else if (file && typeof file === 'object') {
+    fileObj = file
   }
 
   localData.value.file_mappings.push({
+    // Spread first so volume identity (filepath, volfilename, version,
+    // group_id, timestamp) survives the move; slot fields are overridden.
+    ...fileObj,
     filename,
     filepath: fileObj?.filepath || '',
     shortcode: fund.shortcode,
@@ -372,6 +381,7 @@ function removeFileFromFund(fund, filename) {
       reasonByFilename.get(displayFileName(filename).toLowerCase()) ||
       ''
     localData.value.unmapped_files.push({
+      ...fileObj,
       filename: fileObj.filename,
       filepath: fileObj.filepath,
       shortcode: fileObj.shortcode || fund.shortcode,
