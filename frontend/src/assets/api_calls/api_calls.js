@@ -350,6 +350,45 @@ async function get_related_filings(user_id, filing_id) {
     return response
 }
 
+async function get_reviews(user_id, filing_id, fund_id) {
+    const response = await api.get(`/api/v1/submissions/${filing_id}/reviews`,
+        {
+            params: { fundSeriesid: fund_id },
+            withCredentials: true,
+            headers: {
+                'X-User-ID': user_id
+            }
+        }
+    )
+    return response
+}
+
+async function accept_review(user_id, filing_id, fund_id, field_no) {
+    const response = await api.post(`/api/v1/submissions/${filing_id}/reviews`,
+        { fund_id, field_no },
+        {
+            withCredentials: true,
+            headers: {
+                'X-User-ID': user_id
+            }
+        }
+    )
+    return response
+}
+
+async function undo_review(user_id, filing_id, fund_id, field_no) {
+    const response = await api.delete(`/api/v1/submissions/${filing_id}/reviews`,
+        {
+            data: { fund_id, field_no },
+            withCredentials: true,
+            headers: {
+                'X-User-ID': user_id
+            }
+        }
+    )
+    return response
+}
+
 async function latest_changes(user_id, filing_id) {
     const data = {
         filing_id
@@ -393,7 +432,10 @@ const api_call_methods={
     get_mapped_files,
     get_related_filings,
     edit_user,
-    latest_changes
+    latest_changes,
+    get_reviews,
+    accept_review,
+    undo_review
 
 }
 
