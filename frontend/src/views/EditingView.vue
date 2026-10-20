@@ -37,7 +37,7 @@
       @cancel-add-fund="openAddFundPopUp = false"
     />
     <div v-if="openUploadPopUp" class="backdrop">
-      <OverlayComponent @close-upload="closeUpload" @submit-success="closeUpload" />
+      <OverlayComponent @close-upload="closeUpload" @submit-success="goToDashboard" />
     </div>
     <div v-if="openComputationLogsPopUp">
       <computationLogsPopUpComp
@@ -56,7 +56,7 @@
       />
     </div>
     <div v-if="openMappedFilesPopUp">
-      <mappedFilesPopUpComp @close-click="openMappedFilesPopUp = false" :userId="user_id" :filing-id="filing_id" />
+      <mappedFilesPopUpComp @close-click="openMappedFilesPopUp = false" :userId="user_id" />
     </div>
   </div>
 </template>
@@ -184,6 +184,11 @@ function openMappedFiles() {
 
 function closeUpload() {
   openUploadPopUp.value = false
+}
+
+function goToDashboard() {
+  openUploadPopUp.value = false
+  router.push({ name: 'home' })
 }
 
 async function openHistory(payload) {

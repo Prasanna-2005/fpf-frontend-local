@@ -73,20 +73,14 @@
 import { computed, onMounted, ref } from 'vue'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useFileStore } from '@/stores/fileStore'
-import { useUserStore } from '@/stores/userStore'
 
 const fileStore = useFileStore()
-const userStore = useUserStore()
-const filingName = ref(fileStore.getfilingName() || '')
+const filingName = fileStore.getfilingName()
 
 const props = defineProps({
   userId: {
     type: String,
     required: true,
-  },
-  filingId: {
-    type: String,
-    default: '',
   },
 })
 
@@ -114,31 +108,11 @@ function quarterClass(quarter) {
   return ''
 }
 
-// The filing name used to live only in localStorage/pinia, set once by the
-// dashboard table. Any path that skips the table (direct link, fresh
-// browser, cleared storage) left it empty and the mapper call 404'd.
-// Resolve it here, falling back to the filings list via filing id.
-async function resolveFilingName() {
-  const stored = fileStore.getfilingName() || localStorage.getItem('filingName')
-  if (stored) return stored
-  if (!props.filingId) return ''
-  const result = await api_call_methods.filings_list(props.userId, userStore.clientCode)
-  const match = (result?.data || []).find((f) => f.id === props.filingId)
-  return match?.filing_name || ''
-}
-
 onMounted(async () => {
   loading.value = true
   error.value = ''
   try {
-    const name = await resolveFilingName()
-    if (!name) {
-      error.value = 'Could not determine the filing name for this filing. Please reopen it from the dashboard.'
-      return
-    }
-    filingName.value = name
-    fileStore.add_filing_name(name)
-    const result = await api_call_methods.get_mapped_files(props.userId, name)
+    const result = await api_call_methods.get_mapped_files(props.userId, filingName)
     mapper_data.value = result.data?.file_mappings || []
   } catch (err) {
     console.error(err)
