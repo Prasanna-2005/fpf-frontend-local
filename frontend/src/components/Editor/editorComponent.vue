@@ -871,7 +871,7 @@ function reviewerCount(fieldNo) {
 }
 
 function isReviewedByMe(fieldNo) {
-  return Boolean(reviewsByField.value[fieldNo]?.reviewed_by_me)
+  return Boolean(reviewsByField.value[fieldNo]?.review_status)
 }
 
 function reviewDisplayName(person) {
@@ -943,7 +943,7 @@ function setMyReview(fieldNo, reviewed) {
     : others
   applyReviewItem({
     field_no: fieldNo,
-    reviewed_by_me: reviewed,
+    review_status: reviewed,
     reviewers,
   })
 }
@@ -963,7 +963,7 @@ async function applyServerReview(fieldNo) {
     applyReviewItem(item)
     return
   }
-  applyReviewItem({ field_no: fieldNo, reviewed_by_me: false, reviewers: [] })
+  applyReviewItem({ field_no: fieldNo, review_status: false, reviewers: [] })
 }
 
 async function flushReview(fieldNo, fundId) {

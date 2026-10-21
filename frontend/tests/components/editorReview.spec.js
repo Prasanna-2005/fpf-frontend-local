@@ -123,12 +123,12 @@ describe('question review controls', () => {
         reviews: [
           {
             field_no: '5',
-            reviewed_by_me: true,
+            review_status: true,
             reviewers: [reviewer('12', 'Jane'), reviewer('99', 'Alex')],
           },
           {
             field_no: '6',
-            reviewed_by_me: false,
+            review_status: false,
             reviewers: [reviewer('99', 'Alex')],
           },
         ],
@@ -159,7 +159,7 @@ describe('question review controls', () => {
     undo_review.mockResolvedValue({
       data: {
         field_no: '5',
-        reviewed_by_me: false,
+        review_status: false,
         reviewers: [reviewer('99', 'Alex')],
       },
     })
@@ -189,7 +189,7 @@ describe('question review controls', () => {
     resolveAccept({
       data: {
         field_no: '6',
-        reviewed_by_me: true,
+        review_status: true,
         reviewers: [reviewer('99', 'Alex'), reviewer('12', 'Jane')],
       },
     })
@@ -216,7 +216,7 @@ describe('question review controls', () => {
     accept_review.mockResolvedValue({
       data: {
         field_no: '6',
-        reviewed_by_me: true,
+        review_status: true,
         reviewers: [reviewer('12', 'Jane')],
       },
     })
@@ -229,7 +229,7 @@ describe('question review controls', () => {
           reviews: [
             {
               field_no: '6',
-              reviewed_by_me: false,
+              review_status: false,
               reviewers: [reviewer('99', 'Alex')],
             },
           ],
@@ -240,7 +240,7 @@ describe('question review controls', () => {
           reviews: [
             {
               field_no: '6',
-              reviewed_by_me: true,
+              review_status: true,
               reviewers: [reviewer('12', 'Jane')],
             },
           ],
