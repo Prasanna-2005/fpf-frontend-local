@@ -4,7 +4,10 @@
       <div class="modal-header">
         <div>
           <h2 id="mapped-title">Mapped Files</h2>
-          <p class="subtitle">{{ filingName || 'File mapping details for this filing' }}</p>
+          <p class="subtitle">
+            {{ filingName || 'File mapping details for this filing' }}
+            <template v-if="version"> · Version v{{ version }}</template>
+          </p>
         </div>
         <button type="button" class="modal-close" aria-label="Close" @click="$emit('close-click')">
           <font-awesome-icon icon="xmark" />
@@ -82,6 +85,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  version: {
+    type: Number,
+    default: null,
+  },
 })
 
 defineEmits(['close-click'])
@@ -112,7 +119,7 @@ onMounted(async () => {
   loading.value = true
   error.value = ''
   try {
-    const result = await api_call_methods.get_mapped_files(props.userId, filingName)
+    const result = await api_call_methods.get_mapped_files(props.userId, filingName, props.version)
     mapper_data.value = result.data?.file_mappings || []
   } catch (err) {
     console.error(err)
