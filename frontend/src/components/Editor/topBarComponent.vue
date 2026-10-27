@@ -6,6 +6,31 @@
       </button>
       <h1 class="topbar-title">Editing: {{ filingName }}</h1>
       <span class="status-badge" :class="statusTone">{{ statusDisplay }}</span>
+      <div class="version-select-wrap" ref="versionWrap">
+        <button
+          type="button"
+          class="version-select-btn"
+          :aria-expanded="versionDropdownOpen"
+          @click.stop="versionDropdownOpen = !versionDropdownOpen"
+        >
+          <span class="version-badge">v{{ selectedVersion }}</span>
+          <span class="version-label">{{ selectedVersion === headVersion ? 'Current' : 'Historical' }}</span>
+          <font-awesome-icon icon="angle-down" />
+        </button>
+        <div v-if="versionDropdownOpen" class="version-dropdown">
+          <button
+            v-for="v in versionList"
+            :key="v"
+            type="button"
+            class="version-option"
+            :class="{ active: v === selectedVersion }"
+            @click="selectVersion(v)"
+          >
+            <span>Version {{ v }}</span>
+            <span v-if="v === headVersion" class="head-pill">Current</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="topbar-right">
@@ -76,17 +101,36 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  headVersion: {
+    type: Number,
+    default: 1,
+  },
+  selectedVersion: {
+    type: Number,
+    default: 1,
+  },
+  availableVersions: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const emit = defineEmits(['selected-fund', 'pdf-preview', 'input-files'])
+const emit = defineEmits(['selected-fund', 'pdf-preview', 'input-files', 'change-version'])
 
 const fileStore = useFileStore()
 const filingName = fileStore.getfilingName()
 const selectedFund = ref('')
 const dropdownOpen = ref(false)
+const versionDropdownOpen = ref(false)
 const fundWrap = ref(null)
+const versionWrap = ref(null)
 
 const fundList = computed(() => (Array.isArray(props.fundNames) ? props.fundNames : []))
+const versionList = computed(() => {
+  const list = Array.isArray(props.availableVersions) ? props.availableVersions.map(Number).filter((n) => n > 0) : []
+  if (!list.length) return [props.headVersion || 1]
+  return [...list].sort((a, b) => b - a)
+})
 
 const statusTone = computed(() => statusClass(props.status))
 const statusDisplay = computed(() => {
@@ -101,6 +145,11 @@ function selectFund(item) {
   emit('selected-fund', selectedFund.value)
 }
 
+function selectVersion(version) {
+  versionDropdownOpen.value = false
+  if (version !== props.selectedVersion) emit('change-version', version)
+}
+
 function goHome() {
   window.location = '/home'
 }
@@ -108,6 +157,9 @@ function goHome() {
 function onDocClick(e) {
   if (fundWrap.value && !fundWrap.value.contains(e.target)) {
     dropdownOpen.value = false
+  }
+  if (versionWrap.value && !versionWrap.value.contains(e.target)) {
+    versionDropdownOpen.value = false
   }
 }
 
@@ -266,8 +318,80 @@ watch(
   }
 }
 
-.fund-select-wrap {
+.fund-select-wrap,
+.version-select-wrap {
   position: relative;
+}
+
+.version-select-btn {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1f2937;
+}
+
+.version-badge {
+  background: #1e3a8a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.version-label {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.version-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  padding: 6px;
+}
+
+.version-option {
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #111827;
+}
+
+.version-option.active,
+.version-option:hover {
+  background: #f3f4f6;
+}
+
+.head-pill {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .fund-select-btn {

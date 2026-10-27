@@ -4,6 +4,8 @@
       :fundName="fundName"
       :filingId="filingId"
       :editedFlags="editedFlags"
+      :readOnly="readOnly"
+      :filingVersion="filingVersion"
       @open-upload="openUpload"
       @refresh-data="handleRefreshData"
       @open-computation-logs="openComputationLogs"
@@ -28,6 +30,14 @@ const props = defineProps({
   editedFlags: {
     type: Object,
     default: () => ({}),
+  },
+  readOnly: {
+    type: Boolean,
+    default: false,
+  },
+  filingVersion: {
+    type: Number,
+    default: 0,
   },
 })
 

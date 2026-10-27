@@ -2,7 +2,10 @@
   <div class="modal-backdrop" @click.self="$emit('close-click')">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="history-title">
       <div class="modal-header">
-        <h2 id="history-title">Change History</h2>
+        <div class="modal-title-wrap">
+          <h2 id="history-title">Changes history - Question: {{ displayFieldNo }}</h2>
+          <span v-if="headVersion" class="lock-pill">Locked to V{{ headVersion }}</span>
+        </div>
         <button type="button" class="modal-close" aria-label="Close" @click="$emit('close-click')">
           <font-awesome-icon icon="xmark" />
         </button>
@@ -46,7 +49,7 @@
           </label>
         </div>
 
-        <div class="modal-body" @click="openFilesIndex = -1">
+        <div class="modal-body" @click="openFilesIndex = ''">
           <div class="history-summary">
             <div class="path">
               {{ activeTabLabel }} · Question {{ displayFieldNo }}
@@ -55,53 +58,70 @@
             <div class="value">{{ currentValue || '—' }}</div>
             <div class="meta">
               <span>{{ editCountLabel }}</span>
-              <span v-if="currentEntry?.created_by">· Last edits by {{ currentEntry.created_by }}</span>
+              <span v-if="currentEntry?.created_by">· Last edited by {{ currentEntry.created_by }}</span>
               <span v-if="currentEntry?.created_at">· {{ formatDate(currentEntry.created_at) }}</span>
             </div>
           </div>
 
           <div class="timeline-heading">Full History</div>
-          <div class="timeline">
-            <div
-              v-for="(item, index) in activeEntries"
-              :key="index"
-              class="timeline-item"
-              :class="{ current: item.is_current_value }"
+          <div class="version-stack">
+            <section
+              v-for="group in versionGroups"
+              :key="group.version"
+              class="version-box"
+              :class="{ head: group.isHead, locked: !group.isHead }"
             >
-              <div class="timeline-top">
-                <span class="value-label">Value:</span>
-                <span v-if="item.is_current_value" class="current-badge">Current Value</span>
-              </div>
-              <div class="timeline-value">{{ item.value || '—' }}</div>
-              <div class="timeline-meta">
-                <span v-if="item.created_by" class="avatar">{{ initials(item.created_by) }}</span>
-                <span>{{ item.created_by || '—' }}</span>
-                <span>· {{ formatDate(item.created_at) }}</span>
-                <span v-if="item.manually_edited" class="edited-manually">Edited manually</span>
-                <span v-else-if="fileNames(item).length" class="files-anchor">
-                  <span v-if="item.updated_by" class="reverted-by">Reverted by {{ item.updated_by }}</span>
-                  <button
-                    type="button"
-                    class="files-btn"
-                    @click.stop="toggleFiles(index, $event)"
-                  >
-                    Files
-                  </button>
-                  <div
-                    v-if="openFilesIndex === index"
-                    class="files-popover"
-                    :class="{ up: filesOpenUp }"
-                    @click.stop
-                  >
-                    <p class="files-popover-title">Source files</p>
-                    <ul>
-                      <li v-for="name in fileNames(item)" :key="name" :title="name">{{ name }}</li>
-                    </ul>
+              <button type="button" class="version-box-header" @click="toggleVersion(group.version)">
+                <span class="chevron" :class="{ collapsed: collapsedVersions[group.version] }">▾</span>
+                <span class="version-box-title">VERSION {{ group.version }}</span>
+                <span v-if="!group.isHead" class="lock-note">Locked</span>
+              </button>
+              <div v-show="!collapsedVersions[group.version]" class="version-box-body">
+                <div
+                  v-for="(item, index) in group.entries"
+                  :key="`${group.version}-${index}`"
+                  class="timeline-item"
+                  :class="{ current: group.isHead && item.is_current_value }"
+                >
+                  <div class="entry-line">
+                    <span class="entry-key">Value</span>
+                    <span class="entry-val">{{ item.value || '—' }}</span>
+                    <span v-if="isEdited(item)" class="edited-mark">(Edited)</span>
+                    <span v-if="group.isHead && item.is_current_value" class="current-badge">Current Value</span>
                   </div>
-                </span>
+                  <div class="entry-line">
+                    <span class="entry-key">Created At</span>
+                    <span class="entry-val">{{ formatDate(item.created_at) }}</span>
+                  </div>
+                  <div class="timeline-meta">
+                    <span class="byline">By: {{ isEdited(item) ? (item.created_by || '—') : 'file upload' }}</span>
+                    <span v-if="!isEdited(item) && item.updated_by" class="reverted-by">Reverted by {{ item.updated_by }}</span>
+                    <span v-if="fileNames(item).length" class="files-anchor">
+                      <button
+                        type="button"
+                        class="files-btn"
+                        @click.stop="toggleFiles(`${group.version}-${index}`, $event)"
+                      >
+                        Files
+                      </button>
+                      <div
+                        v-if="openFilesIndex === `${group.version}-${index}`"
+                        class="files-popover"
+                        :class="{ up: filesOpenUp }"
+                        @click.stop
+                      >
+                        <p class="files-popover-title">Source files</p>
+                        <ul>
+                          <li v-for="name in fileNames(item)" :key="name" :title="name">{{ name }}</li>
+                        </ul>
+                      </div>
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            </section>
           </div>
+          <p v-if="versionsBeforeBase" class="missing-versions">{{ versionsBeforeBase }}</p>
         </div>
       </template>
     </div>
@@ -110,7 +130,6 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { getInitials } from '@/assets/utils/filingDashboardUtils'
 
 const props = defineProps({
   fieldNo: {
@@ -137,11 +156,12 @@ const props = defineProps({
 
 defineEmits(['close-click'])
 
-const openFilesIndex = ref(-1)
+const openFilesIndex = ref('')
 const filesOpenUp = ref(false)
 const activeKey = ref('')
 const selectedRow = ref('')
 const selectedColumn = ref('')
+const collapsedVersions = ref({})
 
 const tabs = computed(() => {
   if (!props.fieldData || typeof props.fieldData !== 'object') return []
@@ -228,17 +248,75 @@ const activeLabel = computed(() => {
 const activeEntries = computed(() => {
   const raw = props.fieldData?.[effectiveKey.value]
   if (!Array.isArray(raw)) return []
-  return [...raw].sort((a, b) => Number(b.is_current_value) - Number(a.is_current_value))
+  return [...raw]
 })
 
-const currentEntry = computed(() => activeEntries.value.find((e) => e.is_current_value) || activeEntries.value[0])
+const headVersion = computed(() => {
+  const groups = props.fieldData && typeof props.fieldData === 'object' ? Object.values(props.fieldData) : []
+  for (const entries of groups) {
+    if (!Array.isArray(entries)) continue
+    const marked = entries.find((entry) => Number(entry?.filing_current_version) > 0)
+    if (marked) return Number(marked.filing_current_version)
+  }
+  return null
+})
+
+const baseVersion = computed(() => {
+  const groups = props.fieldData && typeof props.fieldData === 'object' ? Object.values(props.fieldData) : []
+  let earliest = null
+  for (const entries of groups) {
+    if (!Array.isArray(entries)) continue
+    for (const entry of entries) {
+      const version = Number(entry?.version) || 1
+      if (earliest == null || version < earliest) earliest = version
+    }
+  }
+  return earliest
+})
+
+const versionsBeforeBase = computed(() => {
+  const base = baseVersion.value
+  if (!base || base <= 1) return ''
+  if (base === 2) return 'Version 1 is not available'
+  return `Versions 1 to ${base - 1} are not available`
+})
+
+const versionGroups = computed(() => {
+  const groups = new Map()
+  for (const item of activeEntries.value) {
+    const version = Number(item.version) || 1
+    if (!groups.has(version)) groups.set(version, [])
+    groups.get(version).push(item)
+  }
+  const versions = [...groups.keys()].sort((a, b) => b - a)
+  const head = headVersion.value || versions[0] || 1
+  return versions.map((version) => {
+    const entries = [...groups.get(version)].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    )
+    const files = [...new Set(entries.filter((entry) => !isEdited(entry)).flatMap((entry) => fileNames(entry)))]
+    return {
+      version,
+      isHead: version === head,
+      entries,
+      files,
+      preservedOnly: entries.length > 0 && entries.every((entry) => isEdited(entry)),
+    }
+  })
+})
+
+const currentEntry = computed(() => {
+  const head = versionGroups.value.find((group) => group.isHead)
+  const headCurrent = head?.entries.find((entry) => entry.is_current_value)
+  return headCurrent || activeEntries.value[0]
+})
 
 const currentValue = computed(() => currentEntry.value?.value ?? '')
 
 const editCountLabel = computed(() => {
   const n = activeEntries.value.length
   if (!n) return '0 Edits'
-  return `${ordinal(n)} Edits`
+  return `${ordinal(n)} Edit`
 })
 
 watch(
@@ -266,7 +344,7 @@ watch(
 )
 
 watch(effectiveKey, () => {
-  openFilesIndex.value = -1
+  openFilesIndex.value = ''
 })
 
 watch(
@@ -322,6 +400,17 @@ function formatColumnLabel(raw) {
     .join(' ')
 }
 
+function isEdited(item) {
+  return Boolean(item?.is_edit || item?.manually_edited)
+}
+
+function toggleVersion(version) {
+  collapsedVersions.value = {
+    ...collapsedVersions.value,
+    [version]: !collapsedVersions.value[version],
+  }
+}
+
 function fileNames(item) {
   const raw = item?.source_files ?? item?.sourceFiles
   if (!Array.isArray(raw)) return []
@@ -330,7 +419,7 @@ function fileNames(item) {
 
 function toggleFiles(index, event) {
   if (openFilesIndex.value === index) {
-    openFilesIndex.value = -1
+    openFilesIndex.value = ''
     return
   }
   const button = event?.currentTarget
@@ -402,10 +491,6 @@ function toTitleCase(str) {
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase())
 }
-
-function initials(name) {
-  return getInitials(name)
-}
 </script>
 
 <style scoped>
@@ -443,6 +528,24 @@ function initials(name) {
   font-size: 1.1rem;
   font-weight: 700;
   color: #111827;
+}
+
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.lock-pill {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  color: #374151;
+  background: #fff;
+  white-space: nowrap;
 }
 
 .modal-close {
@@ -562,12 +665,79 @@ function initials(name) {
 
 .timeline-heading {
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #374151;
   margin: 16px 0 10px;
 }
 
-.timeline {
+.version-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.missing-versions {
+  margin: 12px 4px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.version-box {
+  border: 1px solid #d6d3d1;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+}
+
+.version-box.head {
+  border: 1.5px solid #1e3a8a;
+  background: #fff;
+}
+
+.version-box.locked {
+  background: #fff;
+}
+
+.version-box-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  padding: 2px 4px 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.80rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #0f172a;
+}
+
+.lock-note {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1e3a8a;
+  background: #eff6ff;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.chevron {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.chevron.collapsed {
+  transform: rotate(-90deg);
+}
+
+.version-box-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -575,34 +745,62 @@ function initials(name) {
 
 .timeline-item {
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e7e5e4;
   border-radius: 10px;
   padding: 14px 16px;
   background: #fff;
+  color: #0f172a;
 }
 
 .timeline-item.current {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: #f8fafc;
+  border-color: #bfdbfe;
+  box-shadow: inset 4px 0 0 #1e3a8a;
 }
 
-.timeline-top {
+.entry-line {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 6px;
 }
 
-.value-label {
-  font-size: 0.75rem;
-  color: #6b7280;
+.entry-key{
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.entry-val {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.entry-val {
+  word-break: break-word;
+}
+
+.edited-mark {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.byline{
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .current-badge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #16a34a;
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #166534;
   background: #dcfce7;
   padding: 3px 8px;
   border-radius: 999px;
@@ -620,25 +818,17 @@ function initials(name) {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
-  color: #6b7280;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e293b;
   flex-wrap: wrap;
 }
 
-.edited-manually {
-  margin-left: auto;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #92400e;
-  background: #fef3c7;
-  border-radius: 999px;
-  padding: 3px 8px;
-}
-
 .reverted-by {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #1e40af;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e3a8a;
 }
 
 .files-anchor {
@@ -650,13 +840,13 @@ function initials(name) {
 }
 
 .files-btn {
-  border: 1px solid #d1d5db;
+  border: 1px solid #1e3a8a;
   background: #fff;
-  color: #374151;
+  color: #1e3a8a;
   border-radius: 999px;
   padding: 3px 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
 }

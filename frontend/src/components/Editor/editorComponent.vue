@@ -1,5 +1,8 @@
 <template>
   <div class="editor-shell">
+    <div v-if="readOnly" class="history-banner">
+      Viewing historical version v{{ filingVersion }}. Switch to the current version to make updates.
+    </div>
     <div class="fund-header">
       <div class="fund-header-text">
         <h2>{{ props.fundName }}</h2>
@@ -153,10 +156,11 @@
                   <font-awesome-icon icon="calculator" />
                 </button>
                 <button
-                  v-if="editingFieldNo !== fields.field_no"
+                  v-if="readOnly || editingFieldNo !== fields.field_no"
                   type="button"
                   class="icon-btn"
                   title="Edit"
+                  :disabled="readOnly"
                   @click="startEditing(fields.field_no)"
                 >
                   <font-awesome-icon icon="pen" />
@@ -396,8 +400,10 @@ const user_id = userStore.userID
 const props = defineProps({
   fundName: { type: String, required: true },
   filingId: { type: String, required: true },
-  /** fieldNo -> true when history length > 1 */
+  /** fieldNo -> true when the displayed version's current answer is an edit */
   editedFlags: { type: Object, default: () => ({}) },
+  readOnly: { type: Boolean, default: false },
+  filingVersion: { type: Number, default: 0 },
 }) 
 
 const emit = defineEmits(['open-upload','refresh-data','open-computationLogs','open-history','open-mapped-files'])
@@ -417,11 +423,19 @@ const reviewEpoch = {}
 const editedByHistory = ref({})
 let prefetchGeneration = 0
 
-function hasHistoryEdits(historyData) {
+function lineCurrentlyEdited(entries, version) {
+  if (!Array.isArray(entries) || !entries.length) return false
+  const wanted = Number(version) || 0
+  const pool = wanted
+    ? entries.filter((entry) => Number(entry.version || 1) === wanted)
+    : entries
+  const current = pool.find((entry) => entry.is_current_value)
+  return Boolean(current && (current.is_edit || current.manually_edited))
+}
+
+function hasCurrentEdit(historyData, version) {
   if (!historyData || typeof historyData !== 'object') return false
-  return Object.values(historyData).some(
-    (entries) => Array.isArray(entries) && entries.length > 1
-  )
+  return Object.values(historyData).some((entries) => lineCurrentlyEdited(entries, version))
 }
 
 function isEdited(fieldNo) {
@@ -430,6 +444,23 @@ function isEdited(fieldNo) {
       props.editedFlags?.[fieldNo] ||
       recentlySaved.value.has(fieldNo)
   )
+}
+
+async function refreshEditedFlag(fieldNo) {
+  const fund_id = responseStore.getFundId(fundname.value)
+  if (!fund_id) return
+  const res = await api_call_methods.get_history(user_id, {
+    filingId: props.filingId,
+    fundId: fund_id,
+    fieldNo,
+  })
+  const edited = hasCurrentEdit(res.data, props.filingVersion)
+  const nextSaved = new Set(recentlySaved.value)
+  if (edited) nextSaved.add(fieldNo)
+  else nextSaved.delete(fieldNo)
+  recentlySaved.value = nextSaved
+  editedByHistory.value = { ...editedByHistory.value, [fieldNo]: edited }
+  if (props.editedFlags) props.editedFlags[fieldNo] = edited
 }
 
 function markEdited(fieldNo) {
@@ -463,7 +494,7 @@ async function prefetchEditedFlags() {
           })
           .then((res) => ({
             fieldNo: field.field_no,
-            edited: hasHistoryEdits(res.data),
+            edited: hasCurrentEdit(res.data, props.filingVersion),
           }))
       )
     )
@@ -473,8 +504,8 @@ async function prefetchEditedFlags() {
     settled.forEach((result) => {
       if (result.status === 'fulfilled') {
         flags[result.value.fieldNo] = result.value.edited
-        if (result.value.edited && props.editedFlags) {
-          props.editedFlags[result.value.fieldNo] = true
+        if (props.editedFlags) {
+          props.editedFlags[result.value.fieldNo] = result.value.edited
         }
       }
     })
@@ -503,10 +534,9 @@ function sectionHeading(fieldNo) {
 }
 
 watch(() => props.fundName, (newVal) => {
-  fundname.value=newVal
-  
+  fundname.value = newVal
   data.value = responseStore.getFundData(newVal)
-  computationLogs.value=responseStore.getFundComputation(newVal)
+  computationLogs.value = responseStore.getFundComputation(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
   recentlySaved.value = new Set()
@@ -514,6 +544,16 @@ watch(() => props.fundName, (newVal) => {
   openReviewField.value = null
   prefetchEditedFlags()
   fetchReviews()
+})
+
+watch(() => props.filingVersion, () => {
+  data.value = responseStore.getFundData(fundname.value)
+  computationLogs.value = responseStore.getFundComputation(fundname.value)
+  for (const key in editedData) delete editedData[key]
+  editingFieldNo.value = null
+  recentlySaved.value = new Set()
+  editedByHistory.value = {}
+  prefetchEditedFlags()
 })
 
 onMounted(() => {
@@ -554,6 +594,7 @@ function getFieldKey(fieldNo) {
 
 // Updated startEditing
 function startEditing(fieldNo) {
+  if (props.readOnly) return
   if (making_api_call.value){ 
     toast.warning(`Please wait saving question ${making_api_call_field.value}`)
     return
@@ -667,6 +708,7 @@ const making_api_call = ref(false)
 const making_api_call_field=ref('')
 
 async function saveEdits(fieldNo, value, fieldIndex) {
+  if (props.readOnly) return
   try {
 
 
@@ -714,7 +756,8 @@ async function saveEdits(fieldNo, value, fieldIndex) {
       confirmed: true,
       editing: false,
       has_table_data:editedData[fieldNo].has_table_data,
-      field_item_type:editedData[fieldNo].field_item_type
+      field_item_type:editedData[fieldNo].field_item_type,
+      version: props.filingVersion || undefined,
     };
 
     // Call API
@@ -744,9 +787,9 @@ async function saveEdits(fieldNo, value, fieldIndex) {
 }
 
 async function restoreEdits(fieldNo) {
+  if (props.readOnly) return
   try {
     making_api_call.value = true
-    toast.info(`Reverting Question ${fieldNo}`)
     const fund_id = responseStore.getFundId(fundname.value)
     const revertApiData = { 
       field_no: fieldNo,
@@ -756,19 +799,27 @@ async function restoreEdits(fieldNo) {
       confirmed: true,
       editing: false,
       has_table_data:editedData[fieldNo].has_table_data,
-      field_item_type:editedData[fieldNo].field_item_type
+      field_item_type:editedData[fieldNo].field_item_type,
+      version: props.filingVersion || undefined,
     }
-    await api_call_methods.revert_data(user_id, revertApiData, fund_id, props.filingId)
-    await new Promise(resolve => {
-      emit('refresh-data', resolve)
-    })
+    const response = await api_call_methods.revert_data(user_id, revertApiData, fund_id, props.filingId)
+    const message = String(response?.data?.message || '')
+    const nothingToRevert = /no changes/i.test(message)
+    if (!nothingToRevert) {
+      await new Promise(resolve => {
+        emit('refresh-data', resolve)
+      })
+      data.value = responseStore.getFundData(fundname.value)
+      await refreshEditedFlag(fieldNo)
+    }
 
-
-    //data update
-    data.value = responseStore.getFundData(fundname.value)
     editingFieldNo.value = null
     delete editedData[fieldNo]
-    toast.success(`Reverted Question ${fieldNo}`)
+    if (nothingToRevert) {
+      toast.info(`Nothing to revert for Question ${fieldNo}. It is already at the first value in this version.`)
+    } else {
+      toast.success(`Reverted Question ${fieldNo}`)
+    }
 
   } catch (err) {
     console.log(err)
@@ -1106,6 +1157,17 @@ watch(() => props.filingId, () => {
   height: 100%;
   min-height: 0;
   width: 100%;
+}
+
+.history-banner {
+  margin: 12px 28px 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .fund-header {

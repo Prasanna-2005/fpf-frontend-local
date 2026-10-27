@@ -184,9 +184,12 @@ async function discard_filing(data,user_id){
 }
 
 
-async function get_response(user_id,filing_id) {
+async function get_response(user_id, filing_id, version = null) {
+    const params = {}
+    if (version) params.version = version
     const response=await api.get(`/api/v1/edit/response/${filing_id}`,
         {
+            params,
             withCredentials: true ,
             headers:{
                 'X-User-ID': user_id
@@ -321,11 +324,12 @@ async function get_history(user_id,data, options = {}){
     return response
 }
 
-async function get_mapped_files(user_id,filing_name) {
-    const data={
-    "filing_name":filing_name,
-    "filing":false
+async function get_mapped_files(user_id, filing_name, version = null) {
+    const data = {
+        filing_name: filing_name,
+        filing: false,
     }
+    if (version) data.version = Number(version)
 
     const response=await api.post('/api/v1/files/mapper',data,
         {

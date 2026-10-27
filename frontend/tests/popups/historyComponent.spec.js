@@ -117,7 +117,7 @@ describe('historyComponent selectors', () => {
     expect(names).toEqual(['tb.xlsx', 'unfunded.xlsx'])
 
     const items = wrapper.findAll('.timeline-item')
-    expect(items[1].text()).toContain('Edited manually')
+    expect(items[1].text()).toContain('(Edited)')
     expect(items[1].find('.files-btn').exists()).toBe(false)
   })
 })

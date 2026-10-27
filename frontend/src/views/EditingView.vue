@@ -7,8 +7,8 @@
       :loading="loader"
       title="Loading Editor…"
       message="Please wait while we prepare your filing data."
-      error-title="Failed to Load Editor"
-      error-message="Something went wrong while loading the editor. Please check your connection or return to the dashboard."
+      :error-title="pageErrorTitle"
+      :error-message="pageErrorMessage"
     />
 
     <div v-else class="editor-main">
@@ -16,14 +16,20 @@
         :fundNames="fundNames"
         :status="filingStatus"
         :downloading="downloadInputFiles"
+        :headVersion="headVersion"
+        :selectedVersion="selectedVersion"
+        :availableVersions="availableVersions"
         @selected-fund="selectFund"
         @pdf-preview="goToPreview"
         @input-files="downloadInput"
+        @change-version="onChangeVersion"
       />
       <EditSectionComponent
         :fundName="fundName"
         :filingId="filing_id"
         :editedFlags="editedFlags"
+        :readOnly="editorReadOnly"
+        :filingVersion="selectedVersion"
         @open-upload="openUploadPopUp = true"
         @refresh-data="refreshData"
         @open-history="openHistory"
@@ -56,7 +62,11 @@
       />
     </div>
     <div v-if="openMappedFilesPopUp">
-      <mappedFilesPopUpComp @close-click="openMappedFilesPopUp = false" :userId="user_id" />
+      <mappedFilesPopUpComp
+        @close-click="openMappedFilesPopUp = false"
+        :userId="user_id"
+        :version="selectedVersion"
+      />
     </div>
   </div>
 </template>
@@ -90,6 +100,8 @@ const loading = ref(true)
 const fundNames = ref([])
 const toast = useToast()
 const loader = ref(true)
+const pageErrorTitle = ref('Failed to Load Editor')
+const pageErrorMessage = ref('Something went wrong while loading the editor. Please check your connection or return to the dashboard.')
 const openComputationLogsPopUp = ref(false)
 const responseStore = useEditableStore()
 const openhistoryPopUp = ref(false)
@@ -102,7 +114,11 @@ const fieldType = ref('')
 const hasTableData = ref(false)
 const openMappedFilesPopUp = ref(false)
 const downloadInputFiles = ref(false)
-/** fieldNo -> true when history length > 1 */
+const headVersion = ref(1)
+const selectedVersion = ref(1)
+const availableVersions = ref([1])
+const editorReadOnly = computed(() => selectedVersion.value !== headVersion.value)
+/** fieldNo -> true when that question's current answer is an edit */
 const editedFlags = reactive({})
 
 fileStore.add_filing_name(localStorage.getItem('filingName'))
@@ -115,11 +131,17 @@ const computationLogs = ref({})
 
 const filingStatus = computed(() => responseStore.getStatus() || 'Draft')
 
-function hasHistoryEdits(historyData) {
+function hasCurrentEdit(historyData, version) {
   if (!historyData || typeof historyData !== 'object') return false
-  return Object.values(historyData).some(
-    (entries) => Array.isArray(entries) && entries.length > 1
-  )
+  const wanted = Number(version) || 0
+  return Object.values(historyData).some((entries) => {
+    if (!Array.isArray(entries) || !entries.length) return false
+    const pool = wanted
+      ? entries.filter((entry) => Number(entry.version || 1) === wanted)
+      : entries
+    const current = pool.find((entry) => entry.is_current_value)
+    return Boolean(current && (current.is_edit || current.manually_edited))
+  })
 }
 
 onMounted(async () => {
@@ -130,6 +152,11 @@ onMounted(async () => {
     loading.value = false
   } catch (error) {
     loader.value = false
+    const message = error?.response?.data?.message
+    if (error?.response?.status === 409 && message) {
+      pageErrorTitle.value = 'Extraction Not Completed'
+      pageErrorMessage.value = message
+    }
     console.error('Error fetching data:', error)
   }
 })
@@ -141,14 +168,22 @@ async function update_status_to_draft() {
 
 async function set_response() {
   const result = await api_call_methods.get_response(user_id, filing_id)
-  data = result.data
-
-  const funds = data.funds
-  fundNames.value = funds.map((fund) => fund.fund_name)
-  responseStore.setResponse(data)
+  applyFilingPayload(result.data)
   fundName.value = fundNames.value[0]
   const computations = await api_call_methods.get_computations(user_id, filing_id)
   responseStore.setComputations(computations.data)
+}
+
+function applyFilingPayload(payload) {
+  data = payload
+  const funds = data.funds || []
+  fundNames.value = funds.map((fund) => fund.fund_name)
+  responseStore.setResponse(data)
+  headVersion.value = Number(data.current_version) || 1
+  selectedVersion.value = Number(data.version) || headVersion.value
+  availableVersions.value = Array.isArray(data.available_versions) && data.available_versions.length
+    ? data.available_versions
+    : [headVersion.value]
 }
 
 function selectFund(fund_name) {
@@ -158,11 +193,13 @@ function selectFund(fund_name) {
 }
 
 async function update_response() {
-  const result = await api_call_methods.get_response(user_id, filing_id)
-  data = result.data
-  const funds = data.funds
-  fundNames.value = funds.map((fund) => fund.fund_name)
-  responseStore.setResponse(data)
+  const result = await api_call_methods.get_response(user_id, filing_id, selectedVersion.value)
+  applyFilingPayload(result.data)
+}
+
+async function onChangeVersion(version) {
+  const result = await api_call_methods.get_response(user_id, filing_id, version)
+  applyFilingPayload(result.data)
 }
 
 async function refreshData(done) {
@@ -203,7 +240,7 @@ async function openHistory(payload) {
     const result = await api_call_methods.get_history(user_id, payload, { skipErrorToast: false })
     if (request !== historyRequest) return
     history.value = result.data
-    editedFlags[payload.fieldNo] = hasHistoryEdits(result.data)
+    editedFlags[payload.fieldNo] = hasCurrentEdit(result.data, selectedVersion.value)
   } catch (error) {
     if (request !== historyRequest) return
     console.error('Error loading history:', error)
