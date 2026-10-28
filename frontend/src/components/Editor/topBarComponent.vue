@@ -34,7 +34,7 @@
     </div>
 
     <div class="topbar-right">
-      <button type="button" class="btn-outline" @click="emit('pdf-preview')">
+      <button type="button" class="btn-primary" @click="emit('pdf-preview')">
         <font-awesome-icon icon="eye" />
         PDF Preview
       </button>
@@ -276,10 +276,8 @@ watch(
   color: #dc2626;
 }
 
-.btn-outline {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  color: #374151;
+.btn-outline,
+.btn-primary {
   border-radius: 8px;
   padding: 9px 14px;
   font-size: 0.875rem;
@@ -292,11 +290,30 @@ watch(
   white-space: nowrap;
 }
 
+.btn-outline {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
 .btn-outline:hover:not(:disabled) {
   background: #f9fafb;
 }
 
-.btn-outline:disabled {
+.btn-primary {
+  background: #1e3a8a;
+  border: 1px solid #1e3a8a;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
+.btn-outline:disabled,
+.btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
