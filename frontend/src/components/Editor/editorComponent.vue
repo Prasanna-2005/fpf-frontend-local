@@ -69,41 +69,43 @@
               </div>
               <div class="q-actions">
                 <div class="review-control" @click.stop>
-                  <button
-                    v-if="!isReviewedByMe(fields.field_no)"
-                    type="button"
-                    class="review-accept"
-                    @click="acceptReview(fields.field_no)"
-                  >
-                    Mark Review
-                  </button>
-                  <div v-else class="review-done">
+                  <div class="review-cluster">
                     <button
+                      v-if="!isReviewedByMe(fields.field_no)"
                       type="button"
-                      class="review-done-label"
+                      class="review-accept"
+                      @click="acceptReview(fields.field_no)"
+                    >
+                      Mark Review
+                    </button>
+                    <div v-else class="review-done">
+                      <button
+                        type="button"
+                        class="review-done-label"
+                        @click="toggleReviewers(fields.field_no)"
+                      >
+                        <font-awesome-icon icon="check" />
+                        Reviewed
+                      </button>
+                      <button
+                        type="button"
+                        class="review-undo"
+                        title="Undo my review"
+                        @click="undoReview(fields.field_no)"
+                      >
+                        <font-awesome-icon icon="xmark" />
+                      </button>
+                    </div>
+                    <button
+                      v-if="reviewerCount(fields.field_no) > 0"
+                      type="button"
+                      class="review-count"
+                      :title="`${reviewerCount(fields.field_no)} reviewer${reviewerCount(fields.field_no) === 1 ? '' : 's'}`"
                       @click="toggleReviewers(fields.field_no)"
                     >
-                      <font-awesome-icon icon="check" />
-                      Reviewed
-                    </button>
-                    <button
-                      type="button"
-                      class="review-undo"
-                      title="Undo my review"
-                      @click="undoReview(fields.field_no)"
-                    >
-                      <font-awesome-icon icon="xmark" />
+                      {{ reviewerCount(fields.field_no) }}
                     </button>
                   </div>
-                  <button
-                    v-if="reviewerCount(fields.field_no) > 0"
-                    type="button"
-                    class="review-count"
-                    :title="`${reviewerCount(fields.field_no)} reviewer${reviewerCount(fields.field_no) === 1 ? '' : 's'}`"
-                    @click="toggleReviewers(fields.field_no)"
-                  >
-                    {{ reviewerCount(fields.field_no) }}
-                  </button>
                   <div
                     v-if="openReviewField === fields.field_no"
                     class="review-popover"
@@ -1314,7 +1316,16 @@ watch(() => props.filingId, () => {
   position: relative;
   display: inline-flex;
   align-items: center;
+}
+
+.review-cluster {
+  display: inline-flex;
+  align-items: center;
   gap: 4px;
+  padding: 3px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
 }
 
 .review-accept,
@@ -1334,8 +1345,7 @@ watch(() => props.filingId, () => {
   padding: 0 10px;
 }
 
-.review-accept:hover:not(:disabled),
-.review-count:hover {
+.review-accept:hover:not(:disabled) {
   background: #f8fafc;
   color: #1e3a8a;
 }
@@ -1396,6 +1406,14 @@ watch(() => props.filingId, () => {
 .review-count {
   min-width: 32px;
   padding: 0 8px;
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.review-count:hover {
+  background: #bbf7d0;
+  color: #166534;
 }
 
 .review-popover {
