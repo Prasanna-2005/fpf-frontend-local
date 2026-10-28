@@ -79,12 +79,7 @@
       </button>
     </form>
 
-    <OtpComponent v-else :user-id="userId" :email="email" />
-
-    <p v-if="!loginSuccess" class="signup">
-      Don't have an account?
-      <a href="#" @click.prevent>Sign up</a>
-    </p>
+    <OtpComponent v-else :user_id="userId" :email="email" />
   </div>
 </template>
 

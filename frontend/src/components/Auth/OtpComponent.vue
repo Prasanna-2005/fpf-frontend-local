@@ -1,5 +1,5 @@
 <template>
-    <form class="needs-validation" novalidate @submit.prevent="submitotp" >
+    <form ref="otpForm" class="needs-validation" novalidate @submit.prevent="submitotp" >
         <div class="mb-3">
             <p class="instruction mb-2 text-muted">
                 Check your inbox for the verification code.
@@ -35,6 +35,7 @@ import { useUserStore } from '@/stores/userStore';
 import api_call_methods from '@/assets/api_calls/api_calls';
 
 const otp = ref('');
+const otpForm = ref(null);
 const isLoading = ref(false);
 const timer = ref(60); 
 let intervalId = null;
@@ -119,6 +120,8 @@ async function submitotp(event) {
 
 
 async function resendOtp() {
+    otp.value = '';
+    otpForm.value?.classList.remove('was-validated');
     try {
         toast.info('Resending verification code...');
         const result=await api_call_methods.resend_otp({ user_id: props.user_id });
