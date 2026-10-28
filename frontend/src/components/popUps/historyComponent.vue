@@ -24,16 +24,16 @@
           <template v-if="showTableSelectors">
             <label class="selector">
               <span class="selector-label">Row</span>
-              <select v-model="selectedRow" class="selector-control" :title="selectedRowLabel">
-                <option v-for="row in rowOptions" :key="row.value" :value="row.value">
+              <select ref="rowSelect" v-model="selectedRow" class="selector-control" :title="selectedRowTitle">
+                <option v-for="row in rowOptions" :key="row.value" :value="row.value" :title="row.title">
                   {{ row.label }}
                 </option>
               </select>
             </label>
             <label class="selector">
               <span class="selector-label">Column</span>
-              <select v-model="selectedColumn" class="selector-control" :title="selectedColumnLabel">
-                <option v-for="col in columnOptions" :key="col.value" :value="col.value">
+              <select ref="columnSelect" v-model="selectedColumn" class="selector-control" :title="selectedColumnLabel">
+                <option v-for="col in columnOptions" :key="col.value" :value="col.value" :title="col.title">
                   {{ col.label }}
                 </option>
               </select>
@@ -41,9 +41,9 @@
           </template>
           <label v-else class="selector">
             <span class="selector-label">Question</span>
-            <select v-model="activeKey" class="selector-control">
-              <option v-for="tab in questionOptions" :key="tab.key" :value="tab.key">
-                {{ tab.label }}
+            <select ref="questionSelect" v-model="activeKey" class="selector-control" :title="activeQuestionTitle">
+              <option v-for="tab in questionOptions" :key="tab.key" :value="tab.key" :title="questionTitle(tab)">
+                {{ questionLabel(tab) }}
               </option>
             </select>
           </label>
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
 const props = defineProps({
   fieldNo: {
@@ -162,6 +162,13 @@ const activeKey = ref('')
 const selectedRow = ref('')
 const selectedColumn = ref('')
 const collapsedVersions = ref({})
+const questionSelect = ref(null)
+const rowSelect = ref(null)
+const columnSelect = ref(null)
+const questionWidth = ref(0)
+const rowWidth = ref(0)
+const columnWidth = ref(0)
+let selectObserver = null
 
 const tabs = computed(() => {
   if (!props.fieldData || typeof props.fieldData !== 'object') return []
@@ -200,11 +207,32 @@ const cells = computed(() => {
 
 const showTableSelectors = computed(() => isTable.value && cells.value.length > 0)
 
-const rowOptions = computed(() => uniqueOptions(cells.value, 'rowRaw', 'rowLabel'))
+const rowOptions = computed(() => {
+  const seen = new Map()
+  for (const cell of cells.value) {
+    if (seen.has(cell.rowRaw)) continue
+    const detail = cleanLineText(cell.lineText)
+    const letterOnly = /^[A-Z]$/.test(cell.rowLabel)
+    const full = letterOnly && detail ? `${cell.rowLabel}  ${detail}` : cell.rowLabel
+    seen.set(cell.rowRaw, {
+      value: cell.rowRaw,
+      label: letterOnly && detail
+        ? fitPrefix(cell.rowLabel, detail, rowWidth.value, fontOf(rowSelect.value))
+        : fitToWidth(cell.rowLabel, rowWidth.value, fontOf(rowSelect.value)),
+      title: full,
+    })
+  }
+  return [...seen.values()]
+})
 
 const columnOptions = computed(() => {
   const forRow = cells.value.filter((cell) => cell.rowRaw === selectedRow.value)
-  return uniqueOptions(forRow, 'colRaw', 'colLabel')
+  const font = fontOf(columnSelect.value)
+  return uniqueOptions(forRow, 'colRaw', 'colLabel').map((option) => ({
+    ...option,
+    title: option.label,
+    label: fitToWidth(option.label, columnWidth.value, font),
+  }))
 })
 
 const questionOptions = computed(() => tabs.value)
@@ -217,17 +245,22 @@ const effectiveKey = computed(() => {
   return match?.key || ''
 })
 
-const selectedRowLabel = computed(
-  () => rowOptions.value.find((row) => row.value === selectedRow.value)?.label || ''
+const selectedRowTitle = computed(
+  () => rowOptions.value.find((row) => row.value === selectedRow.value)?.title || ''
 )
 
 const selectedColumnLabel = computed(
-  () => columnOptions.value.find((col) => col.value === selectedColumn.value)?.label || ''
+  () => columnOptions.value.find((col) => col.value === selectedColumn.value)?.title || ''
 )
 
 const displayFieldNo = computed(() => {
   const parts = String(props.fieldNo || '').split('_')
   return parts[parts.length - 1] || props.fieldNo
+})
+
+const activeQuestionTitle = computed(() => {
+  const tab = tabs.value.find((item) => item.key === effectiveKey.value)
+  return tab ? questionTitle(tab) : ''
 })
 
 const activeTabLabel = computed(() => {
@@ -436,6 +469,103 @@ function toggleFiles(index, event) {
   openFilesIndex.value = index
 }
 
+function cleanLineText(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim()
+}
+
+function questionTitle(tab) {
+  const detail = cleanLineText(tab?.lineText)
+  return detail ? `${tab.label}  ${detail}` : tab?.label || ''
+}
+
+function questionLabel(tab) {
+  return fitPrefix(tab?.label || '', tab?.lineText, questionWidth.value, fontOf(questionSelect.value))
+}
+
+function contentWidth(el) {
+  if (!el) return 0
+  const style = window.getComputedStyle(el)
+  const padLeft = Number.parseFloat(style.paddingLeft) || 0
+  const padRight = Number.parseFloat(style.paddingRight) || 0
+  return Math.max(0, el.clientWidth - padLeft - padRight)
+}
+
+function fontOf(el) {
+  if (!el) return '600 14.4px sans-serif'
+  const style = window.getComputedStyle(el)
+  return `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+}
+
+let measureCanvas
+function textWidth(text, font) {
+  if (!measureCanvas) measureCanvas = document.createElement('canvas')
+  const context = measureCanvas.getContext('2d')
+  if (!context) return String(text).length * 8
+  context.font = font
+  return context.measureText(String(text)).width
+}
+
+function fitToWidth(text, width, font) {
+  const clean = cleanLineText(text)
+  if (!clean || !width) return clean
+  if (textWidth(clean, font) <= width) return clean
+  const ellipsis = '…'
+  let lo = 0
+  let hi = clean.length
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    const sample = `${clean.slice(0, mid).trimEnd()}${ellipsis}`
+    if (textWidth(sample, font) <= width) lo = mid
+    else hi = mid - 1
+  }
+  const clipped = clean.slice(0, lo).trimEnd()
+  return clipped ? `${clipped}${ellipsis}` : ellipsis
+}
+
+function fitPrefix(code, detail, width, font) {
+  const lead = cleanLineText(code)
+  const rest = cleanLineText(detail)
+  if (!rest) return fitToWidth(lead, width, font)
+  const full = `${lead}  ${rest}`
+  if (!width || textWidth(full, font) <= width) return full
+  const gap = '  '
+  const leadWidth = textWidth(lead + gap, font)
+  const fitted = fitToWidth(rest, Math.max(0, width - leadWidth), font)
+  if (!fitted || fitted === '…') return fitToWidth(lead, width, font)
+  return `${lead}${gap}${fitted}`
+}
+
+function measureSelects() {
+  questionWidth.value = contentWidth(questionSelect.value)
+  rowWidth.value = contentWidth(rowSelect.value)
+  columnWidth.value = contentWidth(columnSelect.value)
+}
+
+function watchSelectSizes() {
+  selectObserver?.disconnect()
+  selectObserver = null
+  if (typeof ResizeObserver !== 'undefined') {
+    selectObserver = new ResizeObserver(measureSelects)
+    for (const el of [questionSelect.value, rowSelect.value, columnSelect.value]) {
+      if (el) selectObserver.observe(el)
+    }
+  }
+  measureSelects()
+}
+
+onMounted(() => {
+  nextTick(watchSelectSizes)
+  window.addEventListener('resize', measureSelects)
+})
+onBeforeUnmount(() => {
+  selectObserver?.disconnect()
+  window.removeEventListener('resize', measureSelects)
+})
+watch(() => props.loading, (isLoading) => {
+  if (!isLoading) nextTick(watchSelectSizes)
+})
+watch(showTableSelectors, () => nextTick(watchSelectSizes))
+
 function tabLabel(key) {
   const display = getDisplayFieldNo(key)
   const q = displayFieldNo.value
@@ -616,6 +746,8 @@ function toTitleCase(str) {
   font-family: inherit;
   color: #111827;
   cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 

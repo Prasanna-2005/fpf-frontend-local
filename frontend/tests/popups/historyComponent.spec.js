@@ -34,6 +34,8 @@ describe('historyComponent selectors', () => {
     const select = wrapper.get('select')
     const labels = select.findAll('option').map((option) => option.text())
     expect(labels[0]).toContain('Q5(a)')
+    expect(labels[0]).toContain('Fund name')
+    expect(select.findAll('option')[0].attributes('title')).toBe('Q5(a)  Fund name')
     expect(wrapper.text()).toContain('Alpha Fund')
 
     await select.setValue('5_b')
@@ -63,8 +65,12 @@ describe('historyComponent selectors', () => {
     expect(wrapper.text()).toContain('Row')
     expect(wrapper.text()).toContain('Column')
 
-    const rows = selects[0].findAll('option').map((option) => option.text())
-    expect(rows).toEqual(['A', 'B'])
+    const rowOptions = selects[0].findAll('option')
+    expect(rowOptions[0].text()).toContain('A')
+    expect(rowOptions[0].text()).toContain("1st month of reporting fund's fiscal year")
+    expect(rowOptions[0].attributes('title')).toContain("1st month of reporting fund's fiscal year")
+    expect(rowOptions[1].text()).toContain('B')
+    expect(rowOptions[1].text()).toContain('2nd month')
 
     await selects[1].setValue('Net_of_management_fees_and_incentive_fees_and_allocation')
     expect(wrapper.text()).toContain(
