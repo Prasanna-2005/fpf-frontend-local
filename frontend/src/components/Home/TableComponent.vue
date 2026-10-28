@@ -137,7 +137,7 @@
                       aria-label="Archive filing"
                       @click="deleteFiling(row.id)"
                     >
-                      <font-awesome-icon icon="trash" />
+                      <img src="@/assets/images/archive.png" alt="" class="archive-icon" />
                     </button>
                   </div>
                 </td>
@@ -712,6 +712,12 @@ tbody tr:hover {
 }
 .actions .delete {
   color: var(--dash-danger);
+}
+.archive-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  object-fit: contain;
 }
 .actions button:disabled {
   opacity: 0.35;

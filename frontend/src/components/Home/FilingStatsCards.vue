@@ -6,7 +6,8 @@
         <div class="label">{{ card.label }}</div>
       </div>
       <div class="stat-icon" :class="card.tone">
-        <font-awesome-icon :icon="card.icon" />
+        <img v-if="card.image" :src="card.image" alt="" class="stat-image" />
+        <font-awesome-icon v-else :icon="card.icon" />
       </div>
     </div>
   </section>
@@ -15,6 +16,7 @@
 <script setup>
 import { computed } from 'vue'
 import { padCount } from '@/assets/utils/filingDashboardUtils'
+import archiveIcon from '@/assets/images/archive.png'
 
 const props = defineProps({
   stats: {
@@ -28,7 +30,7 @@ const cards = computed(() => [
   { label: 'Approved', value: props.stats.approved, icon: 'check-circle', tone: 'green' },
   { label: 'Under Review', value: props.stats.review, icon: 'clock-rotate-left', tone: 'orange' },
   { label: 'Draft', value: props.stats.draft, icon: 'pen', tone: 'slate' },
-  { label: 'Archived', value: props.stats.archived, icon: 'trash', tone: 'red' },
+  { label: 'Archived', value: props.stats.archived, image: archiveIcon, tone: 'red' },
 ])
 </script>
 
@@ -94,6 +96,13 @@ const cards = computed(() => [
 .stat-icon.red {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.stat-image {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
 }
 
 @media (max-width: 1200px) {

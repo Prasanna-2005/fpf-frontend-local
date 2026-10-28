@@ -17,7 +17,7 @@
           <font-awesome-icon icon="code-compare" />
           Compare
         </button>
-        <button type="button" class="btn-primary" @click="openUpload">
+        <button type="button" class="btn-outline" @click="openUpload">
           <font-awesome-icon icon="upload" />
           Upload More Files
         </button>
@@ -1199,25 +1199,6 @@ watch(() => props.filingId, () => {
 
 .btn-outline:hover {
   background: #f9fafb;
-}
-
-.btn-primary {
-  background: #1e3a8a;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 16px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-primary:hover {
-  background: #1e40af;
 }
 
 .editor-scroll {
