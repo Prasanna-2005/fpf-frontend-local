@@ -9,26 +9,6 @@
         <p>{{ sectionSubtitle }}</p>
       </div>
       <div class="fund-header-actions">
-        <button
-          type="button"
-          class="changes-bell-btn"
-          :class="{ 'has-changes': latestChangesCount > 0 }"
-          :aria-label="latestChangesCount > 0
-            ? `${latestChangesCount} latest changes. Open changes list`
-            : 'No latest changes'"
-          :title="latestChangesCount > 0
-            ? `${latestChangesCount} latest change${latestChangesCount === 1 ? '' : 's'}`
-            : 'No latest changes'"
-          @click="openChangesPopUp"
-        >
-          <font-awesome-icon class="bell-icon" icon="bell" />
-          <span
-            v-if="latestChangesCount > 0"
-            class="changes-badge"
-          >
-            {{ latestChangesCount > 99 ? '99+' : latestChangesCount }}
-          </span>
-        </button>
         <button type="button" class="btn-outline" @click="openMappedFiles">
           <font-awesome-icon icon="file" />
           Mapped Files
