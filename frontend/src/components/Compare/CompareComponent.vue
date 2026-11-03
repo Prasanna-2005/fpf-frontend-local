@@ -8,7 +8,7 @@
 
       <div class="filing-pair">
         <div class="filing-side">
-          <span class="filing-label">Current filing</span>
+          <span class="filing-label">{{ compareMode === 'versions' ? 'Version A' : 'Current filing' }}</span>
           <h5 class="filing-name">{{ nameA || 'Current filing' }}</h5>
         </div>
         <div class="compare-arrow" aria-hidden="true">
@@ -18,8 +18,33 @@
           </span>
         </div>
         <div class="filing-side filing-picker">
-          <label class="filing-label" for="compare-filing-b">Selected filing</label>
+          <label v-if="compareMode === 'versions'" class="filing-label" for="compare-version-b">Version B</label>
+          <label v-else class="filing-label" for="compare-filing-b">Selected filing</label>
           <select
+            v-if="compareMode === 'versions'"
+            id="compare-version-b"
+            class="filing-select"
+            :value="versionB"
+            :disabled="versionsLoading || switching"
+            @change="onVersionChange"
+          >
+            <option v-if="versionsLoading" value="" disabled>Loading versions…</option>
+            <option
+              v-else-if="versionB && !otherVersions.some((v) => String(v.version) === String(versionB))"
+              :value="versionB"
+            >
+              Version {{ versionB }}
+            </option>
+            <option
+              v-for="v in otherVersions"
+              :key="v.version"
+              :value="String(v.version)"
+            >
+              Version {{ v.version }}{{ v.is_current ? ' (current)' : '' }}
+            </option>
+          </select>
+          <select
+            v-else
             id="compare-filing-b"
             class="filing-select"
             :value="filingIdB"
@@ -49,18 +74,27 @@
       </div>
     </div>
 
-    <p class="legend-intro">
-      Color shows how the selected filing differs from the current filing.
-    </p>
-    <div class="legend">
-      <span class="legend-item" style="color: #b42318"> 
-        <span class="swatch old"></span>
-        Value in current filing ({{ nameA || 'current filing' }})
-      </span>
-      <span class="legend-item" style="color: #027a48">
-        <span class="swatch new"></span>
-        Value in selected filing ({{ nameB || 'selected filing' }})
-      </span>
+    <div class="legend-card">
+      <p class="legend-intro">
+        <font-awesome-icon icon="code-compare" class="legend-ic" />
+        <span>{{
+          compareMode === 'versions'
+            ? 'Color shows how Version B differs from Version A of the same filing.'
+            : 'Color shows how the selected filing differs from the current filing.'
+        }}</span>
+      </p>
+      <div class="legend-row">
+      <div class="legend">
+        <span class="legend-item" style="color: #b42318">
+          <span class="swatch old"></span>
+          Value in {{ compareMode === 'versions' ? 'Version A' : 'current filing' }} ({{ nameA || 'A' }})
+        </span>
+        <span class="legend-item" style="color: #027a48">
+          <span class="swatch new"></span>
+          Value in {{ compareMode === 'versions' ? 'Version B' : 'selected filing' }} ({{ nameB || 'B' }})
+        </span>
+      </div>
+      </div>
     </div>
 
     <div class="pdf-viewer">
@@ -70,13 +104,9 @@
           :key="fund.fund_id || fund.fund_name || idx"
           :class="['pdf-series', idx > 0 ? 'page-break' : '']"
         >
-          <div class="d-flex w-100 mb-2" style="border: 1px solid;">
-            <div style="border: 1px solid;" class="w-50 p-2">
-              <h4>{{ fund.fund_name }}</h4>
-            </div>
-            <div style="border: 1px solid;" class="w-50 p-2">
-              <h4>Information about the private funds you advise</h4>
-            </div>
+          <div class="fund-head">
+            <h4 class="fund-name">{{ fund.fund_name }}</h4>
+            <span class="fund-sub">Information about the private funds you advise</span>
           </div>
           <p v-if="fund.presence === 'onlyInA'" class="fund-banner removed-banner">
             Fund present only in {{ nameA || 'the previous filing' }}
@@ -93,7 +123,7 @@
               v-for="(fields, fieldIndex) in fieldsGroup"
               :key="fields.field_no || fieldIndex"
               class="pdf-field"
-              :style="{ marginLeft: getIndent(fields.field_no) + 'px' }"
+              :class="fieldRowClass(fields)"
             >
               <p class="field-number">
                 {{ getDisplayFieldNo(fields.field_no) }})
@@ -133,7 +163,7 @@
                       :key="rowIndex"
                       :class="row.status === 'added' ? 'row-added' : row.status === 'removed' ? 'row-removed' : ''"
                     >
-                      <td v-for="(cell, colIndex) in row.cells" :key="colIndex">
+                      <td v-for="(cell, colIndex) in row.cells" :key="colIndex" :class="cellClass(cell)">
                         <DiffValue :leaf="cell" />
                       </td>
                     </tr>
@@ -141,9 +171,9 @@
                 </table>
               </div>
 
-              <div v-if="fields.subItems?.length" class="field-content">
-                <span v-for="(items, itemIndex) in fields.subItems" :key="items.line_item_no || itemIndex" class="line-item">
-                  <p :style="{ marginLeft: getIndent(items.line_item_no) + 'px' }">
+                <div v-if="fields.subItems?.length" class="field-content">
+                  <div v-for="(items, itemIndex) in fields.subItems" :key="items.line_item_no || itemIndex" class="sub-item" :class="subItemClass(items)">
+                  <p>
                     <span class="line-number field-number">{{ getDisplayFieldNo(items.line_item_no) }})</span>
                     <span class="line-text">{{ items.line_text }}:</span>
                     <span v-if="items.line_item_type !== 'table' && items.line_item_type !== 'exp_table'" class="line-value">
@@ -172,14 +202,14 @@
                       </thead>
                       <tbody>
                         <tr v-for="(row, rowIndex) in items.expTable.rows" :key="rowIndex">
-                          <td v-for="(cell, colIndex) in row.cells" :key="colIndex">
+                          <td v-for="(cell, colIndex) in row.cells" :key="colIndex" :class="cellClass(cell)">
                             <DiffValue :leaf="cell" />
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
-                </span>
+                </div>
               </div>
             </div>
           </div>
@@ -211,17 +241,31 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  versionA: {
+    type: String,
+    default: '',
+  },
+  versionB: {
+    type: String,
+    default: '',
+  },
+  compareMode: {
+    type: String,
+    default: 'filings',
+  },
   switching: {
     type: Boolean,
     default: false,
   },
 })
 
-const emit = defineEmits(['change-filing-b'])
+const emit = defineEmits(['change-filing-b', 'change-version-b'])
 
 const userStore = useUserStore()
 const relatedFilings = ref([])
 const relatedLoading = ref(true)
+const filingVersions = ref([])
+const versionsLoading = ref(false)
 const compareStore = useCompareStore()
 const nameA = computed(() => compareStore.filingNameA)
 const nameB = computed(() => compareStore.filingNameB)
@@ -244,11 +288,36 @@ function getDisplayFieldNo(fieldNo) {
   return parts[parts.length - 1]
 }
 
-function getIndent(fieldNo) {
-  if (!fieldNo || typeof fieldNo !== 'string') return 0
-  const depth = (fieldNo.match(/_/g) || []).length
-  return depth * 30
+function fieldRowClass(field) {
+  const status = field?.value?.status
+  if (status === 'changed') return 'is-changed'
+  if (status === 'added') return 'is-added'
+  if (status === 'removed') return 'is-removed'
+  return ''
 }
+
+/* Highlight only the exact sub-question line that changed — same rule as
+   table cells. The parent question row stays untouched. */
+function subItemClass(item) {
+  const status = item?.value?.status
+  if (status === 'changed') return 'sub-changed'
+  if (status === 'added') return 'sub-added'
+  if (status === 'removed') return 'sub-removed'
+  return ''
+}
+
+function cellClass(cell) {
+  const status = cell?.status
+  if (status === 'changed') return 'cell-changed'
+  if (status === 'added') return 'cell-added'
+  if (status === 'removed') return 'cell-removed'
+  return ''
+}
+
+/* Side B version options: every version except the fixed base (Version A). */
+const otherVersions = computed(() =>
+  (filingVersions.value || []).filter((v) => String(v.version) !== String(props.versionA))
+)
 
 onMounted(async () => {
   try {
@@ -260,6 +329,17 @@ onMounted(async () => {
   } finally {
     relatedLoading.value = false
   }
+  if (props.compareMode === 'versions') {
+    try {
+      versionsLoading.value = true
+      const result = await api_call_methods.get_filing_versions(userStore.userID, props.filingIdA)
+      filingVersions.value = result.data?.data || []
+    } catch (error) {
+      console.error('Error fetching filing versions:', error)
+    } finally {
+      versionsLoading.value = false
+    }
+  }
 })
 
 function onFilingChange(event) {
@@ -268,6 +348,12 @@ function onFilingChange(event) {
   const selected = relatedFilings.value.find((filing) => filing.id === selectedId)
   if (!selected) return
   emit('change-filing-b', selected)
+}
+
+function onVersionChange(event) {
+  const selectedVersion = event.target.value
+  if (!selectedVersion || String(selectedVersion) === String(props.versionB)) return
+  emit('change-version-b', Number(selectedVersion))
 }
 
 function goBack() {
@@ -288,12 +374,13 @@ function goBack() {
 }
 .compare-toolbar {
   display: flex;
-  align-items: flex-end;
-  gap: 16px;
+  align-items: stretch;
+  gap: 12px;
   padding: 12px 16px;
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 6px 18px rgba(16, 24, 40, 0.06);
 }
 .back-btn {
   background: #fff;
@@ -303,61 +390,75 @@ function goBack() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   gap: 8px;
   height: 42px;
   padding: 0 14px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 9px;
+  font-size: 0.85rem;
   font-weight: 600;
   flex-shrink: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
 .back-btn:hover {
-  background: #f3f4f6;
+  background: #f8fafc;
+  border-color: #d1d5db;
 }
 .filing-pair {
   display: flex;
-  align-items: flex-end;
-  gap: 16px;
+  align-items: stretch;
+  gap: 10px;
   min-width: 0;
   flex: 1;
 }
 .filing-side {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 3px;
   min-width: 0;
   flex: 1;
+  background: #f8fafc;
+  border: 1px solid #eef1f4;
+  border-radius: 10px;
+  padding: 8px 14px;
 }
 .filing-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #6b7280;
   margin: 0;
 }
 .filing-name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: #111827;
-  line-height: 1.3;
-  height: 42px;
-  display: flex;
-  align-items: center;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .filing-select {
   width: 100%;
-  min-width: 220px;
-  height: 42px;
+  min-width: 200px;
+  height: 32px;
   border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: 7px;
   background: #fff;
   color: #111827;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  padding: 0 12px;
+  padding: 0 8px;
   line-height: 1.3;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.filing-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
 }
 .filing-select:disabled {
   opacity: 0.7;
@@ -367,6 +468,7 @@ function goBack() {
   flex-direction: column;
   gap: 6px;
   align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 .arrow-spacer {
@@ -376,10 +478,13 @@ function goBack() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
   color: #4b5563;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 .switching-note {
   display: flex;
@@ -387,16 +492,38 @@ function goBack() {
   font-size: 0.8rem;
   color: #0d6efd;
 }
+.legend-card {
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 16px 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
 .legend-intro {
-  margin: 14px 4px 8px;
-  font-size: 0.9rem;
-  color: #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+.legend-ic {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+.legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
 }
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: 12px 18px;
-  padding: 0 4px 14px;
   font-size: 0.85rem;
   color: #374151;
 }
@@ -419,7 +546,32 @@ function goBack() {
   background: white; margin: auto; box-shadow: 0 0 8px rgba(0,0,0,0.15);
   font-family: 'Times New Roman', serif; line-height: 1.4;
 }
+.fund-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid #111;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.fund-head .fund-name {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.fund-sub {
+  margin: 0;
+  font-size: 1rem;
+  color: #374151;
+}
 .pdf-field { margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+.pdf-field.is-changed { background: #fff7e0; box-shadow: inset 3px 0 0 #e8930c; padding-left: 8px; }
+.pdf-field.is-added { background: #eafbef; box-shadow: inset 3px 0 0 #12b76a; padding-left: 8px; }
+.pdf-field.is-removed { background: #fdeeee; box-shadow: inset 3px 0 0 #d92d20; padding-left: 8px; }
+.sub-item { border-radius: 6px; padding: 2px 8px; }
+.sub-item.sub-changed { background: #fff7e0; box-shadow: inset 3px 0 0 #e8930c; }
+.sub-item.sub-added { background: #eafbef; box-shadow: inset 3px 0 0 #12b76a; }
+.sub-item.sub-removed { background: #fdeeee; box-shadow: inset 3px 0 0 #d92d20; }
 .field-number { font-weight: bold; font-size: 16px; }
 .line-item p { margin: 4px 0; }
 .line-number { font-weight: bold; margin-right: 5px; }
@@ -445,4 +597,7 @@ function goBack() {
 .added-banner { background: #ecfdf3; color: #027a48; }
 .row-added { background: #ecfdf3; }
 .row-removed { background: #fef3f2; }
+.cell-changed { background: #fff8e6; }
+.cell-added { background: #e6f9ee; }
+.cell-removed { background: #fdecea; }
 </style>

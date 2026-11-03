@@ -24,8 +24,12 @@
                 <CompareComponent
                   :filingIdA="filingIdA"
                   :filingIdB="filingIdB"
+                  :versionA="versionA"
+                  :versionB="versionB"
+                  :compareMode="compareMode"
                   :switching="switching"
                   @change-filing-b="onChangeFilingB"
+                  @change-version-b="onChangeVersionB"
                 />
             </div>
             <div v-if="openAddFundPopUp" class="backdrop">
@@ -51,6 +55,9 @@ const toast = useToast()
 const compareStore = useCompareStore()
 const filingIdA = computed(() => route.query.filing_id_a || '')
 const filingIdB = computed(() => route.query.filing_id_b || '')
+const versionA = computed(() => route.query.version_a || '')
+const versionB = computed(() => route.query.version_b || '')
+const compareMode = computed(() => (versionA.value && versionB.value ? 'versions' : 'filings'))
 
 const openAddFundPopUp = ref(false)
 const loading = ref(true)
@@ -70,8 +77,8 @@ onMounted(async () => {
       nameB: route.query.name_b || '',
     })
     const [resultA, resultB] = await Promise.all([
-      api_call_methods.get_response(user_id, filingIdA.value),
-      api_call_methods.get_response(user_id, filingIdB.value),
+      api_call_methods.get_response(user_id, filingIdA.value, versionA.value ? Number(versionA.value) : null),
+      api_call_methods.get_response(user_id, filingIdB.value, versionB.value ? Number(versionB.value) : null),
     ])
     compareStore.setResponseA(resultA.data, route.query.name_a || '')
     compareStore.setResponseB(resultB.data, route.query.name_b || '')
@@ -99,12 +106,50 @@ async function onChangeFilingB(filing) {
         ...route.query,
         filing_id_b: filing.id,
         name_b: filing.filing_name || '',
+        version_a: undefined,
+        version_b: undefined,
       },
     })
     toast.success(`Comparing with ${filing.filing_name || 'the selected filing'}`)
   } catch (error) {
     console.error('Error switching comparison filing:', error)
     toast.error('Could not load the selected filing')
+  } finally {
+    switching.value = false
+  }
+}
+
+function baseFilingName() {
+  const stored = localStorage.getItem('filingName') || ''
+  if (stored) return stored
+  return String(compareStore.filingNameA || route.query.name_a || 'Filing').replace(/\s·\sv\d+\s*$/, '')
+}
+
+async function onChangeVersionB(version) {
+  const v = Number(version)
+  if (!v || String(v) === String(versionB.value)) return
+  try {
+    switching.value = true
+    toast.info(`Loading comparison with Version ${v}…`)
+    const resultB = await api_call_methods.get_response(user_id, filingIdB.value, v)
+    const label = `${baseFilingName()} · v${v}`
+    compareStore.setResponseB(resultB.data, label)
+    compareStore.setFilingMeta({
+      nameA: compareStore.filingNameA,
+      nameB: label,
+    })
+    await router.replace({
+      name: 'compare',
+      query: {
+        ...route.query,
+        version_b: String(v),
+        name_b: label,
+      },
+    })
+    toast.success(`Comparing with Version ${v}`)
+  } catch (error) {
+    console.error('Error switching comparison version:', error)
+    toast.error('Could not load the selected version')
   } finally {
     switching.value = false
   }

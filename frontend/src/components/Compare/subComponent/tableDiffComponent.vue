@@ -26,6 +26,7 @@
             v-for="col in table.columns"
             :key="col"
             class="thick-border fixed-col"
+            :class="cellClass(row.cells[col])"
           >
             <DiffValue
               :leaf="row.cells[col]"
@@ -60,6 +61,14 @@ function rowStatusClass(status) {
   return ''
 }
 
+function cellClass(cell) {
+  const status = cell?.status
+  if (status === 'changed') return 'cell-changed'
+  if (status === 'added') return 'cell-added'
+  if (status === 'removed') return 'cell-removed'
+  return ''
+}
+
 function getTableHeaderName(header) {
   if (header === 's.name' || header === 's.text') return ''
   if (header === 'costbased') return 'cost-based'
@@ -86,5 +95,14 @@ function getTableHeaderName(header) {
 }
 .row-removed {
   background: #fef3f2;
+}
+.cell-changed {
+  background: #fff8e6;
+}
+.cell-added {
+  background: #e6f9ee;
+}
+.cell-removed {
+  background: #fdecea;
 }
 </style>

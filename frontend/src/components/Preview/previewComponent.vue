@@ -596,15 +596,30 @@ function openMappedFiles(){
 function openCompareSelector(){
   openComparePopUp.value=true
 }
-function onCompareSelected(relatedFiling){
+function onCompareSelected(selection){
   openComparePopUp.value=false
+  if (selection?.mode === 'versions') {
+    const baseName = localStorage.getItem('filingName') || 'Filing'
+    router.push({
+      name: 'compare',
+      query: {
+        filing_id_a: props.filingId,
+        filing_id_b: props.filingId,
+        version_a: String(selection.versionA),
+        version_b: String(selection.versionB),
+        name_a: `${baseName} · v${selection.versionA}`,
+        name_b: `${baseName} · v${selection.versionB}`,
+      }
+    })
+    return
+  }
   router.push({
     name: 'compare',
     query: {
       filing_id_a: props.filingId,
-      filing_id_b: relatedFiling.id,
+      filing_id_b: selection.id,
       name_a: localStorage.getItem('filingName') || '',
-      name_b: relatedFiling.filing_name || '',
+      name_b: selection.filing_name || '',
     }
   })
 }

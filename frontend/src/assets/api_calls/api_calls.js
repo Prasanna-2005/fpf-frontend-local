@@ -354,6 +354,18 @@ async function get_related_filings(user_id, filing_id) {
     return response
 }
 
+async function get_filing_versions(user_id, filing_id) {
+    const response = await api.get(`/api/v1/filings/${filing_id}/versions`,
+        {
+            withCredentials: true,
+            headers: {
+                'X-User-ID': user_id
+            }
+        }
+    )
+    return response
+}
+
 async function get_reviews(user_id, filing_id, fund_id) {
     const response = await api.get(`/api/v1/submissions/${filing_id}/reviews`,
         {
@@ -435,6 +447,7 @@ const api_call_methods={
     get_history,
     get_mapped_files,
     get_related_filings,
+    get_filing_versions,
     edit_user,
     latest_changes,
     get_reviews,
