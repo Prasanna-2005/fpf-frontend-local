@@ -394,7 +394,7 @@ const responseStore = useEditableStore()
 const editedData = reactive({})
 const fundname=ref(props.fundName)
 const data = ref(responseStore.getFundData(fundname.value))
-const computationLogs=ref(responseStore.getFundComputation(fundname.value))
+const computationLogs = computed(() => responseStore.getFundComputation(fundname.value) || [])
 const editingFieldNo = ref(null)
 const recentlySaved = ref(new Set())
 const reviewsByField = ref({})
@@ -519,7 +519,6 @@ function sectionHeading(fieldNo) {
 watch(() => props.fundName, (newVal) => {
   fundname.value = newVal
   data.value = responseStore.getFundData(newVal)
-  computationLogs.value = responseStore.getFundComputation(newVal)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
   recentlySaved.value = new Set()
@@ -531,7 +530,6 @@ watch(() => props.fundName, (newVal) => {
 
 watch(() => props.filingVersion, () => {
   data.value = responseStore.getFundData(fundname.value)
-  computationLogs.value = responseStore.getFundComputation(fundname.value)
   for (const key in editedData) delete editedData[key]
   editingFieldNo.value = null
   recentlySaved.value = new Set()
@@ -1066,8 +1064,12 @@ async function undoReview(fieldNo) {
   reviewIntent[fieldNo] = false
   await flushReview(fieldNo, fundId)
 }
-function openCompLogs(field_no,field_text){
-  const field = computationLogs.value.find(
+async function openCompLogs(field_no,field_text){
+  if (responseStore.isComputationsLoading) {
+    await responseStore.ensureComputations()
+  }
+  const logs = responseStore.getFundComputation(fundname.value) || []
+  const field = logs.find(
     item => item.field_no === field_no
   )
 

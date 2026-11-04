@@ -7,6 +7,16 @@ export const useEditableStore = defineStore('response', () => {
   const computations_mapper=ref({})
   const computations=ref([])
   const status=ref(localStorage.getItem('filingStatus') || '')
+  const isComputationsLoading=ref(false)
+  let computationsResolve = null
+  let computationsPromise = null
+
+  function startComputationsLoad() {
+    isComputationsLoading.value = true
+    computationsPromise = new Promise((resolve) => {
+      computationsResolve = resolve
+    })
+  }
 
   function setResponse(rawResponse) {
     response.value = rawResponse
@@ -28,15 +38,28 @@ export const useEditableStore = defineStore('response', () => {
     computations.value = rawComputations
     computations_mapper.value = {}
 
-    rawComputations.funds.forEach(fund => {
-      const fundName = fund.fund_name
-      computations_mapper.value[fundName] = fund.fund_computation.map(q => ({
-        ...q,
-        isRestoreAvailable: false,
-        restoreValue: null,
-        fund_id: fund.fund_id
-      }))
-    })
+    if (rawComputations && Array.isArray(rawComputations.funds)) {
+      rawComputations.funds.forEach(fund => {
+        const fundName = fund.fund_name
+        computations_mapper.value[fundName] = (fund.fund_computation || []).map(q => ({
+          ...q,
+          isRestoreAvailable: false,
+          restoreValue: null,
+          fund_id: fund.fund_id
+        }))
+      })
+    }
+    isComputationsLoading.value = false
+    if (computationsResolve) {
+      computationsResolve(rawComputations)
+      computationsResolve = null
+    }
+  }
+
+  async function ensureComputations() {
+    if (!isComputationsLoading.value) return computations.value
+    if (computationsPromise) return await computationsPromise
+    return computations.value
   }
 
 
@@ -147,7 +170,9 @@ export const useEditableStore = defineStore('response', () => {
     getStatus,
     status,
     setComputations,
-    getFundComputation
-
+    getFundComputation,
+    isComputationsLoading,
+    startComputationsLoad,
+    ensureComputations
   }
 })
