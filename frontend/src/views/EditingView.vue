@@ -147,10 +147,11 @@ function hasCurrentEdit(historyData, version) {
 onMounted(async () => {
   try {
     loading.value = true
-    await update_status_to_draft()
+    load_computations()
     await set_response()
     loading.value = false
   } catch (error) {
+    loading.value = false
     loader.value = false
     const message = error?.response?.data?.message
     if (error?.response?.status === 409 && message) {
@@ -161,17 +162,21 @@ onMounted(async () => {
   }
 })
 
-async function update_status_to_draft() {
-  await api_call_methods.update_status(user_id, filing_id, 'Draft')
-  responseStore.setStatus('Draft')
-}
-
 async function set_response() {
   const result = await api_call_methods.get_response(user_id, filing_id)
   applyFilingPayload(result.data)
   fundName.value = fundNames.value[0]
-  const computations = await api_call_methods.get_computations(user_id, filing_id)
-  responseStore.setComputations(computations.data)
+}
+
+async function load_computations() {
+  try {
+    responseStore.startComputationsLoad()
+    const computations = await api_call_methods.get_computations(user_id, filing_id)
+    responseStore.setComputations(computations.data)
+  } catch (err) {
+    console.error('Error fetching computation logs:', err)
+    responseStore.setComputations({ funds: [] })
+  }
 }
 
 function applyFilingPayload(payload) {
