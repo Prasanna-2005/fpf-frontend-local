@@ -79,7 +79,7 @@ import addFundComponent from '@/components/popUps/addFundComponent.vue'
 import computationLogsPopUpComp from '@/components/popUps/computationLogsPopUpComp.vue'
 import OverlayComponent from '@/components/Home/OverlayComponent.vue'
 import PageStateLoader from '@/components/common/PageStateLoader.vue'
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
 import { useEditableStore } from '@/stores/responseStore'
@@ -110,6 +110,7 @@ const history = ref({})
 const historyLoading = ref(false)
 let historyRequest = 0
 const fieldNo = ref('')
+const historyFundId = ref('')
 const fieldType = ref('')
 const hasTableData = ref(false)
 const openMappedFilesPopUp = ref(false)
@@ -233,19 +234,40 @@ function goToDashboard() {
   router.push({ name: 'home' })
 }
 
+function applyHistory(field, data) {
+  history.value = data || {}
+  editedFlags[field] = hasCurrentEdit(data, selectedVersion.value)
+}
+
 async function openHistory(payload) {
   const request = ++historyRequest
   fieldNo.value = payload.fieldNo
+  historyFundId.value = payload.fundId
   fieldType.value = payload.fieldType
   hasTableData.value = Boolean(payload.hasTableData)
+  openhistoryPopUp.value = true
+
+  const cached = responseStore.questionHistory(
+    payload.filingId,
+    payload.fundId,
+    payload.fieldNo
+  )
+  if (cached) {
+    applyHistory(payload.fieldNo, cached)
+    historyLoading.value = false
+    return
+  }
+
   history.value = {}
   historyLoading.value = true
-  openhistoryPopUp.value = true
   try {
-    const result = await api_call_methods.get_history(user_id, payload, { skipErrorToast: false })
+    const data = await responseStore.loadQuestionHistory(user_id, {
+      filingId: payload.filingId,
+      fundId: payload.fundId,
+      fieldNo: payload.fieldNo,
+    }, { skipErrorToast: false })
     if (request !== historyRequest) return
-    history.value = result.data
-    editedFlags[payload.fieldNo] = hasCurrentEdit(result.data, selectedVersion.value)
+    applyHistory(payload.fieldNo, data)
   } catch (error) {
     if (request !== historyRequest) return
     console.error('Error loading history:', error)
@@ -254,6 +276,15 @@ async function openHistory(payload) {
     if (request === historyRequest) historyLoading.value = false
   }
 }
+
+watch(
+  () => responseStore.questionHistory(filing_id, historyFundId.value, fieldNo.value),
+  (data) => {
+    if (!openhistoryPopUp.value || !data) return
+    applyHistory(fieldNo.value, data)
+    historyLoading.value = false
+  }
+)
 
 function goToPreview() {
   router.push({ name: 'preview', query: { filing_id } })

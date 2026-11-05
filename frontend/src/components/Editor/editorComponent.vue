@@ -432,12 +432,12 @@ function isEdited(fieldNo) {
 async function refreshEditedFlag(fieldNo) {
   const fund_id = responseStore.getFundId(fundname.value)
   if (!fund_id) return
-  const res = await api_call_methods.get_history(user_id, {
+  const data = await responseStore.loadQuestionHistory(user_id, {
     filingId: props.filingId,
     fundId: fund_id,
     fieldNo,
-  })
-  const edited = hasCurrentEdit(res.data, props.filingVersion)
+  }, { force: true })
+  const edited = hasCurrentEdit(data, props.filingVersion)
   const nextSaved = new Set(recentlySaved.value)
   if (edited) nextSaved.add(fieldNo)
   else nextSaved.delete(fieldNo)
@@ -469,15 +469,15 @@ async function prefetchEditedFlags() {
     const chunk = list.slice(i, i + chunkSize)
     const settled = await Promise.allSettled(
       chunk.map((field) =>
-        api_call_methods
-          .get_history(user_id, {
+        responseStore
+          .loadQuestionHistory(user_id, {
             filingId: props.filingId,
             fundId: fund_id,
             fieldNo: field.field_no,
           })
-          .then((res) => ({
+          .then((data) => ({
             fieldNo: field.field_no,
-            edited: hasCurrentEdit(res.data, props.filingVersion),
+            edited: hasCurrentEdit(data, props.filingVersion),
           }))
       )
     )
@@ -759,6 +759,11 @@ async function saveEdits(fieldNo, value, fieldIndex) {
     editingFieldNo.value = null
     delete editedData[fieldNo]
     markEdited(fieldNo)
+    try {
+      await refreshEditedFlag(fieldNo)
+    } catch (error) {
+      console.error('Error refreshing history:', error)
+    }
     toast.success(`Saved Question ${fieldNo}`)
   } catch(error){
     console.log(error)

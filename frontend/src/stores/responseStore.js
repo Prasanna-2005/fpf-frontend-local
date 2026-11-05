@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import api_call_methods from '@/assets/api_calls/api_calls'
 
 export const useEditableStore = defineStore('response', () => {
   const response = ref([])
@@ -10,6 +11,47 @@ export const useEditableStore = defineStore('response', () => {
   const isComputationsLoading=ref(false)
   let computationsResolve = null
   let computationsPromise = null
+  const historyCache = ref({})
+  const historyInflight = new Map()
+  const historyGeneration = new Map()
+
+  function historyKey(filingId, fundId, fieldNo) {
+    return `${filingId}|${fundId}|${fieldNo}`
+  }
+
+  function questionHistory(filingId, fundId, fieldNo) {
+    return historyCache.value[historyKey(filingId, fundId, fieldNo)] || null
+  }
+
+  async function loadQuestionHistory(userId, { filingId, fundId, fieldNo }, options = {}) {
+    const key = historyKey(filingId, fundId, fieldNo)
+    if (options.force) {
+      historyGeneration.set(key, (historyGeneration.get(key) || 0) + 1)
+      const next = { ...historyCache.value }
+      delete next[key]
+      historyCache.value = next
+      historyInflight.delete(key)
+    }
+    if (historyCache.value[key]) return historyCache.value[key]
+    if (historyInflight.has(key)) return historyInflight.get(key)
+
+    const generation = historyGeneration.get(key) || 0
+    const request = api_call_methods.get_history(
+      userId,
+      { filingId, fundId, fieldNo },
+      { skipErrorToast: options.skipErrorToast !== false }
+    ).then((res) => {
+      if ((historyGeneration.get(key) || 0) !== generation) {
+        return historyCache.value[key] || null
+      }
+      historyCache.value = { ...historyCache.value, [key]: res.data }
+      return res.data
+    }).finally(() => {
+      if (historyInflight.get(key) === request) historyInflight.delete(key)
+    })
+    historyInflight.set(key, request)
+    return request
+  }
 
   function startComputationsLoad() {
     isComputationsLoading.value = true
@@ -173,6 +215,8 @@ export const useEditableStore = defineStore('response', () => {
     getFundComputation,
     isComputationsLoading,
     startComputationsLoad,
-    ensureComputations
+    ensureComputations,
+    questionHistory,
+    loadQuestionHistory
   }
 })
