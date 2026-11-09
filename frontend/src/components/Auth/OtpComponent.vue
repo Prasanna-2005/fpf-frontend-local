@@ -95,15 +95,20 @@ async function submitotp(event) {
                 toast.success('Code Verified Successfully!');
                 const expiry_time=parseInt(result.data.response.expiry_time[0])* 60 * 60 * 1000
                 const expiry_timestamp = Date.now() +expiry_time
+                const role = String(result.data.response.role || '').toLowerCase()
                 userStore.login({
                     username: result.data.response.username,
                     email: props.email,
-                    role: result.data.response.role,
+                    role,
                     userID: props.user_id,
                     expiry:expiry_timestamp,
                     clientCode:result.data.response.client_id
                 });
-                location.replace('/home');
+                if (role === 'admin' || role === 'superadmin') {
+                    location.replace('/admin')
+                } else {
+                    location.replace('/home')
+                }
             } else {
                 toast.error('Invalid !');
             }

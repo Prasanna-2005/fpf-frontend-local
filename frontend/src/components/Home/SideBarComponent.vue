@@ -29,7 +29,7 @@
       </div>
 
       <ul class="sidebar-nav">
-        <li v-if="role === 'admin'">
+        <li v-if="role === 'admin' || role === 'superadmin'">
           <a
             href="/admin"
             class="nav-link"
@@ -37,10 +37,10 @@
             :aria-current="isAdminRoute ? 'page' : undefined"
           >
             <font-awesome-icon icon="user" />
-            <span v-show="!isCollapsed">Users</span>
+            <span v-show="!isCollapsed">{{ role === 'superadmin' ? 'Clients' : 'Users' }}</span>
           </a>
         </li>
-        <li v-if="role !== 'admin'">
+        <li v-if="role !== 'admin' && role !== 'superadmin'">
           <a
             href="/home"
             class="nav-link"
@@ -51,13 +51,13 @@
             <span v-show="!isCollapsed">Dashboard</span>
           </a>
         </li>
-        <li v-if="role !== 'admin'">
+        <li v-if="role !== 'admin' && role !== 'superadmin'">
           <span class="nav-link nav-link-disabled" title="Coming soon" aria-disabled="true">
             <font-awesome-icon icon="chart-line" />
             <span v-show="!isCollapsed">Report</span>
           </span>
         </li>
-        <li v-if="role !== 'admin'">
+        <li v-if="role !== 'admin' && role !== 'superadmin'">
           <button type="button" class="nav-link" @click="addFund">
             <font-awesome-icon icon="folder-plus" />
             <span v-show="!isCollapsed">Add Fund</span>

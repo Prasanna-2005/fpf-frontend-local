@@ -6,7 +6,7 @@
       <header class="admin-header">
         <div>
           <h1>Admin</h1>
-          <p class="subtitle">Manage users and access for your organization</p>
+          <p class="subtitle">{{ pageSubtitle }}</p>
         </div>
         <div class="header-right">
           <div class="user">
@@ -19,12 +19,15 @@
         </div>
       </header>
 
-      <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
-      <AnalyticsTableComponent
-        ref="usersTable"
-        :selected-year="selectedYear"
-        @edit-user="openUserEditor"
-      />
+      <SuperAdminComponent v-if="isSuperAdmin" />
+      <template v-else>
+        <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
+        <AnalyticsTableComponent
+          ref="usersTable"
+          :selected-year="selectedYear"
+          @edit-user="openUserEditor"
+        />
+      </template>
     </div>
 
     <div v-if="deletePopUp" class="admin-backdrop">
@@ -61,6 +64,7 @@ import addUserComponent from '@/components/Admin/addUserComponent.vue'
 import popUpComponent from '@/components/popUps/popUpComponent.vue'
 import addFundComponent from '@/components/popUps/addFundComponent.vue'
 import editUserComponent from '@/components/Admin/editUserComponent.vue'
+import SuperAdminComponent from '@/components/Admin/superAdminComponent.vue'
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toast-notification'
@@ -71,6 +75,12 @@ const toast = useToast()
 const usersTable = ref(null)
 const username = computed(() => userStore.username || 'Admin')
 const role = computed(() => userStore.role || 'admin')
+const isSuperAdmin = computed(() => String(userStore.role || '').toLowerCase() === 'superadmin')
+const pageSubtitle = computed(() =>
+  isSuperAdmin.value
+    ? 'Manage Admins for the organisation'
+    : 'Manage users and access for your organization',
+)
 const userInitial = computed(() => {
   const name = username.value || 'A'
   return name.charAt(0).toUpperCase()
@@ -134,9 +144,10 @@ async function submitEdit({ next, password }) {
 .admin-main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  max-height: 100vh;
+  height: 100vh;
   overflow: hidden;
   padding: 28px 32px;
   gap: 20px;

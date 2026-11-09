@@ -53,7 +53,7 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Admin-FormPf',
-        roles: ['admin'],
+        roles: ['admin', 'superadmin'],
        }
     },
     {
@@ -85,15 +85,15 @@ router.beforeEach((to, from, next) => {
 
   const userStore = useUserStore()
 
-  // 1️⃣ Not logged in
-  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+  const signedIn = userStore.isAuthenticated
+  const role = String(userStore.role || '').toLowerCase()
+
+  if (to.meta.requiresAuth && !signedIn) {
     return next('/')
   }
 
-  // 2️⃣ Role restricted route
-  if (to.meta.roles && !to.meta.roles.includes(userStore.role)) {
-    // redirect based on role
-    if (userStore.role === 'admin') {
+  if (to.meta.roles && !to.meta.roles.includes(role)) {
+    if (role === 'admin' || role === 'superadmin') {
       return next('/admin')
     }
     return next('/home')

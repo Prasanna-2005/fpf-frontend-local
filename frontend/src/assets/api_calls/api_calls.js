@@ -91,6 +91,22 @@ async function create_user(data,user_id){
     console.log(response)
 }
 
+async function create_client(data, user_id) {
+    const response = await api.post('/api/v1/admin/create_client', data, {
+        withCredentials: true,
+        headers: { 'X-User-ID': user_id }
+    })
+    return response
+}
+
+async function get_client_admins(user_id) {
+    const response = await api.get('/api/v1/admin/client_admins', {
+        withCredentials: true,
+        headers: { 'X-User-ID': user_id }
+    })
+    return response
+}
+
 async function edit_user(data,user_id){
     const response=await api.post('/api/v1/admin/edit_user',data,
         {
@@ -449,6 +465,8 @@ const api_call_methods={
     get_related_filings,
     get_filing_versions,
     edit_user,
+    create_client,
+    get_client_admins,
     latest_changes,
     get_reviews,
     accept_review,
