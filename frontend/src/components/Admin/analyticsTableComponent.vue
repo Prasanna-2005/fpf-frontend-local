@@ -47,6 +47,15 @@
               >
                 <font-awesome-icon icon="pen" />
               </button>
+              <button
+                type="button"
+                class="icon-btn"
+                title="Send password reset link"
+                aria-label="Send password reset link"
+                @click="sendReset(user)"
+              >
+                <font-awesome-icon icon="envelope" />
+              </button>
             </td>
           </tr>
         </tbody>
@@ -59,6 +68,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import api_call_methods from '@/assets/api_calls/api_calls'
+import { useToast } from 'vue-toast-notification'
 
 const props = defineProps({
   selectedYear: {
@@ -70,6 +80,7 @@ const props = defineProps({
 const emit = defineEmits(['delete-user', 'edit-user'])
 
 const userStore = useUserStore()
+const toast = useToast()
 const user_id = userStore.userID
 const data = ref([])
 const isLoading = ref(true)
@@ -114,6 +125,16 @@ function replaceUser(updated) {
 }
 
 defineExpose({ replaceUser })
+
+async function sendReset(user) {
+  try {
+    await api_call_methods.send_reset_link(user.user_id, user_id)
+    toast.success('A code was sent to their email')
+  } catch (error) {
+    console.error(error)
+    toast.error('The code could not be sent')
+  }
+}
 
 function getInitials(name = '') {
   const parts = String(name).split(/[.\s_-]+/).filter(Boolean)

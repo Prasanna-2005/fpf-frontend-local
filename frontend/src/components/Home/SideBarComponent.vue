@@ -83,7 +83,7 @@
           </button>
         </li>
         <li v-if="isSetting && !isCollapsed">
-          <a href="/reset" class="nav-link nav-link-sub">
+          <a href="/reset?account=1" class="nav-link nav-link-sub">
             <span>Reset Password</span>
           </a>
         </li>

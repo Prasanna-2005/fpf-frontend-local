@@ -107,6 +107,19 @@ async function get_client_admins(user_id) {
     return response
 }
 
+async function send_reset_link(target_user_id, user_id) {
+    const response = await api.post('/api/v1/admin/reset_link', { user_id: target_user_id }, {
+        withCredentials: true,
+        headers: { 'X-User-ID': user_id }
+    })
+    return response
+}
+
+async function complete_reset(data) {
+    const response = await api.post('/api/v1/auth/complete_reset', data)
+    return response
+}
+
 async function edit_user(data,user_id){
     const response=await api.post('/api/v1/admin/edit_user',data,
         {
@@ -467,6 +480,8 @@ const api_call_methods={
     edit_user,
     create_client,
     get_client_admins,
+    send_reset_link,
+    complete_reset,
     latest_changes,
     get_reviews,
     accept_review,

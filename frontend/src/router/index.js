@@ -22,7 +22,7 @@ const router = createRouter({
       name: 'reset',
       component: ResetView,
       meta: { 
-        requiresAuth: true,
+        requiresAuth: false,
         title: 'Reset-FormPf'
        }
     },
