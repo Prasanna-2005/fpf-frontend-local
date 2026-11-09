@@ -63,12 +63,12 @@
         <p v-if="error" class="error-text">{{ error }}</p>
 
         <div class="modal-actions">
-          <button type="button" class="btn-secondary" :disabled="isSubmitting" @click="handleCancel">
+          <button type="button" class="btn-secondary" :disabled="saving" @click="handleCancel">
             Cancel
           </button>
-          <button type="submit" class="btn-primary" :disabled="isSubmitting">
-            <span v-if="isSubmitting" class="ui-spinner light" aria-hidden="true"></span>
-            {{ isSubmitting ? 'Saving…' : 'Save Changes' }}
+          <button type="submit" class="btn-primary" :disabled="saving">
+            <span v-if="saving" class="ui-spinner" aria-hidden="true"></span>
+            {{ saving ? 'Saving...' : 'Save Changes' }}
           </button>
         </div>
       </form>
@@ -78,18 +78,17 @@
 
 <script setup>
 import { ref } from 'vue'
-import api_call_methods from '@/assets/api_calls/api_calls'
-import { useUserStore } from '@/stores/userStore'
-import { useToast } from 'vue-toast-notification'
 
-const toast = useToast()
-const userStore = useUserStore()
-const emit = defineEmits(['cancel-edit-user'])
+const emit = defineEmits(['cancel-edit-user', 'submit-edit'])
 
 const props = defineProps({
   data: {
     type: Object,
     required: true,
+  },
+  saving: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -100,37 +99,30 @@ const email = ref(props.data.email || '')
 const role = ref((props.data.role || '').toLowerCase())
 const password = ref('')
 const error = ref('')
-const isSubmitting = ref(false)
 
-const user_id = userStore.userID
-
-async function handleSubmit() {
+function handleSubmit() {
+  if (props.saving) return
   error.value = ''
   if (!firstname.value.trim() || !lastname.value.trim() || !email.value.trim() || !role.value) {
     error.value = 'Please fill out all required fields.'
     return
   }
 
-  try {
-    isSubmitting.value = true
-    const userData = {
+  emit('submit-edit', {
+    previous: {
+      user_id: props.data.user_id,
+      username: props.data.username,
+      email: props.data.email,
+      role: props.data.role,
+    },
+    next: {
+      user_id: props.data.user_id,
       username: `${firstname.value.trim()}.${lastname.value.trim()}`,
       email: email.value.trim(),
-      user_role: role.value,
-      password: password.value,
-    }
-    const data = {
-      client_code: userStore.clientCode,
-      data: userData,
-    }
-    await api_call_methods.edit_user(data, user_id)
-    toast.success('User updated successfully')
-    location.reload()
-  } catch (err) {
-    console.log(err)
-  } finally {
-    isSubmitting.value = false
-  }
+      role: role.value,
+    },
+    password: password.value,
+  })
 }
 
 function handleCancel() {

@@ -21,6 +21,7 @@
 
       <TopBarComponent @add-user="handleAddUser" @update:year="selectedYear = $event" />
       <AnalyticsTableComponent
+        ref="usersTable"
         :selected-year="selectedYear"
         @edit-user="openUserEditor"
       />
@@ -40,7 +41,9 @@
     <editUserComponent
       v-if="editUser"
       :data="editUserData"
+      :saving="savingEdit"
       @cancel-edit-user="handleEditCancel"
+      @submit-edit="submitEdit"
     />
 
     <addFundComponent
@@ -60,8 +63,12 @@ import addFundComponent from '@/components/popUps/addFundComponent.vue'
 import editUserComponent from '@/components/Admin/editUserComponent.vue'
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useToast } from 'vue-toast-notification'
+import api_call_methods from '@/assets/api_calls/api_calls'
 
 const userStore = useUserStore()
+const toast = useToast()
+const usersTable = ref(null)
 const username = computed(() => userStore.username || 'Admin')
 const role = computed(() => userStore.role || 'admin')
 const userInitial = computed(() => {
@@ -75,6 +82,7 @@ const userIdToBeDeleted = ref('')
 const openAddFundPopUp = ref(false)
 const editUser = ref(false)
 const editUserData = ref({})
+const savingEdit = ref(false)
 const selectedYear = ref('2026')
 const adding_user = ref(false)
 
@@ -90,6 +98,30 @@ function openUserEditor(data) {
 }
 function handleEditCancel() {
   editUser.value = false
+}
+
+async function submitEdit({ next, password }) {
+  if (savingEdit.value) return
+  savingEdit.value = true
+  try {
+    await api_call_methods.edit_user({
+      client_code: userStore.clientCode,
+      data: {
+        user_id: next.user_id,
+        username: next.username,
+        email: next.email,
+        user_role: next.role,
+        password,
+      },
+    }, userStore.userID)
+    usersTable.value?.replaceUser(next)
+    editUser.value = false
+    toast.success('User updated successfully')
+  } catch (error) {
+    toast.error(error.response?.data?.message || 'The update did not save.')
+  } finally {
+    savingEdit.value = false
+  }
 }
 </script>
 

@@ -43,7 +43,7 @@
                 class="icon-btn"
                 title="Edit user"
                 aria-label="Edit user"
-                @click="openEditUser(user.username, user.email, user.role)"
+                @click="openEditUser(user)"
               >
                 <font-awesome-icon icon="pen" />
               </button>
@@ -93,9 +93,27 @@ const filteredData = computed(() => {
   })
 })
 
-function openEditUser(username, email, role) {
-  emit('edit-user', { username, email, role })
+function openEditUser(user) {
+  emit('edit-user', {
+    user_id: user.user_id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+  })
 }
+
+function replaceUser(updated) {
+  const index = data.value.findIndex((user) => user.user_id === updated.user_id)
+  if (index === -1) return
+  data.value[index] = {
+    ...data.value[index],
+    username: updated.username,
+    email: updated.email,
+    role: updated.role,
+  }
+}
+
+defineExpose({ replaceUser })
 
 function getInitials(name = '') {
   const parts = String(name).split(/[.\s_-]+/).filter(Boolean)
