@@ -22,7 +22,9 @@
         <span v-if="timer > 0">
             Resend verification code in <strong>{{ timer }}</strong> sec
         </span>
-        <a v-else href="#" @click.prevent="resendOtp" class="ms-2">Resend verification code</a>
+        <a v-else href="#" @click.prevent="resendOtp" class="ms-2" :aria-disabled="isResending">
+            {{ isResending ? 'Sending verification code...' : 'Resend verification code' }}
+        </a>
     </div>
     </form>
     
@@ -37,6 +39,7 @@ import api_call_methods from '@/assets/api_calls/api_calls';
 const otp = ref('');
 const otpForm = ref(null);
 const isLoading = ref(false);
+const isResending = ref(false);
 const timer = ref(60); 
 let intervalId = null;
 
@@ -120,17 +123,18 @@ async function submitotp(event) {
 
 
 async function resendOtp() {
+    if (isResending.value) return;
     otp.value = '';
     otpForm.value?.classList.remove('was-validated');
+    isResending.value = true;
     try {
-        toast.info('Resending verification code...');
-        const result=await api_call_methods.resend_otp({ user_id: props.user_id });
-        console.log(result)
-        toast.success('Verification code Sent Successfully!');
-        startTimer(); 
+        await api_call_methods.resend_otp({ user_id: props.user_id });
+        toast.success('Verification code sent. Check your inbox.');
+        startTimer();
     } catch (error) {
-        toast.error('Failed to resend Verification code!');
-        console.error(error);
+        toast.error(error.response?.data?.message || 'The verification code could not be sent. Please try again.');
+    } finally {
+        isResending.value = false;
     }
 }
 </script>
